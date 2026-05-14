@@ -83,6 +83,14 @@
                 @click="viewCert(item)"
               >{{ $t('jewelry.viewCert') }}</button>
               <span v-else class="gc-text-muted" style="font-size:0.75rem">—</span>
+              <button
+                v-if="item.batchRef || item.materialOrigin"
+                class="gc-btn gc-btn-xs gc-btn-origin"
+                @click="$router.push({ name: 'jewelry-mineral-origin', query: { batch: item.batchRef || item.materialOrigin } })"
+                :title="$t('trace.viewMineralOrigin')"
+              >
+                <i class="pi pi-sitemap" />
+              </button>
             </td>
           </tr>
         </tbody>
@@ -215,6 +223,12 @@ onMounted(() => jewelryStore.fetchItems())
 .gc-status-scale    { background: rgba(168,85,247,0.15); color: #c084fc; }
 
 .gc-btn-xs { font-size: 0.72rem; padding: 0.2rem 0.6rem; }
+.gc-btn-origin {
+  font-size: 0.75rem; padding: 0.2rem 0.5rem;
+  background: rgba(178,148,78,0.12); border: 1px solid rgba(178,148,78,0.3);
+  color: var(--gc-gold-mid); border-radius: 6px; cursor: pointer; transition: background 0.2s;
+}
+.gc-btn-origin:hover { background: rgba(178,148,78,0.22); }
 
 .gc-text-muted { color: var(--gc-text-muted); }
 

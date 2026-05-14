@@ -90,7 +90,7 @@ function formatDate(iso) {
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.gc-stat-card { background: var(--gc-surface); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
+.gc-stat-card { background: var(--gc-dark-card); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
 .gc-stat-label { font-size: 0.75rem; color: var(--gc-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
 .gc-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--gc-text-primary); }
 .gc-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; text-transform: uppercase; }

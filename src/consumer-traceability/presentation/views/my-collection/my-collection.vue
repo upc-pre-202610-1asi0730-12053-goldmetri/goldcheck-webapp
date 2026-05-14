@@ -141,7 +141,7 @@ onMounted(() => {
   gap: 1.25rem;
 }
 .jewelry-card {
-  background: var(--gc-surface); border: 1px solid var(--gc-border);
+  background: var(--gc-dark-card); border: 1px solid var(--gc-border);
   border-radius: 12px; overflow: hidden; transition: border-color 0.2s, transform 0.2s;
 }
 .jewelry-card:hover { border-color: var(--gc-gold-mid); transform: translateY(-2px); }

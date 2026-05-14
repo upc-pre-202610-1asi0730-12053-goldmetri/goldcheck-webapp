@@ -9,31 +9,39 @@
           {{ $t('auth.invalidCredentials') }}
         </div>
 
-        <form @submit.prevent="handleLogin">
+        <form @submit.prevent="handleLogin" novalidate>
           <div class="gc-field">
+            <label for="login-email" class="sr-only">{{ $t('auth.email') }}</label>
             <input
+              id="login-email"
               v-model="form.email"
               type="email"
               :placeholder="$t('auth.email')"
               class="gc-input"
               :class="{ error: v$.email.$error }"
               autocomplete="email"
+              :aria-invalid="v$.email.$error"
+              aria-describedby="login-email-error"
             />
-            <span v-if="v$.email.$error" class="gc-error-msg">
+            <span v-if="v$.email.$error" id="login-email-error" class="gc-error-msg" role="alert">
               {{ v$.email.required.$invalid ? $t('auth.emailRequired') : $t('auth.emailInvalid') }}
             </span>
           </div>
 
           <div class="gc-field">
+            <label for="login-password" class="sr-only">{{ $t('auth.password') }}</label>
             <input
+              id="login-password"
               v-model="form.password"
               type="password"
               :placeholder="$t('auth.password')"
               class="gc-input"
               :class="{ error: v$.password.$error }"
               autocomplete="current-password"
+              :aria-invalid="v$.password.$error"
+              aria-describedby="login-password-error"
             />
-            <span v-if="v$.password.$error" class="gc-error-msg">{{ $t('auth.passwordRequired') }}</span>
+            <span v-if="v$.password.$error" id="login-password-error" class="gc-error-msg" role="alert">{{ $t('auth.passwordRequired') }}</span>
           </div>
 
           <div class="login-row">

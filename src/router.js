@@ -67,6 +67,10 @@ const router = createRouter({
       ]
     },
 
+    // Static legal pages
+    { path: '/terms',   name: 'terms',   component: () => import('./shared/presentation/views/terms.vue') },
+    { path: '/privacy', name: 'privacy', component: () => import('./shared/presentation/views/privacy.vue') },
+
     // Catch-all
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./shared/presentation/views/page-not-found.vue') }
   ]

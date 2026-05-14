@@ -47,7 +47,11 @@ export const useConsumerStore = defineStore('consumer', () => {
         const jewel = (jRes.data || [])[0]
         return jewel ? { ...jewel, traceabilityCode: code, verified: true } : null
       }
-      return { ...found, verified: true }
+      // enrich consumerPiece with batchRef from the corresponding jewelryItem
+      const sku   = found.sku || (code.startsWith('QR-') ? code.slice(3) : code)
+      const jRes  = await consumerApi.getJewelryItem(sku)
+      const jewel = (jRes.data || [])[0]
+      return { ...found, batchRef: jewel?.batchRef || jewel?.materialOrigin || null, verified: true }
     } catch {
       errors.value = ['verifyError']
       return null
@@ -73,5 +77,15 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
-  return { pieces, certificates, errors, loading, fetchPieces, fetchCertificates, verifyPiece, linkPiece }
+  async function fetchBatch(batchCode) {
+    try {
+      const res  = await consumerApi.getBatchByCode(batchCode)
+      const list = res.data || []
+      return list[0] || null
+    } catch {
+      return null
+    }
+  }
+
+  return { pieces, certificates, errors, loading, fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchBatch }
 })

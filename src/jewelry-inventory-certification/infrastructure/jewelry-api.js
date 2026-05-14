@@ -4,11 +4,13 @@ import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js'
 class JewelryApi extends BaseApi {
   #items
   #certificates
+  #batches
 
   constructor() {
     super()
     this.#items        = new BaseEndpoint(this.http, '/jewelryItems')
     this.#certificates = new BaseEndpoint(this.http, '/jewelryCertificates')
+    this.#batches      = new BaseEndpoint(this.http, '/mineralBatches')
   }
 
   getItems(params)            { return this.#items.getAll(params) }
@@ -19,6 +21,8 @@ class JewelryApi extends BaseApi {
 
   getCertificates(params)     { return this.#certificates.getAll(params) }
   createCertificate(data)     { return this.#certificates.create(data) }
+
+  getBatchByCode(code)        { return this.#batches.getAll({ batchCode: code }) }
 }
 
 export const jewelryApi = new JewelryApi()

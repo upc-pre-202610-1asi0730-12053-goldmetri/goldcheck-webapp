@@ -61,7 +61,7 @@ onMounted(async () => {
 <style scoped>
 .certs-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem; }
 .cert-card {
-  background:var(--gc-surface); border:1px solid var(--gc-border); border-radius:12px;
+  background:var(--gc-dark-card); border:1px solid var(--gc-border); border-radius:12px;
   padding:1.25rem; transition:border-color 0.2s;
 }
 .cert-card:hover { border-color:var(--gc-gold-mid); }

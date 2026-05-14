@@ -150,10 +150,10 @@ async function viewCert(item) {
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.gc-stat-card { background: var(--gc-surface); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
+.gc-stat-card { background: var(--gc-dark-card); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
 .gc-stat-label { font-size: 0.75rem; color: var(--gc-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
 .gc-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--gc-text-primary); }
-.gc-select-sm { appearance:none; height:2rem; padding:0 0.75rem; font-size:0.8rem; cursor:pointer; background:var(--gc-surface); border:1px solid var(--gc-border); border-radius:6px; color:var(--gc-text-primary); }
+.gc-select-sm { appearance:none; height:2rem; padding:0 0.75rem; font-size:0.8rem; cursor:pointer; background:var(--gc-dark-2); border:1px solid var(--gc-border); border-radius:6px; color:var(--gc-text-primary); }
 .gc-badge-code { background:rgba(178,148,78,0.15); color:var(--gc-gold-mid); border:1px solid rgba(178,148,78,0.3); padding:0.15rem 0.5rem; border-radius:4px; font-size:0.78rem; font-family:monospace; }
 .gc-status { font-size:0.75rem; padding:0.2rem 0.55rem; border-radius:20px; font-weight:500; }
 .gc-status-loading { background:rgba(250,204,21,0.15); color:#facc15; }

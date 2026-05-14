@@ -1,26 +1,28 @@
 <template>
-  <aside class="sidebar">
-    <div class="sidebar-logo">
+  <aside class="sidebar" role="complementary" :aria-label="$t('nav.sidebar')">
+    <div class="sidebar-logo" aria-hidden="true">
       <span class="logo-hex">⬡</span>
       <span class="logo-text">GoldMetrics</span>
     </div>
 
-    <nav class="sidebar-nav">
-      <p class="sidebar-section-label">{{ sectionLabel }}</p>
+    <nav class="sidebar-nav" role="navigation" :aria-label="$t('nav.mainNav')">
+      <p class="sidebar-section-label" aria-hidden="true">{{ sectionLabel }}</p>
       <RouterLink
         v-for="item in navItems"
         :key="item.name"
         :to="item.to"
         class="sidebar-link"
         :class="{ active: isActive(item.to) }"
+        :aria-current="isActive(item.to) ? 'page' : undefined"
+        :aria-label="item.label"
       >
-        <i :class="item.icon" class="sidebar-link-icon" />
+        <i :class="item.icon" class="sidebar-link-icon" aria-hidden="true" />
         {{ item.label }}
       </RouterLink>
     </nav>
 
-    <button class="sidebar-logout" @click="logout">
-      <i class="pi pi-sign-out" />
+    <button class="sidebar-logout" @click="logout" :aria-label="$t('nav.logout')">
+      <i class="pi pi-sign-out" aria-hidden="true" />
       {{ $t('nav.logout') }}
     </button>
   </aside>
@@ -68,6 +70,7 @@ const navItems = computed(() => {
     return [
       { name: 'jewelry-dashboard',      label: t('nav.dashboard'),        icon: 'pi pi-th-large',  to: '/app/jewelry/dashboard' },
       { name: 'jewelry-inventory',      label: t('nav.inventory'),        icon: 'pi pi-box',       to: '/app/jewelry/inventory' },
+      { name: 'jewelry-mineral-origin', label: t('nav.mineralOrigin'),    icon: 'pi pi-sitemap',   to: '/app/jewelry/mineral-origin' },
       { name: 'jewelry-certifications', label: t('nav.qrCertifications'), icon: 'pi pi-qrcode',   to: '/app/jewelry/certifications' },
       { name: 'jewelry-reports',        label: t('nav.reports'),          icon: 'pi pi-chart-bar', to: '/app/jewelry/reports' },
       { name: 'subscriptions-plans',    label: t('nav.subscriptions'),    icon: 'pi pi-star',      to: '/app/subscriptions/plans' },

@@ -16,46 +16,64 @@
 
         <div class="gc-divider">{{ $t('auth.or') }}</div>
 
-        <form @submit.prevent="handleRegister">
+        <form @submit.prevent="handleRegister" novalidate>
           <div class="gc-field">
+            <label for="reg-email" class="sr-only">{{ $t('auth.email') }}</label>
             <input
+              id="reg-email"
               v-model="form.email"
               type="email"
               :placeholder="$t('auth.email')"
               class="gc-input"
               :class="{ error: v$.email.$error }"
+              autocomplete="email"
+              :aria-invalid="v$.email.$error"
+              aria-describedby="reg-email-error"
             />
-            <span v-if="v$.email.$error" class="gc-error-msg">{{ $t('auth.emailInvalid') }}</span>
+            <span v-if="v$.email.$error" id="reg-email-error" class="gc-error-msg" role="alert">{{ $t('auth.emailInvalid') }}</span>
           </div>
 
           <div class="gc-field">
+            <label for="reg-username" class="sr-only">{{ $t('auth.username') }}</label>
             <input
+              id="reg-username"
               v-model="form.username"
               type="text"
               :placeholder="$t('auth.username')"
               class="gc-input"
               :class="{ error: v$.username.$error }"
+              autocomplete="username"
+              :aria-invalid="v$.username.$error"
+              aria-describedby="reg-username-error"
             />
-            <span v-if="v$.username.$error" class="gc-error-msg">{{ $t('auth.fieldRequired') }}</span>
+            <span v-if="v$.username.$error" id="reg-username-error" class="gc-error-msg" role="alert">{{ $t('auth.fieldRequired') }}</span>
           </div>
 
           <div class="gc-field">
+            <label for="reg-password" class="sr-only">{{ $t('auth.password') }}</label>
             <input
+              id="reg-password"
               v-model="form.password"
               type="password"
               :placeholder="$t('auth.password')"
               class="gc-input"
               :class="{ error: v$.password.$error }"
+              autocomplete="new-password"
+              :aria-invalid="v$.password.$error"
+              aria-describedby="reg-password-error"
             />
-            <span v-if="v$.password.$error" class="gc-error-msg">{{ $t('auth.passwordRequired') }}</span>
+            <span v-if="v$.password.$error" id="reg-password-error" class="gc-error-msg" role="alert">{{ $t('auth.passwordRequired') }}</span>
           </div>
 
           <div class="gc-field">
+            <label for="reg-phone" class="sr-only">{{ $t('auth.phoneNumber') }}</label>
             <input
+              id="reg-phone"
               v-model="form.phoneNumber"
               type="tel"
               :placeholder="$t('auth.phoneNumber')"
               class="gc-input"
+              autocomplete="tel"
             />
           </div>
 
