@@ -3,10 +3,10 @@
     <!-- Form panel -->
     <div class="auth-form-panel">
       <div class="auth-form-inner">
-        <h1>Create Account</h1>
+        <h1>{{ $t('auth.createAccount') }}</h1>
 
         <div v-if="iamStore.errors.length" class="gc-alert gc-alert-danger">
-          Error al crear la cuenta. Intenta nuevamente.
+          {{ $t('auth.registerError') }}
         </div>
 
         <button class="gc-btn-google" type="button">
@@ -14,7 +14,7 @@
           {{ $t('auth.continueGoogle') }}
         </button>
 
-        <div class="gc-divider">or</div>
+        <div class="gc-divider">{{ $t('auth.or') }}</div>
 
         <form @submit.prevent="handleRegister">
           <div class="gc-field">
@@ -36,7 +36,7 @@
               class="gc-input"
               :class="{ error: v$.username.$error }"
             />
-            <span v-if="v$.username.$error" class="gc-error-msg">Campo obligatorio</span>
+            <span v-if="v$.username.$error" class="gc-error-msg">{{ $t('auth.fieldRequired') }}</span>
           </div>
 
           <div class="gc-field">
@@ -143,7 +143,7 @@ async function handleRegister() {
   if (!ok) return
 
   const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')   router.push({ name: 'mineral-dashboard' })
+  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
   else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
   else router.push({ name: 'consumer-collection' })
 }

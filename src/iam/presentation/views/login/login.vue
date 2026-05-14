@@ -51,8 +51,8 @@
         </form>
 
         <p class="register-link">
-          No tienes cuenta?
-          <RouterLink to="/auth/register" class="text-link">Regístrate</RouterLink>
+          {{ $t('auth.noAccount') }}
+          <RouterLink to="/auth/register" class="text-link">{{ $t('auth.registerLink') }}</RouterLink>
         </p>
       </div>
     </div>
@@ -96,7 +96,7 @@ async function handleLogin() {
   if (!ok) return
 
   const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')   router.push({ name: 'mineral-dashboard' })
+  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
   else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
   else router.push({ name: 'consumer-collection' })
 }
