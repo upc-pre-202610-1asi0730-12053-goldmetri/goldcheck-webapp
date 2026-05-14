@@ -1,0 +1,296 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "minero@goldcheck.pe",
+      "password": "12345",
+      "username": "Carlos Quispe",
+      "phoneNumber": "+51 987 654 321",
+      "segment": "mining",
+      "plan": "GOLD",
+      "location": "Cusco, Perú"
+    },
+    {
+      "id": 2,
+      "email": "joyero@goldcheck.pe",
+      "password": "12345",
+      "username": "María Torres",
+      "phoneNumber": "+51 976 543 210",
+      "segment": "jewelry",
+      "plan": "BRONZE",
+      "location": "Lima, Perú"
+    },
+    {
+      "id": 3,
+      "email": "consumidor@goldcheck.pe",
+      "password": "12345",
+      "username": "Ana López",
+      "phoneNumber": "+51 965 432 109",
+      "segment": "consumer",
+      "plan": "BRONZE",
+      "location": "Arequipa, Perú"
+    }
+  ],
+
+  "deposits": [
+    {
+      "id": 1,
+      "name": "Yacimiento Las Bambas - Sector Sur",
+      "location": "Apurímac, Perú",
+      "defaultDestination": "Planta Procesadora Sur",
+      "mineralType": "Oro"
+    },
+    {
+      "id": 2,
+      "name": "Mina Cerro Verde - Zona Norte",
+      "location": "Arequipa, Perú",
+      "defaultDestination": "Refinería Central",
+      "mineralType": "Oro"
+    },
+    {
+      "id": 3,
+      "name": "Yacimiento Alto Chicama",
+      "location": "La Libertad, Perú",
+      "defaultDestination": "Planta Principal",
+      "mineralType": "Oro"
+    },
+    {
+      "id": 4,
+      "name": "Mina Antamina - Sector Este",
+      "location": "Áncash, Perú",
+      "defaultDestination": "Puerto Pisco",
+      "mineralType": "Cobre-Oro"
+    }
+  ],
+
+  "vehicles": [
+    {
+      "id": 1,
+      "name": "Camión CAT 01",
+      "plate": "ABC-123",
+      "type": "Camión Minero",
+      "capacity": 50,
+      "status": "Disponible",
+      "driverId": null
+    },
+    {
+      "id": 2,
+      "name": "Camión CAT 02",
+      "plate": "DEF-456",
+      "type": "Camión Minero",
+      "capacity": 45,
+      "status": "En Ruta",
+      "driverId": null
+    },
+    {
+      "id": 3,
+      "name": "Volvo FH16 03",
+      "plate": "GHI-789",
+      "type": "Volquete",
+      "capacity": 60,
+      "status": "Disponible",
+      "driverId": null
+    },
+    {
+      "id": 4,
+      "name": "Komatsu HD785",
+      "plate": "JKL-012",
+      "type": "Camión de Acarreo",
+      "capacity": 91,
+      "status": "Mantenimiento",
+      "driverId": null
+    }
+  ],
+
+  "mineralBatches": [
+    {
+      "id": 1,
+      "batchCode": "GM-4821",
+      "depositId": 1,
+      "depositName": "Yacimiento Las Bambas - Sector Sur",
+      "vehicleId": 1,
+      "vehicleName": "Camión CAT 01",
+      "driverId": null,
+      "initialWeight": 38.5,
+      "finalWeight": null,
+      "mineralType": "Oro",
+      "status": "En Tránsito",
+      "destination": "Planta Procesadora Sur",
+      "createdAt": "2026-05-13T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "batchCode": "GM-4820",
+      "depositId": 2,
+      "depositName": "Mina Cerro Verde - Zona Norte",
+      "vehicleId": 2,
+      "vehicleName": "Camión CAT 02",
+      "driverId": null,
+      "initialWeight": 42.1,
+      "finalWeight": 41.8,
+      "mineralType": "Oro",
+      "status": "Completado",
+      "destination": "Refinería Central",
+      "createdAt": "2026-05-13T06:30:00.000Z"
+    },
+    {
+      "id": 3,
+      "batchCode": "GM-4819",
+      "depositId": 3,
+      "depositName": "Yacimiento Alto Chicama",
+      "vehicleId": 3,
+      "vehicleName": "Volvo FH16 03",
+      "driverId": null,
+      "initialWeight": 0,
+      "finalWeight": null,
+      "mineralType": "Oro",
+      "status": "Cargando",
+      "destination": "Planta Principal",
+      "createdAt": "2026-05-13T09:15:00.000Z"
+    },
+    {
+      "id": 4,
+      "batchCode": "GM-4818",
+      "depositId": 1,
+      "depositName": "Yacimiento Las Bambas - Sector Sur",
+      "vehicleId": 1,
+      "vehicleName": "Camión CAT 01",
+      "driverId": null,
+      "initialWeight": 35.0,
+      "finalWeight": 34.7,
+      "mineralType": "Oro",
+      "status": "Completado",
+      "destination": "Planta Procesadora Sur",
+      "createdAt": "2026-05-12T14:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "batchCode": "GM-4817",
+      "depositId": 4,
+      "depositName": "Mina Antamina - Sector Este",
+      "vehicleId": 4,
+      "vehicleName": "Komatsu HD785",
+      "driverId": null,
+      "initialWeight": 55.2,
+      "finalWeight": null,
+      "mineralType": "Cobre-Oro",
+      "status": "Alerta",
+      "destination": "Puerto Pisco",
+      "createdAt": "2026-05-12T10:00:00.000Z"
+    }
+  ],
+
+  "anomalyAlerts": [
+    {
+      "id": 1,
+      "batchId": 5,
+      "type": "ROUTE_DEVIATION",
+      "message": "Lote GM-4817 se desvió 12km de ruta planificada",
+      "severity": "critical",
+      "createdAt": "2026-05-12T11:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "batchId": 2,
+      "type": "DELAY",
+      "message": "Camión CAT 02 con retraso de 45 min en entrega",
+      "severity": "warning",
+      "createdAt": "2026-05-13T07:45:00.000Z"
+    }
+  ],
+
+  "jewelryItems": [
+    {
+      "id": 1,
+      "sku": "GJ-10021",
+      "name": "Anillo Solitario Clásico",
+      "type": "Anillo",
+      "materialOrigin": "GM-4820",
+      "weight": 8.5,
+      "purity": "18K",
+      "batchRef": "GM-4820",
+      "status": "Certificado",
+      "certificationId": 1,
+      "price": 1200,
+      "imageUrl": "",
+      "createdAt": "2026-05-10T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "sku": "GJ-10022",
+      "name": "Collar Cadena Venecia 45cm",
+      "type": "Collar",
+      "materialOrigin": "GM-4818",
+      "weight": 15.2,
+      "purity": "24K",
+      "batchRef": "GM-4818",
+      "status": "Validado",
+      "certificationId": null,
+      "price": 2800,
+      "imageUrl": "",
+      "createdAt": "2026-05-11T09:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "sku": "GJ-10023",
+      "name": "Pulsera Esclava Moderna",
+      "type": "Pulsera",
+      "materialOrigin": "GM-4821",
+      "weight": 12.0,
+      "purity": "18K",
+      "batchRef": "GM-4821",
+      "status": "Pendiente",
+      "certificationId": null,
+      "price": 950,
+      "imageUrl": "",
+      "createdAt": "2026-05-13T08:30:00.000Z"
+    },
+    {
+      "id": 4,
+      "sku": "GJ-10024",
+      "name": "Aretes Argolla Minimalista",
+      "type": "Arete",
+      "materialOrigin": "GM-4820",
+      "weight": 4.8,
+      "purity": "750",
+      "batchRef": "GM-4820",
+      "status": "Pendiente",
+      "certificationId": null,
+      "price": 680,
+      "imageUrl": "",
+      "createdAt": "2026-05-13T09:00:00.000Z"
+    }
+  ],
+
+  "jewelryCertificates": [
+    {
+      "id": 1,
+      "itemId": 1,
+      "itemSku": "GJ-10021",
+      "issuerName": "GoldMetrics Cert Authority",
+      "issueDate": "2026-05-10T15:00:00.000Z",
+      "expiryDate": "2031-05-10T15:00:00.000Z",
+      "purity": "18K",
+      "weight": 8.5,
+      "qrCode": "QR-GJ-10021",
+      "status": "Activo"
+    }
+  ],
+
+  "consumerPieces": [
+    {
+      "id": 1,
+      "ownerId": 3,
+      "sku": "GJ-10021",
+      "name": "Anillo Solitario Clásico",
+      "type": "Anillo",
+      "purity": "18K",
+      "weight": 8.5,
+      "certificationId": 1,
+      "purchaseDate": "2026-05-11T00:00:00.000Z",
+      "status": "Activo",
+      "imageUrl": "",
+      "traceabilityCode": "QR-GJ-10021"
+    }
+  ]
+}

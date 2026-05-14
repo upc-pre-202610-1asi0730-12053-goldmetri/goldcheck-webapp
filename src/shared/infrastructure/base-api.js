@@ -1,0 +1,20 @@
+import axios from 'axios'
+
+export class BaseApi {
+  #http
+
+  constructor() {
+    this.#http = axios.create({
+      baseURL: import.meta.env.VITE_GOLDCHECK_API_URL,
+      headers: { 'Content-Type': 'application/json' }
+    })
+
+    this.#http.interceptors.request.use(config => {
+      const token = localStorage.getItem('gc_token')
+      if (token) config.headers.Authorization = `Bearer ${token}`
+      return config
+    })
+  }
+
+  get http() { return this.#http }
+}
