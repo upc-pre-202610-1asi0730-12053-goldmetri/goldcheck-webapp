@@ -1,68 +1,79 @@
 <template>
-  <div class="gc-modal-overlay" @click.self="$emit('close')">
-    <div class="gc-modal" style="max-width:460px">
+  <pv-dialog
+    :visible="true"
+    @update:visible="v => !v && $emit('close')"
+    :modal="true"
+    :closable="true"
+    :style="{ width: '460px' }"
+  >
+    <template #header>
+      <span>
+        <i class="pi pi-link" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
+        {{ $t('consumer.linkJewelry') }}
+        <small style="display:block;font-size:0.78rem;color:var(--gc-text-muted);font-weight:400">
+          {{ $t('consumer.linkSubtitle') }}
+        </small>
+      </span>
+    </template>
 
-      <div class="gc-modal-header">
-        <div>
-          <p class="gc-modal-title">
-            <i class="pi pi-link" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
-            {{ $t('consumer.linkJewelry') }}
-          </p>
-          <p class="gc-modal-subtitle">{{ $t('consumer.linkSubtitle') }}</p>
-        </div>
-        <button class="gc-modal-close" @click="$emit('close')">✕</button>
-      </div>
-
-      <div class="form-field">
-        <label>{{ $t('consumer.traceabilityCode') }}</label>
-        <div style="position:relative">
-          <i class="pi pi-qrcode" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--gc-text-muted);font-size:0.9rem;pointer-events:none" />
-          <input
-            v-model="form.traceabilityCode"
-            class="gc-input-dark"
-            style="padding-left:2.25rem"
-            :placeholder="$t('consumer.codePlaceholder')"
-          />
-        </div>
-        <span v-if="submitted && !form.traceabilityCode" class="gc-error-msg">{{ $t('consumer.codeRequired') }}</span>
-      </div>
-
-      <div class="form-field">
-        <label>{{ $t('consumer.purchaseName') }}</label>
-        <input v-model="form.name" class="gc-input-dark" :placeholder="$t('consumer.purchaseNamePh')" />
-        <span v-if="submitted && !form.name" class="gc-error-msg">{{ $t('consumer.nameRequired') }}</span>
-      </div>
-
-      <div class="form-row">
-        <div class="form-field">
-          <label>{{ $t('consumer.pieceType') }}</label>
-          <select v-model="form.type" class="gc-input-dark">
-            <option value="" disabled>{{ $t('consumer.selectType') }}</option>
-            <option>Anillo</option><option>Collar</option>
-            <option>Pulsera</option><option>Arete</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>{{ $t('consumer.purity') }}</label>
-          <input v-model="form.purity" class="gc-input-dark" placeholder="Ej: 18K" />
-        </div>
-      </div>
-
-      <div v-if="consumerStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:0.5rem">
-        {{ $t('consumer.linkError') }}
-      </div>
-
-      <div class="gc-modal-footer">
-        <button class="gc-btn gc-btn-outline" @click="$emit('close')">{{ $t('mineral.cancel') }}</button>
-        <button class="gc-btn gc-btn-gold" :disabled="consumerStore.loading" @click="handleLink">
-          <i v-if="consumerStore.loading" class="pi pi-spinner pi-spin" />
-          <i v-else class="pi pi-link" />
-          {{ $t('consumer.linkBtn') }}
-        </button>
-      </div>
-
+    <div class="form-field">
+      <label for="trace-code">{{ $t('consumer.traceabilityCode') }}</label>
+      <pv-icon-field>
+        <pv-input-icon class="pi pi-qrcode" />
+        <pv-input-text
+          id="trace-code"
+          v-model="form.traceabilityCode"
+          :placeholder="$t('consumer.codePlaceholder')"
+          :invalid="submitted && !form.traceabilityCode"
+          fluid
+        />
+      </pv-icon-field>
+      <span v-if="submitted && !form.traceabilityCode" class="gc-error-msg">{{ $t('consumer.codeRequired') }}</span>
     </div>
-  </div>
+
+    <div class="form-field">
+      <label for="purchase-name">{{ $t('consumer.purchaseName') }}</label>
+      <pv-input-text
+        id="purchase-name"
+        v-model="form.name"
+        :placeholder="$t('consumer.purchaseNamePh')"
+        :invalid="submitted && !form.name"
+        fluid
+      />
+      <span v-if="submitted && !form.name" class="gc-error-msg">{{ $t('consumer.nameRequired') }}</span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="piece-type">{{ $t('consumer.pieceType') }}</label>
+        <pv-select
+          id="piece-type"
+          v-model="form.type"
+          :options="typeOptions"
+          :placeholder="$t('consumer.selectType')"
+          fluid
+        />
+      </div>
+      <div class="form-field">
+        <label for="piece-purity">{{ $t('consumer.purity') }}</label>
+        <pv-input-text id="piece-purity" v-model="form.purity" placeholder="Ej: 18K" fluid />
+      </div>
+    </div>
+
+    <div v-if="consumerStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:0.5rem">
+      {{ $t('consumer.linkError') }}
+    </div>
+
+    <template #footer>
+      <pv-button :label="$t('mineral.cancel')" severity="secondary" outlined @click="$emit('close')" />
+      <pv-button
+        :label="$t('consumer.linkBtn')"
+        icon="pi pi-link"
+        :loading="consumerStore.loading"
+        @click="handleLink"
+      />
+    </template>
+  </pv-dialog>
 </template>
 
 <script setup>
@@ -75,6 +86,7 @@ const consumerStore = useConsumerStore()
 const iamStore = useIamStore()
 const submitted = ref(false)
 
+const typeOptions = ['Anillo', 'Collar', 'Pulsera', 'Arete']
 const form = ref({ traceabilityCode: '', name: '', type: '', purity: '' })
 
 async function handleLink() {

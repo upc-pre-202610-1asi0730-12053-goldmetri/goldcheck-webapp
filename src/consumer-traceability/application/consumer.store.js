@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { consumerApi } from '../infrastructure/consumer-api.js'
-import { ConsumerPieceAssembler } from '../infrastructure/consumer-piece.assembler.js'
 
 export const useConsumerStore = defineStore('consumer', () => {
   const pieces       = ref([])
@@ -14,7 +13,8 @@ export const useConsumerStore = defineStore('consumer', () => {
     try {
       const params = ownerId ? { ownerId } : {}
       const res = await consumerApi.getPieces(params)
-      pieces.value = ConsumerPieceAssembler.toEntities(res)
+      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
+      pieces.value = res.data
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -25,6 +25,7 @@ export const useConsumerStore = defineStore('consumer', () => {
   async function fetchCertificates() {
     try {
       const res = await consumerApi.getCertificates()
+      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
       const allCerts = res.data || []
       const certIds = pieces.value.map(p => p.certificationId).filter(Boolean)
       certificates.value = allCerts.filter(c => certIds.includes(c.id))
@@ -66,9 +67,8 @@ export const useConsumerStore = defineStore('consumer', () => {
     try {
       const payload = { ...data, status: 'Activo', purchaseDate: new Date().toISOString() }
       const res = await consumerApi.linkPiece(payload)
-      const piece = ConsumerPieceAssembler.toEntity(res.data)
-      pieces.value.unshift(piece)
-      return piece
+      pieces.value.unshift(res.data)
+      return res.data
     } catch {
       errors.value = ['linkError']
       return null

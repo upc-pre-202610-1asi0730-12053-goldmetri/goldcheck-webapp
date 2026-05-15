@@ -12,51 +12,38 @@
 
         <div class="form-row">
           <div class="form-field">
-            <label>{{ $t('jewelry.fieldName') }}</label>
-            <input v-model="form.name" class="gc-input-dark" :placeholder="$t('jewelry.fieldNamePh')" />
+            <label for="jewelry-name">{{ $t('jewelry.fieldName') }}</label>
+            <pv-input-text id="jewelry-name" v-model="form.name" :placeholder="$t('jewelry.fieldNamePh')" :invalid="submitted && !form.name" fluid />
             <span v-if="submitted && !form.name" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
           </div>
           <div class="form-field">
-            <label>{{ $t('jewelry.fieldType') }}</label>
-            <select v-model="form.type" class="gc-input-dark">
-              <option value="" disabled>{{ $t('jewelry.selectType') }}</option>
-              <option>Anillo</option>
-              <option>Collar</option>
-              <option>Pulsera</option>
-              <option>Arete</option>
-              <option>Colgante</option>
-            </select>
+            <label for="jewelry-type">{{ $t('jewelry.fieldType') }}</label>
+            <pv-select id="jewelry-type" v-model="form.type" :options="typeOptions" :placeholder="$t('jewelry.selectType')" :invalid="submitted && !form.type" fluid />
             <span v-if="submitted && !form.type" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-field">
-            <label>{{ $t('jewelry.fieldPurity') }}</label>
-            <select v-model="form.purity" class="gc-input-dark">
-              <option value="" disabled>{{ $t('jewelry.selectPurity') }}</option>
-              <option>18K</option>
-              <option>24K</option>
-              <option>750</option>
-              <option>925 (Plata)</option>
-            </select>
+            <label for="jewelry-purity">{{ $t('jewelry.fieldPurity') }}</label>
+            <pv-select id="jewelry-purity" v-model="form.purity" :options="purityOptions" :placeholder="$t('jewelry.selectPurity')" :invalid="submitted && !form.purity" fluid />
             <span v-if="submitted && !form.purity" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
           </div>
           <div class="form-field">
-            <label>{{ $t('jewelry.fieldWeight') }} (g)</label>
-            <input v-model.number="form.weight" type="number" min="0" step="0.01" class="gc-input-dark" placeholder="Ej: 12.50" />
+            <label for="jewelry-weight">{{ $t('jewelry.fieldWeight') }} (g)</label>
+            <pv-input-number id="jewelry-weight" v-model="form.weight" :min="0" :min-fraction-digits="2" :max-fraction-digits="2" placeholder="Ej: 12.50" :invalid="submitted && !form.weight" fluid />
             <span v-if="submitted && !form.weight" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-field">
-            <label>{{ $t('jewelry.fieldBatchRef') }}</label>
-            <input v-model="form.batchRef" class="gc-input-dark" placeholder="Ej: GM-4821" />
+            <label for="jewelry-batch">{{ $t('jewelry.fieldBatchRef') }}</label>
+            <pv-input-text id="jewelry-batch" v-model="form.batchRef" placeholder="Ej: GM-4821" fluid />
           </div>
           <div class="form-field">
-            <label>{{ $t('jewelry.fieldPrice') }} (S/)</label>
-            <input v-model.number="form.price" type="number" min="0" class="gc-input-dark" placeholder="Ej: 850" />
+            <label for="jewelry-price">{{ $t('jewelry.fieldPrice') }} (S/)</label>
+            <pv-input-number id="jewelry-price" v-model="form.price" :min="0" placeholder="Ej: 850" fluid />
           </div>
         </div>
 
@@ -68,15 +55,9 @@
           <i class="pi pi-check-circle" /> {{ $t('jewelry.registerSuccess') }}
         </div>
 
-        <div class="gc-modal-footer" style="margin-top:1.5rem;padding:0;border:none">
-          <button type="button" class="gc-btn gc-btn-outline" @click="$router.push('/jewelry/dashboard')">
-            {{ $t('mineral.cancel') }}
-          </button>
-          <button type="submit" class="gc-btn gc-btn-gold" :disabled="jewelryStore.loading">
-            <i v-if="jewelryStore.loading" class="pi pi-spinner pi-spin" />
-            <i v-else class="pi pi-plus" />
-            {{ $t('jewelry.registerBtn') }}
-          </button>
+        <div class="flex gap-2 justify-content-end" style="margin-top:1.5rem">
+          <pv-button type="button" :label="$t('mineral.cancel')" severity="secondary" outlined @click="$router.push('/jewelry/dashboard')" />
+          <pv-button type="submit" :label="$t('jewelry.registerBtn')" icon="pi pi-plus" :loading="jewelryStore.loading" />
         </div>
 
       </form>
@@ -91,6 +72,9 @@ import { useJewelryStore } from '../../../application/jewelry.store.js'
 const jewelryStore = useJewelryStore()
 const submitted = ref(false)
 const success = ref(false)
+
+const typeOptions   = ['Anillo', 'Collar', 'Pulsera', 'Arete', 'Colgante']
+const purityOptions = ['18K', '24K', '750', '925 (Plata)']
 
 const form = ref({ name: '', type: '', purity: '', weight: null, batchRef: '', price: null })
 

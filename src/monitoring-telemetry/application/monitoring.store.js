@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { monitoringApi } from '../infrastructure/monitoring-api.js'
-import { AnomalyAlertAssembler } from '../infrastructure/anomaly-alert.assembler.js'
 
 export const useMonitoringStore = defineStore('monitoring', () => {
   const alerts        = ref([])
@@ -9,8 +8,10 @@ export const useMonitoringStore = defineStore('monitoring', () => {
   const loading       = ref(false)
   const errors        = ref([])
 
-  const activeAlerts   = computed(() => alerts.value.filter(a => a.isActive))
-  const criticalAlerts = computed(() => alerts.value.filter(a => a.isCritical && a.isActive))
+  const activeAlerts   = computed(() => alerts.value.filter(a => a.status === 'Activa'))
+  const criticalAlerts = computed(() => alerts.value.filter(a =>
+    (a.severity === 'CRITICAL' || a.severity === 'HIGH') && a.status === 'Activa'
+  ))
   const alertCount     = computed(() => activeAlerts.value.length)
 
   async function fetchAlerts() {
@@ -18,7 +19,8 @@ export const useMonitoringStore = defineStore('monitoring', () => {
     errors.value  = []
     try {
       const res = await monitoringApi.getAlerts()
-      alerts.value = AnomalyAlertAssembler.toEntities(res)
+      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
+      alerts.value = res.data
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -45,7 +47,7 @@ export const useMonitoringStore = defineStore('monitoring', () => {
         detectedAt: new Date().toISOString()
       }
       const res = await monitoringApi.createAlert(payload)
-      alerts.value.unshift(AnomalyAlertAssembler.toEntity(res.data))
+      alerts.value.unshift(res.data)
       return true
     } catch {
       errors.value = ['createError']
@@ -58,7 +60,9 @@ export const useMonitoringStore = defineStore('monitoring', () => {
     try {
       await monitoringApi.resolveAlert(alertId)
       const idx = alerts.value.findIndex(a => a.id === alertId)
-      if (idx !== -1) alerts.value[idx].status = 'Resuelta'
+      if (idx !== -1) {
+        alerts.value[idx] = { ...alerts.value[idx], status: 'Resuelta' }
+      }
       return true
     } catch {
       errors.value = ['updateError']

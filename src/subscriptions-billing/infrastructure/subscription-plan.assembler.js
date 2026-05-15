@@ -1,22 +1,42 @@
 import { SubscriptionPlan } from '../domain/model/subscription-plan.entity.js'
 
+/**
+ * Maps subscription plan resources into domain entities.
+ *
+ * @class SubscriptionPlanAssembler
+ */
 export class SubscriptionPlanAssembler {
-  static toEntity(r) {
+  /**
+   * @param {Object} resource - SubscriptionPlan resource payload.
+   * @returns {SubscriptionPlan} SubscriptionPlan entity.
+   */
+  static toEntityFromResource(resource) {
     return new SubscriptionPlan({
-      id: r.id, planKey: r.planKey || r.id,
-      name: r.name, price: r.price || 0,
-      currency: r.currency || 'PEN',
-      billingCycle: r.billingCycle || 'monthly',
-      features: r.features || [],
-      maxBatchesPerMonth: r.maxBatchesPerMonth || 0,
-      hasAnalytics: r.hasAnalytics || false,
-      hasIoT: r.hasIoT || false,
-      hasApiAccess: r.hasApiAccess || false,
-      isActive: r.isActive !== undefined ? r.isActive : true
+      id: resource.id, planKey: resource.planKey || resource.id,
+      name: resource.name, price: resource.price || 0,
+      currency: resource.currency || 'PEN',
+      billingCycle: resource.billingCycle || 'monthly',
+      features: resource.features || [],
+      maxBatchesPerMonth: resource.maxBatchesPerMonth || 0,
+      hasAnalytics: resource.hasAnalytics || false,
+      hasIoT: resource.hasIoT || false,
+      hasApiAccess: resource.hasApiAccess || false,
+      isActive: resource.isActive !== undefined ? resource.isActive : true
     })
   }
 
-  static toEntities(response) {
-    return (response.data || []).map(r => this.toEntity(r))
+  /**
+   * Parses subscription plan resources from a response and maps them into entities.
+   *
+   * @param {import('axios').AxiosResponse<Array<Object>|Object>} response - HTTP response with subscription plan resources.
+   * @returns {SubscriptionPlan[]} SubscriptionPlan entities.
+   */
+  static toEntitiesFromResponse(response) {
+    if (response.status !== 200) {
+      console.error(`${response.status}, ${response.statusText}`)
+      return []
+    }
+    const resources = response.data instanceof Array ? response.data : response.data['plans']
+    return resources.map(resource => this.toEntityFromResource(resource))
   }
 }

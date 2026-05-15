@@ -11,51 +11,59 @@
 
         <form @submit.prevent="handleLogin" novalidate>
           <div class="gc-field">
-            <label for="login-email" class="sr-only">{{ $t('auth.email') }}</label>
-            <input
-              id="login-email"
-              v-model="form.email"
-              type="email"
-              :placeholder="$t('auth.email')"
-              class="gc-input"
-              :class="{ error: v$.email.$error }"
-              autocomplete="email"
-              :aria-invalid="v$.email.$error"
-              aria-describedby="login-email-error"
-            />
+            <pv-float-label>
+              <pv-input-text
+                id="login-email"
+                v-model="form.email"
+                type="email"
+                autocomplete="email"
+                :invalid="v$.email.$error"
+                :aria-invalid="v$.email.$error"
+                aria-describedby="login-email-error"
+                fluid
+              />
+              <label for="login-email">{{ $t('auth.email') }}</label>
+            </pv-float-label>
             <span v-if="v$.email.$error" id="login-email-error" class="gc-error-msg" role="alert">
               {{ v$.email.required.$invalid ? $t('auth.emailRequired') : $t('auth.emailInvalid') }}
             </span>
           </div>
 
           <div class="gc-field">
-            <label for="login-password" class="sr-only">{{ $t('auth.password') }}</label>
-            <input
-              id="login-password"
-              v-model="form.password"
-              type="password"
-              :placeholder="$t('auth.password')"
-              class="gc-input"
-              :class="{ error: v$.password.$error }"
-              autocomplete="current-password"
-              :aria-invalid="v$.password.$error"
-              aria-describedby="login-password-error"
-            />
+            <pv-float-label>
+              <pv-password
+                id="login-password"
+                v-model="form.password"
+                :feedback="false"
+                toggle-mask
+                autocomplete="current-password"
+                :invalid="v$.password.$error"
+                :aria-invalid="v$.password.$error"
+                aria-describedby="login-password-error"
+                fluid
+              />
+              <label for="login-password">{{ $t('auth.password') }}</label>
+            </pv-float-label>
             <span v-if="v$.password.$error" id="login-password-error" class="gc-error-msg" role="alert">{{ $t('auth.passwordRequired') }}</span>
           </div>
 
           <div class="login-row">
             <RouterLink to="/auth/forgot" class="forgot-link">{{ $t('auth.forgotPassword') }}</RouterLink>
-            <label class="gc-segment-option" style="color: var(--gc-text-muted)">
-              <input type="checkbox" v-model="form.remember" />
-              {{ $t('auth.rememberMe') }}
-            </label>
+            <div class="flex align-items-center gap-2">
+              <pv-checkbox v-model="form.remember" input-id="remember-me" :binary="true" />
+              <label for="remember-me" style="color: var(--gc-text-muted); font-size: 0.82rem; cursor: pointer">
+                {{ $t('auth.rememberMe') }}
+              </label>
+            </div>
           </div>
 
-          <button type="submit" class="gc-btn gc-btn-primary" :disabled="iamStore.loading" style="margin-top:1.5rem">
-            <i v-if="iamStore.loading" class="pi pi-spinner pi-spin" />
-            {{ $t('auth.login') }}
-          </button>
+          <pv-button
+            type="submit"
+            :label="$t('auth.login')"
+            :loading="iamStore.loading"
+            class="w-full"
+            style="margin-top:1.5rem"
+          />
         </form>
 
         <p class="register-link">

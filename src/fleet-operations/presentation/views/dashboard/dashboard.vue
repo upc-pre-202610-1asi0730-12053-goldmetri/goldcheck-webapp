@@ -8,12 +8,8 @@
         <p class="gc-page-subtitle">{{ $t('mineral.dashboardSubtitle') }}</p>
       </div>
       <div class="gc-page-actions">
-        <button class="gc-btn gc-btn-outline" style="font-size:0.8rem;padding:0.4rem 0.9rem">
-          <i class="pi pi-calendar" /> {{ $t('mineral.today') }}
-        </button>
-        <button class="gc-btn gc-btn-gold" @click="showNewBatchModal = true">
-          <i class="pi pi-plus" /> {{ $t('mineral.newRecord') }}
-        </button>
+        <pv-button :label="$t('mineral.today')" icon="pi pi-calendar" severity="secondary" outlined size="small" />
+        <pv-button :label="$t('mineral.newRecord')" icon="pi pi-plus" @click="showNewBatchModal = true" />
       </div>
     </div>
 
@@ -57,13 +53,11 @@
             {{ $t('mineral.batchTracking') }}
           </span>
           <div class="gc-card-tools">
-            <div class="gc-search-inline">
-              <i class="pi pi-search" />
-              <input v-model="searchTerm" :placeholder="$t('mineral.searchBatch')" class="gc-input-dark" style="width:180px;height:2rem;font-size:0.8rem" />
-            </div>
-            <button class="gc-btn gc-btn-outline" style="font-size:0.75rem;padding:0.3rem 0.7rem" @click="showNewBatchModal = true">
-              <i class="pi pi-plus" /> {{ $t('mineral.newBatch') }}
-            </button>
+            <pv-icon-field>
+              <pv-input-icon class="pi pi-search" />
+              <pv-input-text v-model="searchTerm" :placeholder="$t('mineral.searchBatch')" size="small" />
+            </pv-icon-field>
+            <pv-button :label="$t('mineral.newBatch')" icon="pi pi-plus" size="small" outlined @click="showNewBatchModal = true" />
           </div>
         </div>
 
@@ -71,42 +65,36 @@
           <i class="pi pi-spinner pi-spin" /> {{ $t('common.loading') }}
         </div>
 
-        <table v-else class="gc-table">
-          <thead>
-            <tr>
-              <th>{{ $t('mineral.colBatchId') }}</th>
-              <th>{{ $t('mineral.colVehicle') }}</th>
-              <th>{{ $t('mineral.colLocation') }}</th>
-              <th>{{ $t('mineral.colWeight') }}</th>
-              <th>{{ $t('mineral.colStatus') }}</th>
-              <th>{{ $t('mineral.colAction') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="filteredBatches.length === 0">
-              <td colspan="6" class="gc-table-empty">{{ $t('mineral.noBatches') }}</td>
-            </tr>
-            <tr v-for="batch in filteredBatches" :key="batch.id">
-              <td>
-                <span class="gc-badge gc-badge-code">{{ batch.batchCode }}</span>
-              </td>
-              <td>{{ batch.vehicleName || '—' }}</td>
-              <td>
-                <span style="color:var(--gc-text-muted);font-size:0.8rem">
-                  <i class="pi pi-map-marker" style="margin-right:0.25rem" />
-                  {{ batch.destination || 'Planta Principal' }}
-                </span>
-              </td>
-              <td>{{ batch.initialWeight ? batch.initialWeight.toFixed(2) + ' T' : '—' }}</td>
-              <td><span :class="statusClass(batch.status)">{{ batch.status }}</span></td>
-              <td>
-                <button class="gc-btn-icon" title="Ver detalle">
-                  <i class="pi pi-eye" />
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <pv-data-table v-else :value="filteredBatches" :rows="10" paginator :paginator-template="'PrevPageLink PageLinks NextPageLink'" responsive-layout="scroll">
+          <template #empty>{{ $t('mineral.noBatches') }}</template>
+          <pv-column :header="$t('mineral.colBatchId')">
+            <template #body="{ data }">
+              <span class="gc-badge gc-badge-code">{{ data.batchCode }}</span>
+            </template>
+          </pv-column>
+          <pv-column field="vehicleName" :header="$t('mineral.colVehicle')" />
+          <pv-column :header="$t('mineral.colLocation')">
+            <template #body="{ data }">
+              <span style="color:var(--gc-text-muted);font-size:0.8rem">
+                <i class="pi pi-map-marker" style="margin-right:0.25rem" />
+                {{ data.destination || 'Planta Principal' }}
+              </span>
+            </template>
+          </pv-column>
+          <pv-column :header="$t('mineral.colWeight')">
+            <template #body="{ data }">{{ data.initialWeight ? data.initialWeight.toFixed(2) + ' T' : '—' }}</template>
+          </pv-column>
+          <pv-column :header="$t('mineral.colStatus')">
+            <template #body="{ data }">
+              <pv-tag :value="data.status" :severity="statusSeverity(data.status)" />
+            </template>
+          </pv-column>
+          <pv-column :header="$t('mineral.colAction')">
+            <template #body>
+              <pv-button icon="pi pi-eye" text rounded :aria-label="$t('mineral.colAction')" />
+            </template>
+          </pv-column>
+        </pv-data-table>
       </div>
 
       <!-- IoT Activity Panel -->
@@ -188,15 +176,15 @@ const iotEvents = ref([
   { message: 'Sensor BL-02: sin conexión', time: 'hace 18 min', color: 'iot-red' },
 ])
 
-function statusClass(status) {
+function statusSeverity(status) {
   const map = {
-    'Cargando':    'gc-status gc-status-loading',
-    'En Tránsito': 'gc-status gc-status-transit',
-    'En Balanza':  'gc-status gc-status-scale',
-    'Completado':  'gc-status gc-status-done',
-    'Alerta':      'gc-status gc-status-alert',
+    'Cargando':    'warn',
+    'En Tránsito': 'info',
+    'En Balanza':  'secondary',
+    'Completado':  'success',
+    'Alerta':      'danger',
   }
-  return map[status] || 'gc-status'
+  return map[status] || 'secondary'
 }
 
 function onBatchCreated(batch) {

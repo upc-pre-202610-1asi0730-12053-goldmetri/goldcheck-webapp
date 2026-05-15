@@ -1,57 +1,54 @@
 <template>
-  <div class="gc-modal-overlay" @click.self="$emit('close')">
-    <div class="gc-modal" style="max-width:480px">
+  <pv-dialog
+    :visible="true"
+    @update:visible="v => !v && $emit('close')"
+    :modal="true"
+    :closable="true"
+    :style="{ width: '480px' }"
+  >
+    <template #header>
+      <span>
+        <i class="pi pi-verified" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
+        {{ $t('jewelry.validateLot') }}
+        <small style="display:block;font-size:0.78rem;color:var(--gc-text-muted);font-weight:400">
+          {{ $t('jewelry.validateLotSubtitle') }}
+        </small>
+      </span>
+    </template>
 
-      <div class="gc-modal-header">
+    <div v-if="item">
+      <div class="item-preview">
+        <div class="item-preview-icon"><i class="pi pi-star" /></div>
         <div>
-          <p class="gc-modal-title">
-            <i class="pi pi-verified" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
-            {{ $t('jewelry.validateLot') }}
-          </p>
-          <p class="gc-modal-subtitle">{{ $t('jewelry.validateLotSubtitle') }}</p>
-        </div>
-        <button class="gc-modal-close" @click="$emit('close')">✕</button>
-      </div>
-
-      <div v-if="item">
-        <div class="item-preview">
-          <div class="item-preview-icon"><i class="pi pi-star" /></div>
-          <div>
-            <div class="item-sku">{{ item.sku }}</div>
-            <div class="item-name">{{ item.name }}</div>
-            <div class="item-meta">{{ item.type }} · {{ item.purity }} · {{ item.weight }}g</div>
-          </div>
-        </div>
-
-        <div class="validation-checklist">
-          <div v-for="check in checks" :key="check.id" class="check-row" @click="check.done = !check.done">
-            <div class="check-box" :class="{ checked: check.done }">
-              <i v-if="check.done" class="pi pi-check" />
-            </div>
-            <span>{{ check.label }}</span>
-          </div>
-        </div>
-
-        <div v-if="jewelryStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:0.75rem">
-          {{ $t('jewelry.validateError') }}
+          <div class="item-sku">{{ item.sku }}</div>
+          <div class="item-name">{{ item.name }}</div>
+          <div class="item-meta">{{ item.type }} · {{ item.purity }} · {{ item.weight }}g</div>
         </div>
       </div>
 
-      <div class="gc-modal-footer">
-        <button class="gc-btn gc-btn-outline" @click="$emit('close')">{{ $t('mineral.cancel') }}</button>
-        <button
-          class="gc-btn gc-btn-gold"
-          :disabled="!allChecked || jewelryStore.loading"
-          @click="handleValidate"
-        >
-          <i v-if="jewelryStore.loading" class="pi pi-spinner pi-spin" />
-          <i v-else class="pi pi-verified" />
-          {{ $t('jewelry.confirmValidation') }}
-        </button>
+      <div class="validation-checklist">
+        <div v-for="check in checks" :key="check.id" class="check-row" @click="check.done = !check.done">
+          <pv-checkbox v-model="check.done" :binary="true" :input-id="`check-${check.id}`" />
+          <label :for="`check-${check.id}`" style="cursor:pointer">{{ check.label }}</label>
+        </div>
       </div>
 
+      <div v-if="jewelryStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:0.75rem">
+        {{ $t('jewelry.validateError') }}
+      </div>
     </div>
-  </div>
+
+    <template #footer>
+      <pv-button :label="$t('mineral.cancel')" severity="secondary" outlined @click="$emit('close')" />
+      <pv-button
+        :label="$t('jewelry.confirmValidation')"
+        icon="pi pi-verified"
+        :disabled="!allChecked"
+        :loading="jewelryStore.loading"
+        @click="handleValidate"
+      />
+    </template>
+  </pv-dialog>
 </template>
 
 <script setup>
@@ -104,23 +101,10 @@ async function handleValidate() {
 .item-name { font-size: 0.9rem; font-weight: 600; color: var(--gc-text-primary); }
 .item-meta { font-size: 0.78rem; color: var(--gc-text-muted); margin-top: 0.15rem; }
 
-.validation-checklist { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.5rem; }
+.validation-checklist { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.5rem; }
 
 .check-row {
   display: flex; align-items: center; gap: 0.75rem;
-  cursor: pointer; font-size: 0.85rem; color: var(--gc-text-secondary);
-  padding: 0.4rem 0.5rem; border-radius: 6px;
-  transition: background 0.15s;
-}
-.check-row:hover { background: rgba(255,255,255,0.04); }
-
-.check-box {
-  width: 18px; height: 18px; border-radius: 4px;
-  border: 2px solid var(--gc-text-muted);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-size: 0.65rem; transition: all 0.2s;
-}
-.check-box.checked {
-  background: var(--gc-gold-mid); border-color: var(--gc-gold-mid); color: #1a1a1a;
+  font-size: 0.85rem; color: var(--gc-text-secondary);
 }
 </style>

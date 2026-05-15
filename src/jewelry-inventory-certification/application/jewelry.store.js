@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { jewelryApi } from '../infrastructure/jewelry-api.js'
-import { JewelryItemAssembler } from '../infrastructure/jewelry-item.assembler.js'
 
 export const useJewelryStore = defineStore('jewelry', () => {
   const items        = ref([])
@@ -9,16 +8,17 @@ export const useJewelryStore = defineStore('jewelry', () => {
   const errors       = ref([])
   const loading      = ref(false)
 
-  const pendingCount    = computed(() => items.value.filter(i => i.status === 'Pendiente').length)
-  const validatedCount  = computed(() => items.value.filter(i => i.status === 'Validado').length)
-  const certifiedCount  = computed(() => items.value.filter(i => i.status === 'Certificado').length)
-  const totalValue      = computed(() => items.value.reduce((s, i) => s + (i.price || 0), 0))
+  const pendingCount   = computed(() => items.value.filter(i => i.status === 'Pendiente').length)
+  const validatedCount = computed(() => items.value.filter(i => i.status === 'Validado').length)
+  const certifiedCount = computed(() => items.value.filter(i => i.status === 'Certificado').length)
+  const totalValue     = computed(() => items.value.reduce((s, i) => s + (i.price || 0), 0))
 
   async function fetchItems() {
     loading.value = true
     try {
       const res = await jewelryApi.getItems()
-      items.value = JewelryItemAssembler.toEntities(res)
+      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
+      items.value = res.data
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -29,7 +29,8 @@ export const useJewelryStore = defineStore('jewelry', () => {
   async function fetchCertificates() {
     try {
       const res = await jewelryApi.getCertificates()
-      certificates.value = JewelryItemAssembler.toCertificates(res)
+      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
+      certificates.value = res.data
     } catch {
       errors.value = ['certFetchError']
     }
@@ -42,9 +43,8 @@ export const useJewelryStore = defineStore('jewelry', () => {
       const sku = `GJ-${String(Date.now()).slice(-5)}`
       const payload = { ...data, sku, status: 'Pendiente', createdAt: new Date().toISOString() }
       const res = await jewelryApi.createItem(payload)
-      const newItem = JewelryItemAssembler.toEntity(res.data)
-      items.value.unshift(newItem)
-      return newItem
+      items.value.unshift(res.data)
+      return res.data
     } catch {
       errors.value = ['createError']
       return null
@@ -58,7 +58,7 @@ export const useJewelryStore = defineStore('jewelry', () => {
     try {
       await jewelryApi.validateItem(itemId)
       const idx = items.value.findIndex(i => i.id === itemId)
-      if (idx !== -1) items.value[idx].status = 'Validado'
+      if (idx !== -1) items.value[idx] = { ...items.value[idx], status: 'Validado' }
       return true
     } catch {
       errors.value = ['validateError']
@@ -78,15 +78,13 @@ export const useJewelryStore = defineStore('jewelry', () => {
         issueDate: new Date().toISOString()
       }
       const res = await jewelryApi.createCertificate(certData)
-      const cert = JewelryItemAssembler.toCertificate(res.data)
-      certificates.value.unshift(cert)
+      certificates.value.unshift(res.data)
       await jewelryApi.updateItemStatus(itemId, 'Certificado')
       const idx = items.value.findIndex(i => i.id === itemId)
       if (idx !== -1) {
-        items.value[idx].status = 'Certificado'
-        items.value[idx].certificationId = cert.id
+        items.value[idx] = { ...items.value[idx], status: 'Certificado', certificationId: res.data.id }
       }
-      return cert
+      return res.data
     } catch {
       errors.value = ['certError']
       return null

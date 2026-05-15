@@ -15,8 +15,7 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     errors.value  = []
     try {
       await subscriptionsApi.upgradePlan(iamStore.currentUser.id, planKey)
-      iamStore.currentUser.plan = planKey
-      localStorage.setItem('gc_user', JSON.stringify(iamStore.currentUser))
+      iamStore.applyPlanUpgrade(planKey)
       return true
     } catch {
       errors.value = ['upgradeError']

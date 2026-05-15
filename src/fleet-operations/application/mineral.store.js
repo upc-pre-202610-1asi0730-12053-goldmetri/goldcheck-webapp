@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { mineralApi } from '../infrastructure/mineral-api.js'
-import { MineralBatchAssembler } from '../infrastructure/mineral-batch.assembler.js'
 
 export const useMineralStore = defineStore('mineral', () => {
   const batches  = ref([])
@@ -12,7 +11,7 @@ export const useMineralStore = defineStore('mineral', () => {
   const loading  = ref(false)
 
   const activeBatchCount = computed(() =>
-    batches.value.filter(b => ['Cargando','En Tránsito','En Balanza'].includes(b.status)).length
+    batches.value.filter(b => ['Cargando', 'En Tránsito', 'En Balanza'].includes(b.status)).length
   )
   const totalTonsToday = computed(() =>
     batches.value.reduce((sum, b) => sum + (b.initialWeight || 0), 0)
@@ -23,8 +22,9 @@ export const useMineralStore = defineStore('mineral', () => {
     loading.value = true
     try {
       const res = await mineralApi.getBatches()
-      batches.value = MineralBatchAssembler.toEntities(res)
-    } catch (e) {
+      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
+      batches.value = res.data
+    } catch {
       errors.value = ['fetchError']
     } finally {
       loading.value = false
@@ -47,27 +47,19 @@ export const useMineralStore = defineStore('mineral', () => {
     errors.value = []
     loading.value = true
     try {
-      const deposit = deposits.value.find(d => d.id === depositId)
-      const vehicle = vehicles.value.find(v => v.id === vehicleId)
-
+      const deposit   = deposits.value.find(d => d.id === depositId)
+      const vehicle   = vehicles.value.find(v => v.id === vehicleId)
       const batchCode = `GM-${String(Date.now()).slice(-4)}`
-      const payload = {
-        batchCode,
-        depositId,
-        depositName: deposit?.name || '',
-        vehicleId,
-        vehicleName: vehicle?.name || '',
-        status: 'Cargando',
-        destination: deposit?.defaultDestination || 'Planta Principal',
-        initialWeight: 0,
-        mineralType: 'Oro',
-        createdAt: new Date().toISOString()
+      const payload   = {
+        batchCode, depositId, depositName: deposit?.name || '',
+        vehicleId, vehicleName: vehicle?.name || '',
+        status: 'Cargando', destination: deposit?.defaultDestination || 'Planta Principal',
+        initialWeight: 0, mineralType: 'Oro', createdAt: new Date().toISOString()
       }
       const res = await mineralApi.createBatch(payload)
-      const newBatch = MineralBatchAssembler.toEntity(res.data)
-      batches.value.unshift(newBatch)
-      return newBatch
-    } catch (e) {
+      batches.value.unshift(res.data)
+      return res.data
+    } catch {
       errors.value = ['createError']
       return null
     } finally {
@@ -79,19 +71,14 @@ export const useMineralStore = defineStore('mineral', () => {
   async function registerInitialWeight(batchId, weight) {
     errors.value = []
     try {
-      // Validate: weight > 0
-      if (!weight || weight <= 0) {
-        errors.value = ['weightRequired']
-        return false
-      }
+      if (!weight || weight <= 0) { errors.value = ['weightRequired']; return false }
       await mineralApi.registerInitialWeight(batchId, weight)
       const idx = batches.value.findIndex(b => b.id === batchId)
       if (idx !== -1) {
-        batches.value[idx].initialWeight = weight
-        batches.value[idx].status = 'En Tránsito'
+        batches.value[idx] = { ...batches.value[idx], initialWeight: weight, status: 'En Tránsito' }
       }
       return true
-    } catch (e) {
+    } catch {
       errors.value = ['weightError']
       return false
     }

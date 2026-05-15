@@ -9,91 +9,95 @@
           {{ $t('auth.registerError') }}
         </div>
 
-        <button class="gc-btn-google" type="button">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google" />
-          {{ $t('auth.continueGoogle') }}
-        </button>
+        <pv-button
+          :label="$t('auth.continueGoogle')"
+          severity="secondary"
+          outlined
+          class="w-full"
+          type="button"
+        >
+          <template #icon>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google" style="margin-right:0.5rem" />
+          </template>
+        </pv-button>
 
         <div class="gc-divider">{{ $t('auth.or') }}</div>
 
         <form @submit.prevent="handleRegister" novalidate>
           <div class="gc-field">
-            <label for="reg-email" class="sr-only">{{ $t('auth.email') }}</label>
-            <input
-              id="reg-email"
-              v-model="form.email"
-              type="email"
-              :placeholder="$t('auth.email')"
-              class="gc-input"
-              :class="{ error: v$.email.$error }"
-              autocomplete="email"
-              :aria-invalid="v$.email.$error"
-              aria-describedby="reg-email-error"
-            />
+            <pv-float-label>
+              <pv-input-text
+                id="reg-email"
+                v-model="form.email"
+                type="email"
+                autocomplete="email"
+                :invalid="v$.email.$error"
+                :aria-invalid="v$.email.$error"
+                aria-describedby="reg-email-error"
+                fluid
+              />
+              <label for="reg-email">{{ $t('auth.email') }}</label>
+            </pv-float-label>
             <span v-if="v$.email.$error" id="reg-email-error" class="gc-error-msg" role="alert">{{ $t('auth.emailInvalid') }}</span>
           </div>
 
           <div class="gc-field">
-            <label for="reg-username" class="sr-only">{{ $t('auth.username') }}</label>
-            <input
-              id="reg-username"
-              v-model="form.username"
-              type="text"
-              :placeholder="$t('auth.username')"
-              class="gc-input"
-              :class="{ error: v$.username.$error }"
-              autocomplete="username"
-              :aria-invalid="v$.username.$error"
-              aria-describedby="reg-username-error"
-            />
+            <pv-float-label>
+              <pv-input-text
+                id="reg-username"
+                v-model="form.username"
+                autocomplete="username"
+                :invalid="v$.username.$error"
+                :aria-invalid="v$.username.$error"
+                aria-describedby="reg-username-error"
+                fluid
+              />
+              <label for="reg-username">{{ $t('auth.username') }}</label>
+            </pv-float-label>
             <span v-if="v$.username.$error" id="reg-username-error" class="gc-error-msg" role="alert">{{ $t('auth.fieldRequired') }}</span>
           </div>
 
           <div class="gc-field">
-            <label for="reg-password" class="sr-only">{{ $t('auth.password') }}</label>
-            <input
-              id="reg-password"
-              v-model="form.password"
-              type="password"
-              :placeholder="$t('auth.password')"
-              class="gc-input"
-              :class="{ error: v$.password.$error }"
-              autocomplete="new-password"
-              :aria-invalid="v$.password.$error"
-              aria-describedby="reg-password-error"
-            />
+            <pv-float-label>
+              <pv-password
+                id="reg-password"
+                v-model="form.password"
+                toggle-mask
+                autocomplete="new-password"
+                :invalid="v$.password.$error"
+                :aria-invalid="v$.password.$error"
+                aria-describedby="reg-password-error"
+                fluid
+              />
+              <label for="reg-password">{{ $t('auth.password') }}</label>
+            </pv-float-label>
             <span v-if="v$.password.$error" id="reg-password-error" class="gc-error-msg" role="alert">{{ $t('auth.passwordRequired') }}</span>
           </div>
 
           <div class="gc-field">
-            <label for="reg-phone" class="sr-only">{{ $t('auth.phoneNumber') }}</label>
-            <input
-              id="reg-phone"
-              v-model="form.phoneNumber"
-              type="tel"
-              :placeholder="$t('auth.phoneNumber')"
-              class="gc-input"
-              autocomplete="tel"
-            />
+            <pv-float-label>
+              <pv-input-text
+                id="reg-phone"
+                v-model="form.phoneNumber"
+                type="tel"
+                autocomplete="tel"
+                fluid
+              />
+              <label for="reg-phone">{{ $t('auth.phoneNumber') }}</label>
+            </pv-float-label>
           </div>
 
           <!-- Segmento: US06 (Minerías) / US07 (Joyerías) -->
           <div class="gc-field">
             <p style="font-size:0.82rem;font-weight:600;color:#666;margin-bottom:0.4rem">{{ $t('auth.segment') }}</p>
-            <div class="gc-segment-group">
-              <label class="gc-segment-option">
-                <input type="radio" v-model="form.segment" value="consumer" />
-                {{ $t('auth.consumer') }}
-              </label>
-              <label class="gc-segment-option">
-                <input type="radio" v-model="form.segment" value="jewelry" />
-                {{ $t('auth.jewelry') }}
-              </label>
-              <label class="gc-segment-option">
-                <input type="radio" v-model="form.segment" value="mining" />
-                {{ $t('auth.mining') }}
-              </label>
-            </div>
+            <pv-select-button
+              v-model="form.segment"
+              :options="segmentOptions"
+              option-label="label"
+              option-value="value"
+              :invalid="v$.segment.$error"
+              aria-label="Segment"
+            />
             <span v-if="v$.segment.$error" class="gc-error-msg">{{ $t('auth.segmentRequired') }}</span>
           </div>
 
@@ -102,10 +106,12 @@
             <RouterLink to="/auth/login" class="text-link">{{ $t('auth.login') }}</RouterLink>
           </p>
 
-          <button type="submit" class="gc-btn gc-btn-primary" :disabled="iamStore.loading">
-            <i v-if="iamStore.loading" class="pi pi-spinner pi-spin" />
-            {{ $t('auth.signUp') }}
-          </button>
+          <pv-button
+            type="submit"
+            :label="$t('auth.signUp')"
+            :loading="iamStore.loading"
+            class="w-full"
+          />
         </form>
       </div>
     </div>
@@ -123,11 +129,20 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useIamStore } from '../../../application/iam.store.js'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
+
+const { t } = useI18n()
+
+const segmentOptions = computed(() => [
+  { label: t('auth.consumer'), value: 'consumer' },
+  { label: t('auth.jewelry'),  value: 'jewelry'  },
+  { label: t('auth.mining'),   value: 'mining'   }
+])
 
 const router   = useRouter()
 const iamStore = useIamStore()
