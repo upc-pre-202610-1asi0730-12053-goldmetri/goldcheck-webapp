@@ -1,3 +1,32 @@
+﻿<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useJewelryStore } from '../../../application/jewelry.store.js'
+
+const store = useJewelryStore()
+const statusFilter = ref('')
+const certModal = reactive({ show: false, cert: null })
+
+const filteredItems = computed(() => {
+  if (!statusFilter.value) return store.items
+  return store.items.filter(i => i.status === statusFilter.value)
+})
+
+onMounted(() => store.fetchItems())
+
+function statusClass(s) {
+  return { 'Pendiente': 'gc-status-loading', 'Validado': 'gc-status-transit', 'Certificado': 'gc-status-done' }[s] || ''
+}
+
+async function validate(item) { await store.validateItem(item.id) }
+async function certify(item) { await store.issueCertificate(item.id) }
+
+async function viewCert(item) {
+  if (!store.certificates.length) await store.fetchCertificates()
+  certModal.cert = store.certificates.find(c => c.itemId === item.id || c.itemSku === item.sku) || null
+  certModal.show = true
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -118,35 +147,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useJewelryStore } from '../../../application/jewelry.store.js'
-
-const store = useJewelryStore()
-const statusFilter = ref('')
-const certModal = reactive({ show: false, cert: null })
-
-const filteredItems = computed(() => {
-  if (!statusFilter.value) return store.items
-  return store.items.filter(i => i.status === statusFilter.value)
-})
-
-onMounted(() => store.fetchItems())
-
-function statusClass(s) {
-  return { 'Pendiente': 'gc-status-loading', 'Validado': 'gc-status-transit', 'Certificado': 'gc-status-done' }[s] || ''
-}
-
-async function validate(item) { await store.validateItem(item.id) }
-async function certify(item) { await store.issueCertificate(item.id) }
-
-async function viewCert(item) {
-  if (!store.certificates.length) await store.fetchCertificates()
-  certModal.cert = store.certificates.find(c => c.itemId === item.id || c.itemSku === item.sku) || null
-  certModal.show = true
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

@@ -15,13 +15,13 @@ class MineralApi extends BaseApi {
     this.#alerts   = new BaseEndpoint(this.http, '/anomalyAlerts')
   }
 
-  // TS04 – Batches
+  // TS04 – Batch endpoints
   getBatches(params)      { return this.#batches.getAll(params) }
   getBatchById(id)        { return this.#batches.getById(id) }
-  createBatch(data)       { return this.#batches.create(data) }         // US13
-  updateBatchStatus(id, status) { return this.#batches.patch(id, { status }) } // TS05
+  createBatch(data)       { return this.#batches.create(data) }
+  updateBatchStatus(id, status) { return this.#batches.patch(id, { status }) }
 
-  // US14 – Pesaje inicial (patch initialWeight)
+  // US14 – Initial weighing (patch initialWeight)
   registerInitialWeight(id, weight) { return this.#batches.patch(id, { initialWeight: weight, status: 'En Tránsito' }) }
 
   // Supporting

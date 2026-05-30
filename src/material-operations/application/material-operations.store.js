@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { materialOperationsApi } from '../infrastructure/material-operations-api.js'
+import { MaterialReceptionAssembler } from '../infrastructure/material-reception.assembler.js'
 
 export const useMaterialOperationsStore = defineStore('material-operations', () => {
   const receptions = ref([])
@@ -18,8 +19,7 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     errors.value  = []
     try {
       const res = await materialOperationsApi.getBatches()
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
-      receptions.value = res.data
+      receptions.value = MaterialReceptionAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -27,7 +27,7 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
-  // US21 – Pesaje Final (Recepción)
+  // US21 – Final Weighing (Reception)
   async function registerFinalWeight(batchId, finalWeight, initialWeight) {
     errors.value = []
     try {
@@ -52,14 +52,14 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
-  // US16 – Tipificación de Mineral
+  // US16 – Mineral Classification
   async function classifyMineral(batchId, mineralType) {
     errors.value = []
     try {
       await materialOperationsApi.classifyMineral(batchId, mineralType)
       const idx = receptions.value.findIndex(r => r.id === batchId)
       if (idx !== -1) {
-        receptions.value[idx] = { ...receptions.value[idx], mineralType }
+        receptions.value[idx] = receptions.value[idx].clone({ mineralType })
       }
       return true
     } catch {
@@ -68,7 +68,7 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
-  // US20 – Confirmación de Llegada
+  // US20 – Arrival Confirmation
   async function confirmArrival(batchId) {
     errors.value = []
     try {

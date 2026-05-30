@@ -1,3 +1,107 @@
+﻿<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+import { jewelryApi } from '../../../infrastructure/jewelry-api.js'
+
+const { t }  = useI18n()
+const route  = useRoute()
+
+const batchCode  = ref('')
+const batch      = ref(null)
+const searched   = ref(false)
+const loading    = ref(false)
+const showTrace  = ref(false)
+
+async function lookupBatch() {
+  if (!batchCode.value.trim()) return
+  loading.value   = true
+  batch.value     = null
+  searched.value  = false
+  showTrace.value = false
+  try {
+    const res  = await jewelryApi.getBatchByCode(batchCode.value.trim())
+    const list = res.data || []
+    batch.value = list[0] || null
+  } catch {
+    batch.value = null
+  } finally {
+    loading.value  = false
+    searched.value = true
+  }
+}
+
+const traceEvents = computed(() => {
+  if (!batch.value) return []
+  const b    = batch.value
+  const base = new Date(b.createdAt)
+  const seed = b.batchCode.replace(/\D/g, '').slice(-4).padStart(4, '0')
+
+  const events = [
+    {
+      icon: 'pi-map-marker', color: '#3b82f6',
+      title: t('trace.eventExtraction'),
+      actor: b.depositName,
+      date:  base,
+      tx:    `0x${seed}A1B2`
+    },
+    {
+      icon: 'pi-truck', color: '#f59e0b',
+      title: t('trace.eventTransport'),
+      actor: b.vehicleName || 'Transport Vehicle',
+      date:  new Date(base.getTime() + 2 * 3600000),
+      tx:    `0x${seed}C3D4`
+    },
+    {
+      icon: 'pi-map', color: '#eab308',
+      title: t('trace.eventLocation'),
+      actor: 'GPS Auto — Ruta Sur',
+      date:  new Date(base.getTime() + 8 * 3600000),
+      tx:    `0x${seed}E5F6`
+    }
+  ]
+
+  if (b.status === 'Completado' || b.finalWeight) {
+    events.push({
+      icon: 'pi-building', color: '#4ade80',
+      title: t('trace.eventReceived'),
+      actor: 'Joyería Elite S.A.C.',
+      date:  new Date(base.getTime() + 24 * 3600000),
+      tx:    `0x${seed}G7H8`
+    })
+  }
+
+  return events
+})
+
+function statusBadge(s) {
+  const map = { 'Completado': 'gc-badge-success', 'En Tránsito': 'gc-badge-gold', 'Cargando': 'gc-badge-warning', 'Alerta': 'gc-badge-danger' }
+  return map[s] || 'gc-badge-neutral'
+}
+
+function statusLabel(s) {
+  const map = {
+    'Completado':  t('trace.statusCertified'),
+    'En Tránsito': t('trace.statusInTransit'),
+    'Cargando':    t('trace.statusLoading'),
+    'Alerta':      t('trace.statusAlert')
+  }
+  return map[s] || s
+}
+
+function formatDate(d) {
+  if (!d) return '—'
+  return new Date(d).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+onMounted(() => {
+  if (route.query.batch) {
+    batchCode.value = String(route.query.batch)
+    lookupBatch()
+  }
+})
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -120,110 +224,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
-import { jewelryApi } from '../../../infrastructure/jewelry-api.js'
-
-const { t }  = useI18n()
-const route  = useRoute()
-
-const batchCode  = ref('')
-
-onMounted(() => {
-  if (route.query.batch) {
-    batchCode.value = String(route.query.batch)
-    lookupBatch()
-  }
-})
-const batch      = ref(null)
-const searched   = ref(false)
-const loading    = ref(false)
-const showTrace  = ref(false)
-
-async function lookupBatch() {
-  if (!batchCode.value.trim()) return
-  loading.value   = true
-  batch.value     = null
-  searched.value  = false
-  showTrace.value = false
-  try {
-    const res  = await jewelryApi.getBatchByCode(batchCode.value.trim())
-    const list = res.data || []
-    batch.value = list[0] || null
-  } catch {
-    batch.value = null
-  } finally {
-    loading.value  = false
-    searched.value = true
-  }
-}
-
-const traceEvents = computed(() => {
-  if (!batch.value) return []
-  const b    = batch.value
-  const base = new Date(b.createdAt)
-  const seed = b.batchCode.replace(/\D/g, '').slice(-4).padStart(4, '0')
-
-  const events = [
-    {
-      icon: 'pi-map-marker', color: '#3b82f6',
-      title: t('trace.eventExtraction'),
-      actor: b.depositName,
-      date:  base,
-      tx:    `0x${seed}A1B2`
-    },
-    {
-      icon: 'pi-truck', color: '#f59e0b',
-      title: t('trace.eventTransport'),
-      actor: b.vehicleName || 'Transport Vehicle',
-      date:  new Date(base.getTime() + 2 * 3600000),
-      tx:    `0x${seed}C3D4`
-    },
-    {
-      icon: 'pi-map', color: '#eab308',
-      title: t('trace.eventLocation'),
-      actor: 'GPS Auto — Ruta Sur',
-      date:  new Date(base.getTime() + 8 * 3600000),
-      tx:    `0x${seed}E5F6`
-    }
-  ]
-
-  if (b.status === 'Completado' || b.finalWeight) {
-    events.push({
-      icon: 'pi-building', color: '#4ade80',
-      title: t('trace.eventReceived'),
-      actor: 'Joyería Elite S.A.C.',
-      date:  new Date(base.getTime() + 24 * 3600000),
-      tx:    `0x${seed}G7H8`
-    })
-  }
-
-  return events
-})
-
-function statusBadge(s) {
-  const map = { 'Completado': 'gc-badge-success', 'En Tránsito': 'gc-badge-gold', 'Cargando': 'gc-badge-warning', 'Alerta': 'gc-badge-danger' }
-  return map[s] || 'gc-badge-neutral'
-}
-
-function statusLabel(s) {
-  const map = {
-    'Completado':  t('trace.statusCertified'),
-    'En Tránsito': t('trace.statusInTransit'),
-    'Cargando':    t('trace.statusLoading'),
-    'Alerta':      t('trace.statusAlert')
-  }
-  return map[s] || s
-}
-
-function formatDate(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-</script>
 
 <style scoped>
 .search-card { padding: 1.25rem; }

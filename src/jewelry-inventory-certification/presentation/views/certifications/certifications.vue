@@ -1,3 +1,11 @@
+﻿<script setup>
+import { onMounted } from 'vue'
+import { useJewelryStore } from '../../../application/jewelry.store.js'
+
+const jewelryStore = useJewelryStore()
+onMounted(() => jewelryStore.fetchCertificates())
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -48,14 +56,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useJewelryStore } from '../../../application/jewelry.store.js'
-
-const jewelryStore = useJewelryStore()
-onMounted(() => jewelryStore.fetchCertificates())
-</script>
 
 <style scoped>
 .gc-loading-row { text-align:center;color:var(--gc-text-muted);font-size:0.85rem;padding:2rem 0; }

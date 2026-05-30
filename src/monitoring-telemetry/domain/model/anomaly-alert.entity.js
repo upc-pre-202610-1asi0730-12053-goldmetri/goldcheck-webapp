@@ -65,11 +65,11 @@ export class AnomalyAlert extends BaseEntity {
    * @param {?number} [params.batchId=null] - Foreign key of the affected mineral batch.
    * @param {string} [params.batchCode=''] - Human-readable batch code.
    * @param {?number} [params.vehicleId=null] - Foreign key of the vehicle that triggered the alert.
-   * @param {string} [params.alertType=''] - Alert type ('RETRASO' | 'DESVIO' | 'MERMA_CRITICA' | 'DESCONEXION').
+   * @param {string} [params.alertType=''] - Alert type ('DELAY' | 'DEVIATION' | 'CRITICAL_SHRINKAGE' | 'DISCONNECTION').
    * @param {string} [params.severity='LOW'] - Severity level ('LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL').
    * @param {string} [params.description=''] - Human-readable alert description.
    * @param {?Object} [params.coordinates=null] - GPS coordinates at detection time.
-   * @param {string} [params.status='Activa'] - Alert status ('Activa' | 'Resuelta' | 'En Revisión').
+   * @param {string} [params.status='Activa'] - Alert status ('Active' | 'Resolved' | 'Under Review').
    * @param {?string} [params.detectedAt=null] - ISO detection timestamp.
    * @param {?string} [params.resolvedAt=null] - ISO resolution timestamp.
    */

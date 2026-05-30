@@ -1,3 +1,57 @@
+﻿<script setup>
+import { reactive, computed } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useIamStore } from '../../../application/iam.store.js'
+import { useVuelidate } from '@vuelidate/core'
+import { required, email } from '@vuelidate/validators'
+
+const { t } = useI18n()
+
+const segmentOptions = computed(() => [
+  { label: t('auth.consumer'), value: 'consumer' },
+  { label: t('auth.jewelry'),  value: 'jewelry'  },
+  { label: t('auth.mining'),   value: 'mining'   }
+])
+
+const router   = useRouter()
+const iamStore = useIamStore()
+
+const form = reactive({
+  email: '', username: '', password: '', phoneNumber: '', segment: ''
+})
+
+const rules = {
+  email:    { required, email },
+  username: { required },
+  password: { required },
+  segment:  { required }
+}
+
+const v$ = useVuelidate(rules, form)
+
+async function handleRegister() {
+  await v$.value.$validate()
+  if (v$.value.$error) return
+
+  const ok = await iamStore.register({
+    email:       form.email,
+    username:    form.username,
+    password:    form.password,
+    phoneNumber: form.phoneNumber,
+    segment:     form.segment,
+    plan:        'BRONZE'
+  })
+
+  if (!ok) return
+
+  const seg = iamStore.currentUser?.segment
+  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
+  else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
+  else router.push({ name: 'consumer-collection' })
+}
+</script>
+
 <template>
   <div class="auth-layout">
     <!-- Form panel -->
@@ -127,60 +181,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { reactive, computed } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { useIamStore } from '../../../application/iam.store.js'
-import { useVuelidate } from '@vuelidate/core'
-import { required, email } from '@vuelidate/validators'
-
-const { t } = useI18n()
-
-const segmentOptions = computed(() => [
-  { label: t('auth.consumer'), value: 'consumer' },
-  { label: t('auth.jewelry'),  value: 'jewelry'  },
-  { label: t('auth.mining'),   value: 'mining'   }
-])
-
-const router   = useRouter()
-const iamStore = useIamStore()
-
-const form = reactive({
-  email: '', username: '', password: '', phoneNumber: '', segment: ''
-})
-
-const rules = {
-  email:    { required, email },
-  username: { required },
-  password: { required },
-  segment:  { required }
-}
-
-const v$ = useVuelidate(rules, form)
-
-async function handleRegister() {
-  await v$.value.$validate()
-  if (v$.value.$error) return
-
-  const ok = await iamStore.register({
-    email:       form.email,
-    username:    form.username,
-    password:    form.password,
-    phoneNumber: form.phoneNumber,
-    segment:     form.segment,
-    plan:        'BRONZE'
-  })
-
-  if (!ok) return
-
-  const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
-  else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
-  else router.push({ name: 'consumer-collection' })
-}
-</script>
 
 <style scoped>
 .brand-logo { max-width: 260px; margin-bottom: 1rem; }

@@ -7,7 +7,7 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
   const loading = ref(false)
   const errors  = ref([])
 
-  // US02 – Upgrade de plan
+  // US02 – Plan upgrade
   async function upgradePlan(planKey) {
     const iamStore = useIamStore()
     if (!iamStore.currentUser?.id) return false

@@ -1,3 +1,27 @@
+﻿<script setup>
+import { ref } from 'vue'
+import { useConsumerStore } from '../../../application/consumer.store.js'
+import { useIamStore } from '../../../../iam/application/iam.store.js'
+
+const emit = defineEmits(['close', 'linked'])
+const consumerStore = useConsumerStore()
+const iamStore = useIamStore()
+const submitted = ref(false)
+
+const typeOptions = ['Anillo', 'Collar', 'Pulsera', 'Arete']
+const form = ref({ traceabilityCode: '', name: '', type: '', purity: '' })
+
+async function handleLink() {
+  submitted.value = true
+  if (!form.value.traceabilityCode || !form.value.name) return
+  const piece = await consumerStore.linkPiece({
+    ...form.value,
+    ownerId: iamStore.currentUser?.id || null
+  })
+  if (piece) emit('linked', piece)
+}
+</script>
+
 <template>
   <pv-dialog
     :visible="true"
@@ -75,30 +99,6 @@
     </template>
   </pv-dialog>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { useConsumerStore } from '../../../application/consumer.store.js'
-import { useIamStore } from '../../../../iam/application/iam.store.js'
-
-const emit = defineEmits(['close', 'linked'])
-const consumerStore = useConsumerStore()
-const iamStore = useIamStore()
-const submitted = ref(false)
-
-const typeOptions = ['Anillo', 'Collar', 'Pulsera', 'Arete']
-const form = ref({ traceabilityCode: '', name: '', type: '', purity: '' })
-
-async function handleLink() {
-  submitted.value = true
-  if (!form.value.traceabilityCode || !form.value.name) return
-  const piece = await consumerStore.linkPiece({
-    ...form.value,
-    ownerId: iamStore.currentUser?.id || null
-  })
-  if (piece) emit('linked', piece)
-}
-</script>
 
 <style scoped>
 .form-field { margin-bottom: 1rem; }

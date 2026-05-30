@@ -1,3 +1,94 @@
+﻿<script setup>
+import { ref, computed, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useIamStore } from '../../../../iam/application/iam.store.js'
+import { useSubscriptionsStore } from '../../../application/subscriptions.store.js'
+
+const { t }       = useI18n()
+const iamStore    = useIamStore()
+const store       = useSubscriptionsStore()
+
+const currentPlan = computed(() => iamStore.currentUser?.plan || 'BRONZE')
+
+const plans = [
+  {
+    id: 'BRONZE', name: 'Bronze', basePrice: 'Gratis', period: '', icon: 'pi-shield',
+    features: ['5 lotes/mes', 'Dashboard básico', 'Soporte por email']
+  },
+  {
+    id: 'GOLD', name: 'Gold', basePrice: 'S/ 199', period: '/mes', icon: 'pi-star',
+    features: ['50 lotes/mes', 'Analytics avanzado', 'IoT en tiempo real', 'Soporte prioritario']
+  },
+  {
+    id: 'PLATINUM', name: 'Platinum', basePrice: 'S/ 499', period: '/mes', icon: 'pi-crown',
+    features: ['Lotes ilimitados', 'API access', 'Multi-empresa', 'SLA 99.9%', 'Gerente dedicado']
+  }
+]
+
+const compareRows = computed(() => [
+  { label: t('subscriptions.compLotes'),     BRONZE: '5/mes',  GOLD: '50/mes', PLATINUM: t('subscriptions.compUnlimited') },
+  { label: t('subscriptions.compDashboard'), BRONZE: true,     GOLD: true,     PLATINUM: true  },
+  { label: t('subscriptions.compAnalytics'), BRONZE: false,    GOLD: true,     PLATINUM: true  },
+  { label: t('subscriptions.compIoT'),       BRONZE: false,    GOLD: true,     PLATINUM: true  },
+  { label: t('subscriptions.compEmail'),     BRONZE: true,     GOLD: true,     PLATINUM: true  },
+  { label: t('subscriptions.compPriority'),  BRONZE: false,    GOLD: true,     PLATINUM: true  },
+  { label: 'API Access',                     BRONZE: false,    GOLD: false,    PLATINUM: true  },
+  { label: t('subscriptions.compMulti'),     BRONZE: false,    GOLD: false,    PLATINUM: true  },
+  { label: 'SLA 99.9%',                      BRONZE: false,    GOLD: false,    PLATINUM: true  },
+  { label: t('subscriptions.compManager'),   BRONZE: false,    GOLD: false,    PLATINUM: true  },
+])
+
+// Payment modal state
+const payModal = reactive({ show: false, plan: null, success: false })
+const form     = reactive({ number: '', holder: '', expiry: '', cvv: '' })
+const errors   = reactive({ number: '', holder: '', expiry: '', cvv: '' })
+
+const cardNumberDisplay = computed(() => {
+  const digits = form.number.replace(/\s/g, '')
+  const padded = digits.padEnd(16, '•')
+  return padded.replace(/(.{4})/g, '$1 ').trim()
+})
+
+function openPayment(plan) {
+  payModal.plan    = plan
+  payModal.show    = true
+  payModal.success = false
+  Object.assign(form,   { number: '', holder: '', expiry: '', cvv: '' })
+  Object.assign(errors, { number: '', holder: '', expiry: '', cvv: '' })
+  store.errors = []
+}
+
+function closeModal() {
+  payModal.show    = false
+  payModal.success = false
+}
+
+function formatCardNumber() {
+  form.number = form.number.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
+}
+
+function formatExpiry() {
+  const raw = form.expiry.replace(/\D/g, '').slice(0, 4)
+  form.expiry = raw.length > 2 ? raw.slice(0, 2) + '/' + raw.slice(2) : raw
+}
+
+function validate() {
+  let ok = true
+  const num = form.number.replace(/\s/g, '')
+  errors.number = num.length !== 16       ? t('subscriptions.errCardNumber') : ''
+  errors.holder = !form.holder.trim()     ? t('subscriptions.errHolder')     : ''
+  errors.expiry = !/^\d{2}\/\d{2}$/.test(form.expiry) ? t('subscriptions.errExpiry') : ''
+  errors.cvv    = form.cvv.length !== 3   ? t('subscriptions.errCvv')        : ''
+  return !errors.number && !errors.holder && !errors.expiry && !errors.cvv
+}
+
+async function confirmUpgrade() {
+  if (!validate()) return
+  const ok = await store.upgradePlan(payModal.plan.id)
+  if (ok) payModal.success = true
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -208,97 +299,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, computed, reactive } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useIamStore } from '../../../../iam/application/iam.store.js'
-import { useSubscriptionsStore } from '../../../application/subscriptions.store.js'
-
-const { t }       = useI18n()
-const iamStore    = useIamStore()
-const store       = useSubscriptionsStore()
-
-const currentPlan = computed(() => iamStore.currentUser?.plan || 'BRONZE')
-
-const plans = [
-  {
-    id: 'BRONZE', name: 'Bronze', basePrice: 'Gratis', period: '', icon: 'pi-shield',
-    features: ['5 lotes/mes', 'Dashboard básico', 'Soporte por email']
-  },
-  {
-    id: 'GOLD', name: 'Gold', basePrice: 'S/ 199', period: '/mes', icon: 'pi-star',
-    features: ['50 lotes/mes', 'Analytics avanzado', 'IoT en tiempo real', 'Soporte prioritario']
-  },
-  {
-    id: 'PLATINUM', name: 'Platinum', basePrice: 'S/ 499', period: '/mes', icon: 'pi-crown',
-    features: ['Lotes ilimitados', 'API access', 'Multi-empresa', 'SLA 99.9%', 'Gerente dedicado']
-  }
-]
-
-const compareRows = computed(() => [
-  { label: t('subscriptions.compLotes'),     BRONZE: '5/mes',  GOLD: '50/mes', PLATINUM: t('subscriptions.compUnlimited') },
-  { label: t('subscriptions.compDashboard'), BRONZE: true,     GOLD: true,     PLATINUM: true  },
-  { label: t('subscriptions.compAnalytics'), BRONZE: false,    GOLD: true,     PLATINUM: true  },
-  { label: t('subscriptions.compIoT'),       BRONZE: false,    GOLD: true,     PLATINUM: true  },
-  { label: t('subscriptions.compEmail'),     BRONZE: true,     GOLD: true,     PLATINUM: true  },
-  { label: t('subscriptions.compPriority'),  BRONZE: false,    GOLD: true,     PLATINUM: true  },
-  { label: 'API Access',                     BRONZE: false,    GOLD: false,    PLATINUM: true  },
-  { label: t('subscriptions.compMulti'),     BRONZE: false,    GOLD: false,    PLATINUM: true  },
-  { label: 'SLA 99.9%',                      BRONZE: false,    GOLD: false,    PLATINUM: true  },
-  { label: t('subscriptions.compManager'),   BRONZE: false,    GOLD: false,    PLATINUM: true  },
-])
-
-// Payment modal state
-const payModal = reactive({ show: false, plan: null, success: false })
-const form     = reactive({ number: '', holder: '', expiry: '', cvv: '' })
-const errors   = reactive({ number: '', holder: '', expiry: '', cvv: '' })
-
-const cardNumberDisplay = computed(() => {
-  const digits = form.number.replace(/\s/g, '')
-  const padded = digits.padEnd(16, '•')
-  return padded.replace(/(.{4})/g, '$1 ').trim()
-})
-
-function openPayment(plan) {
-  payModal.plan    = plan
-  payModal.show    = true
-  payModal.success = false
-  Object.assign(form,   { number: '', holder: '', expiry: '', cvv: '' })
-  Object.assign(errors, { number: '', holder: '', expiry: '', cvv: '' })
-  store.errors = []
-}
-
-function closeModal() {
-  payModal.show    = false
-  payModal.success = false
-}
-
-function formatCardNumber() {
-  form.number = form.number.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
-}
-
-function formatExpiry() {
-  const raw = form.expiry.replace(/\D/g, '').slice(0, 4)
-  form.expiry = raw.length > 2 ? raw.slice(0, 2) + '/' + raw.slice(2) : raw
-}
-
-function validate() {
-  let ok = true
-  const num = form.number.replace(/\s/g, '')
-  errors.number = num.length !== 16       ? t('subscriptions.errCardNumber') : ''
-  errors.holder = !form.holder.trim()     ? t('subscriptions.errHolder')     : ''
-  errors.expiry = !/^\d{2}\/\d{2}$/.test(form.expiry) ? t('subscriptions.errExpiry') : ''
-  errors.cvv    = form.cvv.length !== 3   ? t('subscriptions.errCvv')        : ''
-  return !errors.number && !errors.holder && !errors.expiry && !errors.cvv
-}
-
-async function confirmUpgrade() {
-  if (!validate()) return
-  const ok = await store.upgradePlan(payModal.plan.id)
-  if (ok) payModal.success = true
-}
-</script>
 
 <style scoped>
 /* ---------- Plan cards ---------- */

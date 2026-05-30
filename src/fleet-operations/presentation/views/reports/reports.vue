@@ -1,3 +1,26 @@
+﻿<script setup>
+import { computed, onMounted } from 'vue'
+import { useMineralStore } from '../../../application/mineral.store.js'
+
+const store = useMineralStore()
+onMounted(() => store.fetchBatches())
+
+const completedCount = computed(() => store.batches.filter(b => b.status === 'Completado').length)
+const alertBatches   = computed(() => store.batches.filter(b => b.status === 'Alerta').length)
+
+function statusClass(s) {
+  if (s === 'Completado') return 'badge-ok'
+  if (s === 'Alerta') return 'badge-danger'
+  if (s === 'En Tránsito') return 'badge-transit'
+  return 'badge-warning'
+}
+
+function formatDate(iso) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('es-PE')
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -64,29 +87,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { computed, onMounted } from 'vue'
-import { useMineralStore } from '../../../application/mineral.store.js'
-
-const store = useMineralStore()
-onMounted(() => store.fetchBatches())
-
-const completedCount = computed(() => store.batches.filter(b => b.status === 'Completado').length)
-const alertBatches   = computed(() => store.batches.filter(b => b.status === 'Alerta').length)
-
-function statusClass(s) {
-  if (s === 'Completado') return 'badge-ok'
-  if (s === 'Alerta') return 'badge-danger'
-  if (s === 'En Tránsito') return 'badge-transit'
-  return 'badge-warning'
-}
-
-function formatDate(iso) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-PE')
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

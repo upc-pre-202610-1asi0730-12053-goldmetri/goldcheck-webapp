@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { consumerApi } from '../infrastructure/consumer-api.js'
+import { ConsumerPieceAssembler } from '../infrastructure/consumer-piece.assembler.js'
 
 export const useConsumerStore = defineStore('consumer', () => {
   const pieces       = ref([])
@@ -13,8 +14,7 @@ export const useConsumerStore = defineStore('consumer', () => {
     try {
       const params = ownerId ? { ownerId } : {}
       const res = await consumerApi.getPieces(params)
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
-      pieces.value = res.data
+      pieces.value = ConsumerPieceAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -67,7 +67,7 @@ export const useConsumerStore = defineStore('consumer', () => {
     try {
       const payload = { ...data, status: 'Activo', purchaseDate: new Date().toISOString() }
       const res = await consumerApi.linkPiece(payload)
-      pieces.value.unshift(res.data)
+      pieces.value.unshift(ConsumerPieceAssembler.toEntityFromResource(res.data))
       return res.data
     } catch {
       errors.value = ['linkError']

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { incidentManagementApi } from '../infrastructure/incident-management-api.js'
+import { IncidentAssembler } from '../infrastructure/incident.assembler.js'
 
 export const useIncidentManagementStore = defineStore('incident-management', () => {
   const incidents = ref([])
@@ -16,8 +17,7 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
     errors.value  = []
     try {
       const res = await incidentManagementApi.getIncidents()
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
-      incidents.value = res.data
+      incidents.value = IncidentAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -31,7 +31,7 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
       const res = await incidentManagementApi.createIncident({
         ...data, status: 'Abierto', reportedAt: new Date().toISOString()
       })
-      incidents.value.unshift(res.data)
+      incidents.value.unshift(IncidentAssembler.toEntityFromResource(res.data))
       return true
     } catch {
       errors.value = ['createError']
@@ -45,7 +45,7 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
       await incidentManagementApi.closeIncident(id)
       const idx = incidents.value.findIndex(i => i.id === id)
       if (idx !== -1) {
-        incidents.value[idx] = { ...incidents.value[idx], status: 'Cerrado' }
+        incidents.value[idx] = incidents.value[idx].clone({ status: 'Cerrado' })
       }
       return true
     } catch {

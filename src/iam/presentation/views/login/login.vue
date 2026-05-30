@@ -1,3 +1,36 @@
+﻿<script setup>
+import { reactive, computed } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+import { useIamStore } from '../../../application/iam.store.js'
+import { useVuelidate } from '@vuelidate/core'
+import { required, email } from '@vuelidate/validators'
+
+const router   = useRouter()
+const iamStore = useIamStore()
+
+const form = reactive({ email: '', password: '', remember: false })
+
+const rules = {
+  email:    { required, email },
+  password: { required }
+}
+
+const v$ = useVuelidate(rules, form)
+
+async function handleLogin() {
+  await v$.value.$validate()
+  if (v$.value.$error) return
+
+  const ok = await iamStore.login(form.email, form.password)
+  if (!ok) return
+
+  const seg = iamStore.currentUser?.segment
+  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
+  else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
+  else router.push({ name: 'consumer-collection' })
+}
+</script>
+
 <template>
   <div class="auth-layout">
     <!-- Form panel -->
@@ -84,39 +117,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { reactive, computed } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useIamStore } from '../../../application/iam.store.js'
-import { useVuelidate } from '@vuelidate/core'
-import { required, email } from '@vuelidate/validators'
-
-const router   = useRouter()
-const iamStore = useIamStore()
-
-const form = reactive({ email: '', password: '', remember: false })
-
-const rules = {
-  email:    { required, email },
-  password: { required }
-}
-
-const v$ = useVuelidate(rules, form)
-
-async function handleLogin() {
-  await v$.value.$validate()
-  if (v$.value.$error) return
-
-  const ok = await iamStore.login(form.email, form.password)
-  if (!ok) return
-
-  const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
-  else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
-  else router.push({ name: 'consumer-collection' })
-}
-</script>
 
 <style scoped>
 .login-row {

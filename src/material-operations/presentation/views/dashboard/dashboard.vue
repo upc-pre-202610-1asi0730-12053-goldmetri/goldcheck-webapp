@@ -1,3 +1,32 @@
+﻿<script setup>
+import { reactive, onMounted } from 'vue'
+import { useMaterialOperationsStore } from '../../../application/material-operations.store.js'
+
+const store = useMaterialOperationsStore()
+
+const weightModal = reactive({ show: false, batchId: null, initialWeight: 0, value: null })
+
+function openWeightModal(r) {
+  weightModal.batchId = r.batchId
+  weightModal.initialWeight = r.initialWeight
+  weightModal.value = null
+  weightModal.show = true
+}
+
+async function submitWeight() {
+  const ok = await store.registerFinalWeight(weightModal.batchId, weightModal.value, weightModal.initialWeight)
+  if (ok) weightModal.show = false
+}
+
+function statusClass(s) {
+  if (s === 'Completado' || s === 'Procesado' || s === 'En Planta') return 'badge-ok'
+  if (s === 'Bajo Investigación' || s === 'Alerta') return 'badge-danger'
+  return 'badge-warning'
+}
+
+onMounted(() => store.fetchReceptions())
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -109,34 +138,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { reactive, onMounted } from 'vue'
-import { useMaterialOperationsStore } from '../../../application/material-operations.store.js'
-
-const store = useMaterialOperationsStore()
-onMounted(() => store.fetchReceptions())
-
-const weightModal = reactive({ show: false, batchId: null, initialWeight: 0, value: null })
-
-function openWeightModal(r) {
-  weightModal.batchId = r.batchId
-  weightModal.initialWeight = r.initialWeight
-  weightModal.value = null
-  weightModal.show = true
-}
-
-async function submitWeight() {
-  const ok = await store.registerFinalWeight(weightModal.batchId, weightModal.value, weightModal.initialWeight)
-  if (ok) weightModal.show = false
-}
-
-function statusClass(s) {
-  if (s === 'Completado' || s === 'Procesado' || s === 'En Planta') return 'badge-ok'
-  if (s === 'Bajo Investigación' || s === 'Alerta') return 'badge-danger'
-  return 'badge-warning'
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

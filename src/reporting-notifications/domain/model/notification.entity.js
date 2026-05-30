@@ -49,7 +49,7 @@ export class Notification extends BaseEntity {
    * @param {?number} [params.id=null] - Notification identifier.
    * @param {string} [params.title=''] - Short notification title.
    * @param {string} [params.message=''] - Full notification body.
-   * @param {string} [params.notificationType=''] - Notification category ('ALERTA' | 'REPORTE' | 'INFO' | 'CRITICO').
+   * @param {string} [params.notificationType=''] - Notification category ('ALERT' | 'REPORT' | 'INFO' | 'CRITICAL').
    * @param {?number} [params.recipientId=null] - Foreign key of the target user.
    * @param {string} [params.recipientSegment=''] - Target segment when broadcasting.
    * @param {boolean} [params.isRead=false] - Whether the recipient has read the notification.

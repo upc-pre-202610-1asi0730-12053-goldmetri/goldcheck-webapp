@@ -70,7 +70,7 @@ export class ConsumerPiece extends BaseEntity {
    * @param {?number} [params.ownerId=null] - Foreign key of the consumer owner.
    * @param {string} [params.sku=''] - Stock-keeping unit code of the linked jewelry item.
    * @param {string} [params.name=''] - Piece display name.
-   * @param {string} [params.type=''] - Jewelry type ('Anillo' | 'Collar' | 'Pulsera' | 'Arete').
+   * @param {string} [params.type=''] - Jewelry type ('Ring' | 'Necklace' | 'Bracelet' | 'Earring').
    * @param {string} [params.purity=''] - Gold purity ('18K' | '24K' | '750').
    * @param {number} [params.weight=0] - Weight in grams.
    * @param {?number} [params.certificationId=null] - Foreign key of the linked certificate.

@@ -1,3 +1,11 @@
+﻿<script setup>
+import { onMounted } from 'vue'
+import { useReportingStore } from '../../../application/reporting.store.js'
+
+const store = useReportingStore()
+onMounted(() => store.fetchReports())
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -38,14 +46,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useReportingStore } from '../../../application/reporting.store.js'
-
-const store = useReportingStore()
-onMounted(() => store.fetchReports())
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

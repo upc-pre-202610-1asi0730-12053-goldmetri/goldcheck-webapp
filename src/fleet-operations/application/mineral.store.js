@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { mineralApi } from '../infrastructure/mineral-api.js'
+import { MineralBatchAssembler } from '../infrastructure/mineral-batch.assembler.js'
 
 export const useMineralStore = defineStore('mineral', () => {
   const batches  = ref([])
@@ -22,8 +23,7 @@ export const useMineralStore = defineStore('mineral', () => {
     loading.value = true
     try {
       const res = await mineralApi.getBatches()
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
-      batches.value = res.data
+      batches.value = MineralBatchAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -42,7 +42,7 @@ export const useMineralStore = defineStore('mineral', () => {
     alerts.value   = aRes.data || []
   }
 
-  // US13 – Creación de Lote (Batch) — Paso 1
+  // US13 – Batch Creation — Step 1
   async function createBatch(depositId, vehicleId) {
     errors.value = []
     loading.value = true
@@ -57,7 +57,7 @@ export const useMineralStore = defineStore('mineral', () => {
         initialWeight: 0, mineralType: 'Oro', createdAt: new Date().toISOString()
       }
       const res = await mineralApi.createBatch(payload)
-      batches.value.unshift(res.data)
+      batches.value.unshift(MineralBatchAssembler.toEntityFromResource(res.data))
       return res.data
     } catch {
       errors.value = ['createError']
@@ -67,7 +67,7 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
-  // US14 – Registro de Pesaje Inicial — Paso 2
+  // US14 – Initial Weighing Registration — Step 2
   async function registerInitialWeight(batchId, weight) {
     errors.value = []
     try {
@@ -75,7 +75,7 @@ export const useMineralStore = defineStore('mineral', () => {
       await mineralApi.registerInitialWeight(batchId, weight)
       const idx = batches.value.findIndex(b => b.id === batchId)
       if (idx !== -1) {
-        batches.value[idx] = { ...batches.value[idx], initialWeight: weight, status: 'En Tránsito' }
+        batches.value[idx] = batches.value[idx].clone({ initialWeight: weight, status: 'En Tránsito' })
       }
       return true
     } catch {

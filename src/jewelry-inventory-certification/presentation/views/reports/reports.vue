@@ -1,3 +1,23 @@
+﻿<script setup>
+import { computed, onMounted } from 'vue'
+import { useJewelryStore } from '../../../application/jewelry.store.js'
+
+const store = useJewelryStore()
+onMounted(() => store.fetchItems())
+
+const totalValidatedWeight = computed(() =>
+  store.items.filter(i => i.status !== 'Pendiente').reduce((s, i) => s + (i.weight || 0), 0).toFixed(1)
+)
+const avgWeight = computed(() => {
+  if (!store.items.length) return '0'
+  return (store.items.reduce((s, i) => s + (i.weight || 0), 0) / store.items.length).toFixed(1)
+})
+
+function statusClass(s) {
+  return { 'Pendiente': 'gc-status-loading', 'Validado': 'gc-status-transit', 'Certificado': 'gc-status-done' }[s] || ''
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -66,26 +86,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { computed, onMounted } from 'vue'
-import { useJewelryStore } from '../../../application/jewelry.store.js'
-
-const store = useJewelryStore()
-onMounted(() => store.fetchItems())
-
-const totalValidatedWeight = computed(() =>
-  store.items.filter(i => i.status !== 'Pendiente').reduce((s, i) => s + (i.weight || 0), 0).toFixed(1)
-)
-const avgWeight = computed(() => {
-  if (!store.items.length) return '0'
-  return (store.items.reduce((s, i) => s + (i.weight || 0), 0) / store.items.length).toFixed(1)
-})
-
-function statusClass(s) {
-  return { 'Pendiente': 'gc-status-loading', 'Validado': 'gc-status-transit', 'Certificado': 'gc-status-done' }[s] || ''
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

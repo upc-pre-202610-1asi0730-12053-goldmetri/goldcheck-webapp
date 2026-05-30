@@ -11,13 +11,13 @@ class MonitoringApi extends BaseApi {
     this.#batches = new BaseEndpoint(this.http, '/mineralBatches')
   }
 
-  // US19 – Alerta de retraso o desvío
+  // US19 – Delay or route deviation alert endpoints
   getAlerts(params)        { return this.#alerts.getAll(params) }
   getAlertById(id)         { return this.#alerts.getById(id) }
   createAlert(data)        { return this.#alerts.create(data) }
   resolveAlert(id)         { return this.#alerts.patch(id, { status: 'Resuelta' }) }
 
-  // US17 / US18 – Batches en tránsito para monitoreo
+  // US17 / US18 – Batches in transit for monitoring
   getActiveBatches()       { return this.#batches.getAll({ status: 'En Tránsito' }) }
   updateBatchStatus(id, status) { return this.#batches.patch(id, { status }) }
 }

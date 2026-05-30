@@ -1,3 +1,53 @@
+﻿<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useJewelryStore } from '../../../application/jewelry.store.js'
+import StatCard from '../../../../shared/presentation/components/stat-card.vue'
+import ValidateLotModal from './validate-lot-modal.vue'
+
+const jewelryStore = useJewelryStore()
+const statusFilter = ref('')
+const showValidateModal = ref(false)
+const selectedItem = ref(null)
+const certModal = reactive({ show: false, cert: null })
+
+const filteredItems = computed(() => {
+  if (!statusFilter.value) return jewelryStore.items
+  return jewelryStore.items.filter(i => i.status === statusFilter.value)
+})
+
+function itemStatusClass(status) {
+  const map = {
+    'Pendiente':   'gc-status gc-status-loading',
+    'Validado':    'gc-status gc-status-transit',
+    'Certificado': 'gc-status gc-status-done',
+    'Vendido':     'gc-status gc-status-scale',
+  }
+  return map[status] || 'gc-status'
+}
+
+function openValidate(item) {
+  selectedItem.value = item
+  showValidateModal.value = true
+}
+
+function onValidated() {
+  showValidateModal.value = false
+}
+
+async function certify(item) {
+  await jewelryStore.issueCertificate(item.id)
+}
+
+async function viewCert(item) {
+  if (!jewelryStore.certificates.length) await jewelryStore.fetchCertificates()
+  const cert = jewelryStore.certificates.find(c => c.itemId === item.id || c.itemSku === item.sku)
+  certModal.cert = cert || null
+  certModal.show = true
+}
+
+onMounted(() => jewelryStore.fetchItems())
+</script>
+
 <template>
   <div class="gc-page">
 
@@ -7,7 +57,7 @@
         <p class="gc-page-subtitle">{{ $t('jewelry.dashboardSubtitle') }}</p>
       </div>
       <div class="gc-page-actions">
-        <button class="gc-btn gc-btn-gold" @click="$router.push('/jewelry/register')">
+        <button class="gc-btn gc-btn-gold" @click="$router.push({ name: 'jewelry-register' })">
           <i class="pi pi-plus" /> {{ $t('jewelry.registerItem') }}
         </button>
       </div>
@@ -133,56 +183,6 @@
 
   </div>
 </template>
-
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useJewelryStore } from '../../../application/jewelry.store.js'
-import StatCard from '../../../../shared/presentation/components/stat-card.vue'
-import ValidateLotModal from './validate-lot-modal.vue'
-
-const jewelryStore = useJewelryStore()
-const statusFilter = ref('')
-const showValidateModal = ref(false)
-const selectedItem = ref(null)
-const certModal = reactive({ show: false, cert: null })
-
-const filteredItems = computed(() => {
-  if (!statusFilter.value) return jewelryStore.items
-  return jewelryStore.items.filter(i => i.status === statusFilter.value)
-})
-
-function itemStatusClass(status) {
-  const map = {
-    'Pendiente':   'gc-status gc-status-loading',
-    'Validado':    'gc-status gc-status-transit',
-    'Certificado': 'gc-status gc-status-done',
-    'Vendido':     'gc-status gc-status-scale',
-  }
-  return map[status] || 'gc-status'
-}
-
-function openValidate(item) {
-  selectedItem.value = item
-  showValidateModal.value = true
-}
-
-function onValidated() {
-  showValidateModal.value = false
-}
-
-async function certify(item) {
-  await jewelryStore.issueCertificate(item.id)
-}
-
-async function viewCert(item) {
-  if (!jewelryStore.certificates.length) await jewelryStore.fetchCertificates()
-  const cert = jewelryStore.certificates.find(c => c.itemId === item.id || c.itemSku === item.sku)
-  certModal.cert = cert || null
-  certModal.show = true
-}
-
-onMounted(() => jewelryStore.fetchItems())
-</script>
 
 <style scoped>
 .gc-kpi-grid {

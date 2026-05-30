@@ -1,3 +1,28 @@
+﻿<script setup>
+import { ref, computed } from 'vue'
+import { useJewelryStore } from '../../../application/jewelry.store.js'
+import { useI18n } from 'vue-i18n'
+
+const props = defineProps({ item: Object })
+const emit  = defineEmits(['close', 'validated'])
+const { t } = useI18n()
+const jewelryStore = useJewelryStore()
+
+const checks = ref([
+  { id: 1, label: t('jewelry.check1'), done: false },
+  { id: 2, label: t('jewelry.check2'), done: false },
+  { id: 3, label: t('jewelry.check3'), done: false },
+  { id: 4, label: t('jewelry.check4'), done: false },
+])
+
+const allChecked = computed(() => checks.value.every(c => c.done))
+
+async function handleValidate() {
+  const ok = await jewelryStore.validateItem(props.item.id)
+  if (ok) emit('validated', props.item)
+}
+</script>
+
 <template>
   <pv-dialog
     :visible="true"
@@ -50,31 +75,6 @@
     </template>
   </pv-dialog>
 </template>
-
-<script setup>
-import { ref, computed } from 'vue'
-import { useJewelryStore } from '../../../application/jewelry.store.js'
-import { useI18n } from 'vue-i18n'
-
-const props = defineProps({ item: Object })
-const emit  = defineEmits(['close', 'validated'])
-const { t } = useI18n()
-const jewelryStore = useJewelryStore()
-
-const checks = ref([
-  { id: 1, label: t('jewelry.check1'), done: false },
-  { id: 2, label: t('jewelry.check2'), done: false },
-  { id: 3, label: t('jewelry.check3'), done: false },
-  { id: 4, label: t('jewelry.check4'), done: false },
-])
-
-const allChecked = computed(() => checks.value.every(c => c.done))
-
-async function handleValidate() {
-  const ok = await jewelryStore.validateItem(props.item.id)
-  if (ok) emit('validated', props.item)
-}
-</script>
 
 <style scoped>
 .item-preview {

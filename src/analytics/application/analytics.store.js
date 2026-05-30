@@ -9,7 +9,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   const loading      = ref(false)
   const errors       = ref([])
 
-  // US22 – Cálculo de merma: batches with initialWeight & finalWeight
+  // US22 – Shrinkage calculation: batches with initialWeight & finalWeight
   const batchesWithShrinkage = computed(() =>
     batches.value.filter(b => b.initialWeight && b.finalWeight)
   )

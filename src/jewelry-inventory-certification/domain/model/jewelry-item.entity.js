@@ -73,12 +73,12 @@ export class JewelryItem extends BaseEntity {
    * @param {?number} [params.id=null] - Item identifier.
    * @param {string} [params.sku=''] - Stock-keeping unit code.
    * @param {string} [params.name=''] - Item display name.
-   * @param {string} [params.type=''] - Jewelry type ('Anillo' | 'Collar' | 'Pulsera' | 'Arete').
+   * @param {string} [params.type=''] - Jewelry type ('Ring' | 'Necklace' | 'Bracelet' | 'Earring').
    * @param {string} [params.materialOrigin=''] - Linked mineral batch code.
    * @param {number} [params.weight=0] - Item weight in grams.
    * @param {string} [params.purity=''] - Gold purity ('18K' | '24K' | '750').
    * @param {string} [params.batchRef=''] - Reference to the source mineral batch.
-   * @param {string} [params.status='Pendiente'] - Lifecycle status ('Pendiente' | 'Validado' | 'Certificado' | 'Vendido').
+   * @param {string} [params.status='Pendiente'] - Lifecycle status ('Pending' | 'Validated' | 'Certified' | 'Sold').
    * @param {?number} [params.certificationId=null] - Foreign key of the issued certificate.
    * @param {number} [params.price=0] - Item price in PEN.
    * @param {string} [params.imageUrl=''] - URL of the item image.

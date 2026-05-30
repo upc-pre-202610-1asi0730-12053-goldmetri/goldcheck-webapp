@@ -1,3 +1,51 @@
+﻿<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useMineralStore } from '../../../application/mineral.store.js'
+import StatCard from '../../../../shared/presentation/components/stat-card.vue'
+import NewBatchModal from './new-batch-modal.vue'
+
+const mineralStore = useMineralStore()
+const showNewBatchModal = ref(false)
+const searchTerm = ref('')
+
+const filteredBatches = computed(() => {
+  if (!searchTerm.value) return mineralStore.batches
+  const q = searchTerm.value.toLowerCase()
+  return mineralStore.batches.filter(b =>
+    b.batchCode?.toLowerCase().includes(q) ||
+    b.vehicleName?.toLowerCase().includes(q) ||
+    b.status?.toLowerCase().includes(q)
+  )
+})
+
+const iotEvents = ref([
+  { message: 'Balanza BL-01: 38.50 T registradas', time: 'hace 2 min', color: 'iot-green' },
+  { message: 'Vehículo CAT-07 en ruta confirmada', time: 'hace 5 min', color: 'iot-green' },
+  { message: 'GPS TRK-003: señal reestablecida', time: 'hace 8 min', color: 'iot-yellow' },
+  { message: 'Lote GM-4821 llegó a Planta Principal', time: 'hace 12 min', color: 'iot-green' },
+  { message: 'Sensor BL-02: sin conexión', time: 'hace 18 min', color: 'iot-red' },
+])
+
+function statusSeverity(status) {
+  const map = {
+    'Cargando':    'warn',
+    'En Tránsito': 'info',
+    'En Balanza':  'secondary',
+    'Completado':  'success',
+    'Alerta':      'danger',
+  }
+  return map[status] || 'secondary'
+}
+
+function onBatchCreated(batch) {
+  showNewBatchModal.value = false
+}
+
+onMounted(async () => {
+  await Promise.all([mineralStore.fetchBatches(), mineralStore.fetchSupporting()])
+})
+</script>
+
 <template>
   <div class="gc-page">
 
@@ -147,54 +195,6 @@
 
   </div>
 </template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useMineralStore } from '../../../application/mineral.store.js'
-import StatCard from '../../../../shared/presentation/components/stat-card.vue'
-import NewBatchModal from './new-batch-modal.vue'
-
-const mineralStore = useMineralStore()
-const showNewBatchModal = ref(false)
-const searchTerm = ref('')
-
-const filteredBatches = computed(() => {
-  if (!searchTerm.value) return mineralStore.batches
-  const q = searchTerm.value.toLowerCase()
-  return mineralStore.batches.filter(b =>
-    b.batchCode?.toLowerCase().includes(q) ||
-    b.vehicleName?.toLowerCase().includes(q) ||
-    b.status?.toLowerCase().includes(q)
-  )
-})
-
-const iotEvents = ref([
-  { message: 'Balanza BL-01: 38.50 T registradas', time: 'hace 2 min', color: 'iot-green' },
-  { message: 'Vehículo CAT-07 en ruta confirmada', time: 'hace 5 min', color: 'iot-green' },
-  { message: 'GPS TRK-003: señal reestablecida', time: 'hace 8 min', color: 'iot-yellow' },
-  { message: 'Lote GM-4821 llegó a Planta Principal', time: 'hace 12 min', color: 'iot-green' },
-  { message: 'Sensor BL-02: sin conexión', time: 'hace 18 min', color: 'iot-red' },
-])
-
-function statusSeverity(status) {
-  const map = {
-    'Cargando':    'warn',
-    'En Tránsito': 'info',
-    'En Balanza':  'secondary',
-    'Completado':  'success',
-    'Alerta':      'danger',
-  }
-  return map[status] || 'secondary'
-}
-
-function onBatchCreated(batch) {
-  showNewBatchModal.value = false
-}
-
-onMounted(async () => {
-  await Promise.all([mineralStore.fetchBatches(), mineralStore.fetchSupporting()])
-})
-</script>
 
 <style scoped>
 .gc-kpi-grid {

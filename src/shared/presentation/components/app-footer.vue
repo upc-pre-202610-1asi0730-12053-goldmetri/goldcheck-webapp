@@ -1,3 +1,7 @@
+﻿<script setup>
+import { RouterLink } from 'vue-router'
+</script>
+
 <template>
   <footer class="app-footer" role="contentinfo">
     <div class="footer-left">
@@ -14,10 +18,6 @@
     <p class="footer-copy">{{ $t('footer.copyright') }}</p>
   </footer>
 </template>
-
-<script setup>
-import { RouterLink } from 'vue-router'
-</script>
 
 <style scoped>
 .app-footer {

@@ -1,3 +1,38 @@
+﻿<script setup>
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useIamStore } from '../../../iam/application/iam.store.js'
+
+const router = useRouter()
+const { locale, t } = useI18n()
+const iamStore = useIamStore()
+
+const searchQuery = ref('')
+const hasNotifications = ref(true)
+
+const searchPlaceholder = computed(() => {
+  const seg = iamStore.currentUser?.segment
+  if (seg === 'mining')  return t('common.searchMining')
+  if (seg === 'jewelry') return t('common.searchJewelry')
+  return t('common.search')
+})
+
+const displayName = computed(() => iamStore.currentUser?.username || 'Usuario')
+const initials = computed(() => {
+  const name = displayName.value
+  return name.slice(0, 2).toUpperCase()
+})
+
+function toggleLocale() {
+  locale.value = locale.value === 'es' ? 'en' : 'es'
+}
+
+function goToProfile() {
+  router.push({ name: 'profile' })
+}
+</script>
+
 <template>
   <header class="topbar" role="banner">
     <div class="topbar-search">
@@ -32,41 +67,6 @@
     </div>
   </header>
 </template>
-
-<script setup>
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { useIamStore } from '../../../iam/application/iam.store.js'
-
-const router = useRouter()
-const { locale, t } = useI18n()
-const iamStore = useIamStore()
-
-const searchQuery = ref('')
-const hasNotifications = ref(true)
-
-const searchPlaceholder = computed(() => {
-  const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')  return t('common.searchMining')
-  if (seg === 'jewelry') return t('common.searchJewelry')
-  return t('common.search')
-})
-
-const displayName = computed(() => iamStore.currentUser?.username || 'Usuario')
-const initials = computed(() => {
-  const name = displayName.value
-  return name.slice(0, 2).toUpperCase()
-})
-
-function toggleLocale() {
-  locale.value = locale.value === 'es' ? 'en' : 'es'
-}
-
-function goToProfile() {
-  router.push({ name: 'profile' })
-}
-</script>
 
 <style scoped>
 .topbar {

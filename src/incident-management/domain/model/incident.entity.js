@@ -64,12 +64,12 @@ export class Incident extends BaseEntity {
    * @param {?number} [params.id=null] - Incident identifier.
    * @param {string} [params.title=''] - Short incident title.
    * @param {string} [params.description=''] - Full incident description.
-   * @param {string} [params.incidentType=''] - Incident type ('ROBO' | 'ACCIDENTE' | 'DESVIO' | 'OTRO').
+   * @param {string} [params.incidentType=''] - Incident type ('THEFT' | 'ACCIDENT' | 'DEVIATION' | 'OTHER').
    * @param {string} [params.severity='LOW'] - Severity level ('LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL').
    * @param {?number} [params.batchId=null] - Foreign key of the related mineral batch.
    * @param {?number} [params.vehicleId=null] - Foreign key of the related vehicle.
    * @param {?number} [params.reportedBy=null] - Foreign key of the reporting user.
-   * @param {string} [params.status='Abierto'] - Resolution status ('Abierto' | 'En Revisión' | 'Resuelto' | 'Cerrado').
+   * @param {string} [params.status='Abierto'] - Resolution status ('Open' | 'Under Review' | 'Resolved' | 'Closed').
    * @param {?string} [params.reportedAt=null] - ISO timestamp of the report.
    * @param {?string} [params.resolvedAt=null] - ISO timestamp of resolution.
    */

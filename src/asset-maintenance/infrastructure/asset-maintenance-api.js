@@ -10,10 +10,10 @@ class AssetMaintenanceApi extends BaseApi {
     this.#vehicles = new BaseEndpoint(this.http, '/vehicles')
   }
 
-  getVehicles(params)            { return this.#vehicles.getAll(params) }
-  getVehicleById(id)             { return this.#vehicles.getById(id) }
-  updateVehicleStatus(id, status){ return this.#vehicles.patch(id, { status }) }
-  updateVehicle(id, data)        { return this.#vehicles.patch(id, data) }
+  getVehicles(params)             { return this.#vehicles.getAll(params) }
+  getVehicleById(id)              { return this.#vehicles.getById(id) }
+  updateVehicleStatus(id, status) { return this.#vehicles.patch(id, { status }) }
+  updateVehicle(id, data)         { return this.#vehicles.patch(id, data) }
 }
 
 export const assetMaintenanceApi = new AssetMaintenanceApi()

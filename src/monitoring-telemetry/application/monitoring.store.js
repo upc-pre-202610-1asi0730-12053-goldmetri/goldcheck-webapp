@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { monitoringApi } from '../infrastructure/monitoring-api.js'
+import { AnomalyAlertAssembler } from '../infrastructure/anomaly-alert.assembler.js'
 
 export const useMonitoringStore = defineStore('monitoring', () => {
   const alerts        = ref([])
@@ -19,8 +20,7 @@ export const useMonitoringStore = defineStore('monitoring', () => {
     errors.value  = []
     try {
       const res = await monitoringApi.getAlerts()
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
-      alerts.value = res.data
+      alerts.value = AnomalyAlertAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -37,7 +37,7 @@ export const useMonitoringStore = defineStore('monitoring', () => {
     }
   }
 
-  // US19 – Generar alerta de retraso o desvío
+  // US19 – Generate delay or route deviation alert
   async function createAlert(batchId, batchCode, vehicleId, alertType, severity, description) {
     errors.value = []
     try {
@@ -47,7 +47,7 @@ export const useMonitoringStore = defineStore('monitoring', () => {
         detectedAt: new Date().toISOString()
       }
       const res = await monitoringApi.createAlert(payload)
-      alerts.value.unshift(res.data)
+      alerts.value.unshift(AnomalyAlertAssembler.toEntityFromResource(res.data))
       return true
     } catch {
       errors.value = ['createError']
@@ -61,7 +61,7 @@ export const useMonitoringStore = defineStore('monitoring', () => {
       await monitoringApi.resolveAlert(alertId)
       const idx = alerts.value.findIndex(a => a.id === alertId)
       if (idx !== -1) {
-        alerts.value[idx] = { ...alerts.value[idx], status: 'Resuelta' }
+        alerts.value[idx] = alerts.value[idx].clone({ status: 'Resuelta' })
       }
       return true
     } catch {

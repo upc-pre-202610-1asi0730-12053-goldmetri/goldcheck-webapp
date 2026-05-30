@@ -15,13 +15,13 @@ class ConsumerApi extends BaseApi {
     this.#batches  = new BaseEndpoint(this.http, '/mineralBatches')
   }
 
-  getPieces(params)        { return this.#pieces.getAll(params) }
-  getPieceById(id)         { return this.#pieces.getById(id) }
-  linkPiece(data)          { return this.#pieces.create(data) }
-  updatePiece(id, data)    { return this.#pieces.update(id, data) }
-  getCertificates(params)  { return this.#certs.getAll(params) }
-  getJewelryItem(sku)      { return this.#jewelry.getAll({ sku }) }
-  getBatchByCode(code)     { return this.#batches.getAll({ batchCode: code }) }
+  getPieces(params)       { return this.#pieces.getAll(params) }
+  getPieceById(id)        { return this.#pieces.getById(id) }
+  linkPiece(data)         { return this.#pieces.create(data) }
+  updatePiece(id, data)   { return this.#pieces.update(id, data) }
+  getCertificates(params) { return this.#certs.getAll(params) }
+  getJewelryItem(sku)     { return this.#jewelry.getAll({ sku }) }
+  getBatchByCode(code)    { return this.#batches.getAll({ batchCode: code }) }
 }
 
 export const consumerApi = new ConsumerApi()

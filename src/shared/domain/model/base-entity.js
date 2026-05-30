@@ -1,3 +1,5 @@
+import { markRaw } from 'vue'
+
 /**
  * Shared base class for all domain entities.
  * Provides a common identifier property inherited by every bounded context entity.
@@ -17,6 +19,10 @@ export class BaseEntity {
    */
   constructor({ id = null } = {}) {
     this.#id = id
+    // Prevent Vue 3's reactive Proxy from wrapping this instance.
+    // Proxy objects cannot access JavaScript private class fields,
+    // which would cause TypeErrors in every entity getter.
+    markRaw(this)
   }
 
   /**

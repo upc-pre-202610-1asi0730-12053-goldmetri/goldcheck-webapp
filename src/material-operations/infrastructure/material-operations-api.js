@@ -9,27 +9,27 @@ class MaterialOperationsApi extends BaseApi {
     this.#batches = new BaseEndpoint(this.http, '/mineralBatches')
   }
 
-  // US20 – Confirmación de llegada: cambiar status a "En Planta"
+  // US20 – Arrival confirmation: set status to "En Planta"
   confirmArrival(id) {
     return this.#batches.patch(id, { status: 'En Planta' })
   }
 
-  // US21 – Pesaje final (recepción)
+  // US21 – Final weighing (reception)
   registerFinalWeight(id, finalWeight) {
     return this.#batches.patch(id, { finalWeight, status: 'En Balanza' })
   }
 
-  // US16 – Tipificación de mineral
+  // US16 – Mineral classification
   classifyMineral(id, mineralType) {
     return this.#batches.patch(id, { mineralType })
   }
 
-  // US22 – Cálculo de merma: mark lote "Bajo Investigación" if shrinkage > 5%
+  // US22 – Shrinkage calculation: flags batch as "Under Investigation" if shrinkage exceeds 5%
   markUnderInvestigation(id) {
     return this.#batches.patch(id, { status: 'Bajo Investigación' })
   }
 
-  // US29 – Ingreso de material de cliente (lote sin historial minero)
+  // US29 – Client material entry (batch with no mining history)
   createClientMaterial(data) {
     return this.#batches.create(data)
   }

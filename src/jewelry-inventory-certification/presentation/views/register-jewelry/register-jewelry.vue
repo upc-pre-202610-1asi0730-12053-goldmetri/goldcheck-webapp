@@ -1,3 +1,29 @@
+﻿<script setup>
+import { ref } from 'vue'
+import { useJewelryStore } from '../../../application/jewelry.store.js'
+
+const jewelryStore = useJewelryStore()
+const submitted = ref(false)
+const success = ref(false)
+
+const typeOptions   = ['Anillo', 'Collar', 'Pulsera', 'Arete', 'Colgante']
+const purityOptions = ['18K', '24K', '750', '925 (Plata)']
+
+const form = ref({ name: '', type: '', purity: '', weight: null, batchRef: '', price: null })
+
+async function handleSubmit() {
+  submitted.value = true
+  if (!form.value.name || !form.value.type || !form.value.purity || !form.value.weight) return
+  const item = await jewelryStore.registerItem(form.value)
+  if (item) {
+    success.value = true
+    form.value = { name: '', type: '', purity: '', weight: null, batchRef: '', price: null }
+    submitted.value = false
+    setTimeout(() => { success.value = false }, 3000)
+  }
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -64,32 +90,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { useJewelryStore } from '../../../application/jewelry.store.js'
-
-const jewelryStore = useJewelryStore()
-const submitted = ref(false)
-const success = ref(false)
-
-const typeOptions   = ['Anillo', 'Collar', 'Pulsera', 'Arete', 'Colgante']
-const purityOptions = ['18K', '24K', '750', '925 (Plata)']
-
-const form = ref({ name: '', type: '', purity: '', weight: null, batchRef: '', price: null })
-
-async function handleSubmit() {
-  submitted.value = true
-  if (!form.value.name || !form.value.type || !form.value.purity || !form.value.weight) return
-  const item = await jewelryStore.registerItem(form.value)
-  if (item) {
-    success.value = true
-    form.value = { name: '', type: '', purity: '', weight: null, batchRef: '', price: null }
-    submitted.value = false
-    setTimeout(() => { success.value = false }, 3000)
-  }
-}
-</script>
 
 <style scoped>
 .form-row {

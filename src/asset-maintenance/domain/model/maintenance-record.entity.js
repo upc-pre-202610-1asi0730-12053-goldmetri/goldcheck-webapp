@@ -59,12 +59,12 @@ export class MaintenanceRecord extends BaseEntity {
    * @param {?number} [params.id=null] - Record identifier.
    * @param {?number} [params.vehicleId=null] - Foreign key of the maintained vehicle.
    * @param {string} [params.vehicleName=''] - Display name of the vehicle.
-   * @param {string} [params.maintenanceType=''] - Maintenance type ('PREVENTIVO' | 'CORRECTIVO' | 'INSPECCION').
+   * @param {string} [params.maintenanceType=''] - Maintenance type ('PREVENTIVE' | 'CORRECTIVE' | 'INSPECTION').
    * @param {string} [params.description=''] - Free-text description of the maintenance task.
    * @param {?string} [params.scheduledDate=null] - ISO scheduled execution date.
    * @param {?string} [params.completedDate=null] - ISO actual completion date.
    * @param {?number} [params.technicianId=null] - Foreign key of the assigned technician.
-   * @param {string} [params.status='Programado'] - Record status ('Programado' | 'En Progreso' | 'Completado' | 'Cancelado').
+   * @param {string} [params.status='Programado'] - Record status ('Scheduled' | 'In Progress' | 'Completed' | 'Cancelled').
    * @param {number} [params.cost=0] - Maintenance cost in PEN.
    */
   constructor({

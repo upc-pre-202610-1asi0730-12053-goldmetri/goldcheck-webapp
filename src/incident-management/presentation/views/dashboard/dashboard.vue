@@ -1,3 +1,22 @@
+﻿<script setup>
+import { ref, onMounted } from 'vue'
+import { useIncidentManagementStore } from '../../../application/incident-management.store.js'
+
+const store     = useIncidentManagementStore()
+const showModal = ref(false)
+
+onMounted(() => store.fetchIncidents())
+
+function severityClass(s) {
+  return { 'badge-danger': s === 'CRITICAL' || s === 'HIGH', 'badge-warning': s === 'MEDIUM', 'badge-info': s === 'LOW' }
+}
+
+function formatDate(iso) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('es-PE')
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -73,25 +92,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useIncidentManagementStore } from '../../../application/incident-management.store.js'
-
-const store     = useIncidentManagementStore()
-const showModal = ref(false)
-
-onMounted(() => store.fetchIncidents())
-
-function severityClass(s) {
-  return { 'badge-danger': s === 'CRITICAL' || s === 'HIGH', 'badge-warning': s === 'MEDIUM', 'badge-info': s === 'LOW' }
-}
-
-function formatDate(iso) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-PE')
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

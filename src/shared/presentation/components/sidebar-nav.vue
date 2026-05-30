@@ -1,34 +1,4 @@
-<template>
-  <aside class="sidebar" role="complementary" :aria-label="$t('nav.sidebar')">
-    <div class="sidebar-logo" aria-hidden="true">
-      <span class="logo-hex">⬡</span>
-      <span class="logo-text">GoldMetrics</span>
-    </div>
-
-    <nav class="sidebar-nav" role="navigation" :aria-label="$t('nav.mainNav')">
-      <p class="sidebar-section-label" aria-hidden="true">{{ sectionLabel }}</p>
-      <RouterLink
-        v-for="item in navItems"
-        :key="item.name"
-        :to="item.to"
-        class="sidebar-link"
-        :class="{ active: isActive(item.to) }"
-        :aria-current="isActive(item.to) ? 'page' : undefined"
-        :aria-label="item.label"
-      >
-        <i :class="item.icon" class="sidebar-link-icon" aria-hidden="true" />
-        {{ item.label }}
-      </RouterLink>
-    </nav>
-
-    <button class="sidebar-logout" @click="logout" :aria-label="$t('nav.logout')">
-      <i class="pi pi-sign-out" aria-hidden="true" />
-      {{ $t('nav.logout') }}
-    </button>
-  </aside>
-</template>
-
-<script setup>
+﻿<script setup>
 import { computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useIamStore } from '../../../iam/application/iam.store.js'
@@ -95,6 +65,36 @@ function logout() {
   router.push({ name: 'login' })
 }
 </script>
+
+<template>
+  <aside class="sidebar" role="complementary" :aria-label="$t('nav.sidebar')">
+    <div class="sidebar-logo" aria-hidden="true">
+      <span class="logo-hex">⬡</span>
+      <span class="logo-text">GoldMetrics</span>
+    </div>
+
+    <nav class="sidebar-nav" role="navigation" :aria-label="$t('nav.mainNav')">
+      <p class="sidebar-section-label" aria-hidden="true">{{ sectionLabel }}</p>
+      <RouterLink
+        v-for="item in navItems"
+        :key="item.name"
+        :to="item.to"
+        class="sidebar-link"
+        :class="{ active: isActive(item.to) }"
+        :aria-current="isActive(item.to) ? 'page' : undefined"
+        :aria-label="item.label"
+      >
+        <i :class="item.icon" class="sidebar-link-icon" aria-hidden="true" />
+        {{ item.label }}
+      </RouterLink>
+    </nav>
+
+    <button class="sidebar-logout" @click="logout" :aria-label="$t('nav.logout')">
+      <i class="pi pi-sign-out" aria-hidden="true" />
+      {{ $t('nav.logout') }}
+    </button>
+  </aside>
+</template>
 
 <style scoped>
 .sidebar {

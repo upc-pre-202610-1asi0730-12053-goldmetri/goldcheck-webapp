@@ -1,3 +1,49 @@
+﻿<script setup>
+import { ref, computed } from 'vue'
+import { useMineralStore } from '../../../application/mineral.store.js'
+
+const emit = defineEmits(['close', 'created'])
+const mineralStore = useMineralStore()
+
+const step = ref(1)
+const step1Error = ref(false)
+const createdBatch = ref(null)
+
+const form = ref({ depositId: '', vehicleId: '' })
+
+const simulatedWeight = ref(38.50)
+
+const vehicleOptions = computed(() =>
+  mineralStore.vehicles.map(v => ({ ...v, label: `${v.name} (Placa: ${v.plate})` }))
+)
+
+const selectedVehicleName = computed(() => {
+  const v = mineralStore.vehicles.find(v => v.id === form.value.vehicleId)
+  return v?.name || '—'
+})
+
+const selectedDestination = computed(() => {
+  const d = mineralStore.deposits.find(d => d.id === form.value.depositId)
+  return d?.defaultDestination || 'Planta Principal'
+})
+
+async function goStep2() {
+  step1Error.value = true
+  if (!form.value.depositId || !form.value.vehicleId) return
+
+  const batch = await mineralStore.createBatch(form.value.depositId, form.value.vehicleId)
+  if (!batch) return
+  createdBatch.value = batch
+  step.value = 2
+}
+
+async function handleSeal() {
+  if (!createdBatch.value) return
+  const ok = await mineralStore.registerInitialWeight(createdBatch.value.id, simulatedWeight.value)
+  if (ok) emit('created', createdBatch.value)
+}
+</script>
+
 <template>
   <!-- Modal Crear Nuevo Lote - US13 (Paso 1) + US14 (Paso 2) -->
   <pv-dialog
@@ -97,52 +143,6 @@
     </template>
   </pv-dialog>
 </template>
-
-<script setup>
-import { ref, computed } from 'vue'
-import { useMineralStore } from '../../../application/mineral.store.js'
-
-const emit = defineEmits(['close', 'created'])
-const mineralStore = useMineralStore()
-
-const step = ref(1)
-const step1Error = ref(false)
-const createdBatch = ref(null)
-
-const form = ref({ depositId: '', vehicleId: '' })
-
-const simulatedWeight = ref(38.50)
-
-const vehicleOptions = computed(() =>
-  mineralStore.vehicles.map(v => ({ ...v, label: `${v.name} (Placa: ${v.plate})` }))
-)
-
-const selectedVehicleName = computed(() => {
-  const v = mineralStore.vehicles.find(v => v.id === form.value.vehicleId)
-  return v?.name || '—'
-})
-
-const selectedDestination = computed(() => {
-  const d = mineralStore.deposits.find(d => d.id === form.value.depositId)
-  return d?.defaultDestination || 'Planta Principal'
-})
-
-async function goStep2() {
-  step1Error.value = true
-  if (!form.value.depositId || !form.value.vehicleId) return
-
-  const batch = await mineralStore.createBatch(form.value.depositId, form.value.vehicleId)
-  if (!batch) return
-  createdBatch.value = batch
-  step.value = 2
-}
-
-async function handleSeal() {
-  if (!createdBatch.value) return
-  const ok = await mineralStore.registerInitialWeight(createdBatch.value.id, simulatedWeight.value)
-  if (ok) emit('created', createdBatch.value)
-}
-</script>
 
 <style scoped>
 .form-field {

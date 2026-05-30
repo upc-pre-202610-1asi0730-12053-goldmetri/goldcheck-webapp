@@ -1,3 +1,28 @@
+﻿<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { useConsumerStore } from '../../../application/consumer.store.js'
+import { useIamStore } from '../../../../iam/application/iam.store.js'
+import VincularJoyaModal from './vincular-joya-modal.vue'
+
+const consumerStore = useConsumerStore()
+const iamStore = useIamStore()
+const showLinkModal = ref(false)
+const traceModal = reactive({ show: false, piece: null })
+
+function onLinked() {
+  showLinkModal.value = false
+}
+
+function openTrace(piece) {
+  traceModal.piece = piece
+  traceModal.show = true
+}
+
+onMounted(() => {
+  consumerStore.fetchPieces(iamStore.currentUser?.id)
+})
+</script>
+
 <template>
   <div class="gc-page">
 
@@ -108,31 +133,6 @@
 
   </div>
 </template>
-
-<script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useConsumerStore } from '../../../application/consumer.store.js'
-import { useIamStore } from '../../../../iam/application/iam.store.js'
-import VincularJoyaModal from './vincular-joya-modal.vue'
-
-const consumerStore = useConsumerStore()
-const iamStore = useIamStore()
-const showLinkModal = ref(false)
-const traceModal = reactive({ show: false, piece: null })
-
-function onLinked() {
-  showLinkModal.value = false
-}
-
-function openTrace(piece) {
-  traceModal.piece = piece
-  traceModal.show = true
-}
-
-onMounted(() => {
-  consumerStore.fetchPieces(iamStore.currentUser?.id)
-})
-</script>
 
 <style scoped>
 .jewelry-grid {

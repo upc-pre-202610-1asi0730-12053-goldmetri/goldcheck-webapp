@@ -64,7 +64,7 @@ export class JewelryCertificate extends BaseEntity {
    * @param {string} [params.purity=''] - Certified gold purity.
    * @param {number} [params.weight=0] - Certified weight in grams.
    * @param {string} [params.qrCode=''] - QR code string for consumer traceability.
-   * @param {string} [params.status='Activo'] - Certificate status ('Activo' | 'Revocado' | 'Expirado').
+   * @param {string} [params.status='Activo'] - Certificate status ('Active' | 'Revoked' | 'Expired').
    */
   constructor({
     id = null, itemId = null, itemSku = '', issuerName = '', issueDate = null,

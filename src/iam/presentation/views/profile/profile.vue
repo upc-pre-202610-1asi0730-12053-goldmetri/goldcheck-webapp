@@ -1,3 +1,35 @@
+﻿<script setup>
+import { ref, reactive, computed } from 'vue'
+import { useIamStore } from '../../../application/iam.store.js'
+
+const iamStore = useIamStore()
+const activeTab = ref('profile')
+const saved = ref(false)
+
+const form = reactive({
+  email:       iamStore.currentUser?.email || '',
+  username:    iamStore.currentUser?.username || '',
+  password:    '',
+  phoneNumber: iamStore.currentUser?.phoneNumber || '',
+  location:    iamStore.currentUser?.location || ''
+})
+
+const initials = computed(() => (form.username || 'U').slice(0, 2).toUpperCase())
+
+async function handleSave() {
+  const ok = await iamStore.updateProfile({
+    email: form.email,
+    username: form.username,
+    phoneNumber: form.phoneNumber,
+    location: form.location
+  })
+  if (ok) {
+    saved.value = true
+    setTimeout(() => { saved.value = false }, 3000)
+  }
+}
+</script>
+
 <template>
   <div class="dashboard-page">
     <div class="profile-header">
@@ -69,38 +101,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, reactive, computed } from 'vue'
-import { useIamStore } from '../../../application/iam.store.js'
-
-const iamStore = useIamStore()
-const activeTab = ref('profile')
-const saved = ref(false)
-
-const form = reactive({
-  email:       iamStore.currentUser?.email || '',
-  username:    iamStore.currentUser?.username || '',
-  password:    '',
-  phoneNumber: iamStore.currentUser?.phoneNumber || '',
-  location:    iamStore.currentUser?.location || ''
-})
-
-const initials = computed(() => (form.username || 'U').slice(0, 2).toUpperCase())
-
-async function handleSave() {
-  const ok = await iamStore.updateProfile({
-    email: form.email,
-    username: form.username,
-    phoneNumber: form.phoneNumber,
-    location: form.location
-  })
-  if (ok) {
-    saved.value = true
-    setTimeout(() => { saved.value = false }, 3000)
-  }
-}
-</script>
 
 <style scoped>
 .profile-header {

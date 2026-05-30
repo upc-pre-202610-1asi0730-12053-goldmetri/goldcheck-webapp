@@ -15,7 +15,7 @@ export class AnomalyAlertAssembler {
       id: resource.id, batchId: resource.batchId,
       batchCode: resource.batchCode || (resource.batchId ? `Lote #${resource.batchId}` : ''),
       vehicleId: resource.vehicleId, alertType: resource.alertType || resource.type,
-      severity: resource.severity || 'LOW', description: resource.description,
+      severity: resource.severity || 'LOW', description: resource.description || resource.message || '',
       coordinates: resource.coordinates, status: resource.status || 'Activa',
       detectedAt: resource.detectedAt || resource.createdAt, resolvedAt: resource.resolvedAt
     })

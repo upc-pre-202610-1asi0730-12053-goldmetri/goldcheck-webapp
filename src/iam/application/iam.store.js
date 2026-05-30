@@ -16,7 +16,7 @@ export const useIamStore = defineStore('iam', () => {
     try { currentUser.value = JSON.parse(savedUser) } catch {}
   }
 
-  // US08 – Inicio de Sesión
+  // US08 – Sign In
   async function login(email, password) {
     errors.value = []
     loading.value = true
@@ -42,7 +42,7 @@ export const useIamStore = defineStore('iam', () => {
     }
   }
 
-  // US06 / US07 – Registro de Empresa Minera / Joyería
+  // US06 / US07 – Mining Company / Jewelry Company Registration
   async function register(data) {
     errors.value = []
     loading.value = true
@@ -63,7 +63,7 @@ export const useIamStore = defineStore('iam', () => {
     }
   }
 
-  // US10 – Gestión de Perfil Corporativo
+  // US10 – Corporate Profile Management
   async function updateProfile(data) {
     if (!currentUser.value?.id) return false
     errors.value = []

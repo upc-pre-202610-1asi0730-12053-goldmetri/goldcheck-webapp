@@ -9,7 +9,7 @@ class SubscriptionsApi extends BaseApi {
     this.#users = new BaseEndpoint(this.http, '/users')
   }
 
-  // US02 – Visualización de planes (static, no endpoint needed; kept for plan upgrade)
+  // US02 – Plan listing (static, no endpoint needed; kept for plan upgrade)
   upgradePlan(userId, plan) {
     return this.#users.patch(userId, { plan })
   }

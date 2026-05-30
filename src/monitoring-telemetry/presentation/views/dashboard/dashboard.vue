@@ -1,3 +1,11 @@
+﻿<script setup>
+import { onMounted } from 'vue'
+import { useMonitoringStore } from '../../../application/monitoring.store.js'
+
+const store = useMonitoringStore()
+onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -68,14 +76,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useMonitoringStore } from '../../../application/monitoring.store.js'
-
-const store = useMonitoringStore()
-onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

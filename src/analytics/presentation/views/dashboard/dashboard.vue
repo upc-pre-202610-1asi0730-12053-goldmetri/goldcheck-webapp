@@ -1,3 +1,15 @@
+﻿<script setup>
+import { onMounted } from 'vue'
+import { useAnalyticsStore } from '../../../application/analytics.store.js'
+
+const store = useAnalyticsStore()
+onMounted(() => store.fetchAnalyticsData())
+
+function shrinkagePct(b) {
+  return (((b.initialWeight - b.finalWeight) / b.initialWeight) * 100).toFixed(2)
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -70,18 +82,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useAnalyticsStore } from '../../../application/analytics.store.js'
-
-const store = useAnalyticsStore()
-onMounted(() => store.fetchAnalyticsData())
-
-function shrinkagePct(b) {
-  return (((b.initialWeight - b.finalWeight) / b.initialWeight) * 100).toFixed(2)
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

@@ -1,3 +1,21 @@
+﻿<script setup>
+import { computed, onMounted } from 'vue'
+import { useMineralStore } from '../../../application/mineral.store.js'
+
+const store = useMineralStore()
+onMounted(() => store.fetchSupporting())
+
+const availableCount   = computed(() => store.vehicles.filter(v => v.status === 'Disponible').length)
+const onRouteCount     = computed(() => store.vehicles.filter(v => v.status === 'En Ruta').length)
+const maintenanceCount = computed(() => store.vehicles.filter(v => v.status === 'Mantenimiento').length)
+
+function vehicleStatusClass(s) {
+  if (s === 'Disponible') return 'badge-ok'
+  if (s === 'En Ruta') return 'badge-transit'
+  return 'badge-warning'
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -62,24 +80,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { computed, onMounted } from 'vue'
-import { useMineralStore } from '../../../application/mineral.store.js'
-
-const store = useMineralStore()
-onMounted(() => store.fetchSupporting())
-
-const availableCount   = computed(() => store.vehicles.filter(v => v.status === 'Disponible').length)
-const onRouteCount     = computed(() => store.vehicles.filter(v => v.status === 'En Ruta').length)
-const maintenanceCount = computed(() => store.vehicles.filter(v => v.status === 'Mantenimiento').length)
-
-function vehicleStatusClass(s) {
-  if (s === 'Disponible') return 'badge-ok'
-  if (s === 'En Ruta') return 'badge-transit'
-  return 'badge-warning'
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

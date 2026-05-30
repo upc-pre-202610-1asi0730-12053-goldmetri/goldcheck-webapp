@@ -69,7 +69,7 @@ export class MaterialReception extends BaseEntity {
    * @param {number} [params.shrinkagePercent=0] - Pre-calculated shrinkage percentage.
    * @param {string} [params.mineralType=''] - Type of mineral received.
    * @param {?number} [params.purityKarats=null] - Purity measured in karats.
-   * @param {string} [params.status='Pendiente'] - Reception status ('Pendiente' | 'Recibido' | 'Bajo Investigación' | 'Procesado').
+   * @param {string} [params.status='Pendiente'] - Reception status ('Pending' | 'Received' | 'Under Investigation' | 'Processed').
    * @param {?number} [params.operatorId=null] - Foreign key of the receiving operator.
    * @param {?string} [params.receivedAt=null] - ISO reception timestamp.
    */

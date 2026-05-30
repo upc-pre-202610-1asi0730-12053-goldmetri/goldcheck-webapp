@@ -1,3 +1,17 @@
+﻿<script setup>
+import { onMounted } from 'vue'
+import { useConsumerStore } from '../../../application/consumer.store.js'
+import { useIamStore } from '../../../../iam/application/iam.store.js'
+
+const store    = useConsumerStore()
+const iamStore = useIamStore()
+
+onMounted(async () => {
+  if (!store.pieces.length) await store.fetchPieces(iamStore.currentUser?.id)
+  await store.fetchCertificates()
+})
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -43,20 +57,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useConsumerStore } from '../../../application/consumer.store.js'
-import { useIamStore } from '../../../../iam/application/iam.store.js'
-
-const store    = useConsumerStore()
-const iamStore = useIamStore()
-
-onMounted(async () => {
-  if (!store.pieces.length) await store.fetchPieces(iamStore.currentUser?.id)
-  await store.fetchCertificates()
-})
-</script>
 
 <style scoped>
 .certs-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem; }

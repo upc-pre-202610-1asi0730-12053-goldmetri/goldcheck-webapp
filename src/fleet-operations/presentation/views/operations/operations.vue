@@ -1,3 +1,31 @@
+﻿<script setup>
+import { reactive, onMounted } from 'vue'
+import { useMineralStore } from '../../../application/mineral.store.js'
+
+const store = useMineralStore()
+onMounted(() => store.fetchBatches())
+
+const weightModal = reactive({ show: false, batchId: null, value: null })
+
+function openWeightModal(b) {
+  weightModal.batchId = b.id
+  weightModal.value = null
+  weightModal.show = true
+}
+
+async function submitWeight() {
+  const ok = await store.registerInitialWeight(weightModal.batchId, weightModal.value)
+  if (ok) weightModal.show = false
+}
+
+function statusClass(s) {
+  if (s === 'Completado') return 'badge-ok'
+  if (s === 'Alerta') return 'badge-danger'
+  if (s === 'En Tránsito') return 'badge-transit'
+  return 'badge-warning'
+}
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -93,34 +121,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { reactive, onMounted } from 'vue'
-import { useMineralStore } from '../../../application/mineral.store.js'
-
-const store = useMineralStore()
-onMounted(() => store.fetchBatches())
-
-const weightModal = reactive({ show: false, batchId: null, value: null })
-
-function openWeightModal(b) {
-  weightModal.batchId = b.id
-  weightModal.value = null
-  weightModal.show = true
-}
-
-async function submitWeight() {
-  const ok = await store.registerInitialWeight(weightModal.batchId, weightModal.value)
-  if (ok) weightModal.show = false
-}
-
-function statusClass(s) {
-  if (s === 'Completado') return 'badge-ok'
-  if (s === 'Alerta') return 'badge-danger'
-  if (s === 'En Tránsito') return 'badge-transit'
-  return 'badge-warning'
-}
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

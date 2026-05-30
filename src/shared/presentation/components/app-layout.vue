@@ -1,3 +1,10 @@
+﻿<script setup>
+import { RouterView } from 'vue-router'
+import SidebarNav from './sidebar-nav.vue'
+import TopBar from './top-bar.vue'
+import AppFooter from './app-footer.vue'
+</script>
+
 <template>
   <div class="app-shell">
     <SidebarNav />
@@ -10,13 +17,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { RouterView } from 'vue-router'
-import SidebarNav from './sidebar-nav.vue'
-import TopBar from './top-bar.vue'
-import AppFooter from './app-footer.vue'
-</script>
 
 <style scoped>
 .app-shell {

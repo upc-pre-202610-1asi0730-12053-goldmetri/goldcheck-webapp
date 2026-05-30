@@ -13,9 +13,9 @@ class ReportingApi extends BaseApi {
     this.#alerts       = new BaseEndpoint(this.http, '/anomalyAlerts')
   }
 
-  getBatchReport(params)     { return this.#batches.getAll(params) }
-  getJewelryReport(params)   { return this.#jewelryItems.getAll(params) }
-  getAlertReport(params)     { return this.#alerts.getAll(params) }
+  getBatchReport(params)   { return this.#batches.getAll(params) }
+  getJewelryReport(params) { return this.#jewelryItems.getAll(params) }
+  getAlertReport(params)   { return this.#alerts.getAll(params) }
 }
 
 export const reportingApi = new ReportingApi()

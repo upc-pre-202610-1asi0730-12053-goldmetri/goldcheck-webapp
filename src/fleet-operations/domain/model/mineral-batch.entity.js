@@ -80,8 +80,8 @@ export class MineralBatch extends BaseEntity {
    * @param {?number} [params.driverId=null] - Foreign key of the assigned driver.
    * @param {number} [params.initialWeight=0] - Recorded weight at loading point in tonnes.
    * @param {?number} [params.finalWeight=null] - Recorded weight at reception in tonnes.
-   * @param {string} [params.mineralType=''] - Type of mineral (e.g. 'Oro', 'Plata').
-   * @param {string} [params.status='Cargando'] - Transit status ('Cargando' | 'En Tránsito' | 'En Balanza' | 'En Planta' | 'Procesado' | 'Desvío Detectado').
+   * @param {string} [params.mineralType=''] - Type of mineral (e.g. 'Gold', 'Silver').
+   * @param {string} [params.status='Cargando'] - Transit status ('Loading' | 'In Transit' | 'On Scale' | 'At Plant' | 'Processed' | 'Deviation Detected').
    * @param {string} [params.destination=''] - Destination plant name.
    * @param {?string} [params.createdAt=null] - ISO creation timestamp.
    */

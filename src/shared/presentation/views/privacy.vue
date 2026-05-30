@@ -1,3 +1,7 @@
+﻿<script setup>
+import { RouterLink } from 'vue-router'
+</script>
+
 <template>
   <div class="legal-page">
     <div class="legal-card">
@@ -34,10 +38,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { RouterLink } from 'vue-router'
-</script>
 
 <style scoped>
 .legal-page {

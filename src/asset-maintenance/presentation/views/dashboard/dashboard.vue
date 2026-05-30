@@ -1,3 +1,11 @@
+﻿<script setup>
+import { onMounted } from 'vue'
+import { useAssetMaintenanceStore } from '../../../application/asset-maintenance.store.js'
+
+const store = useAssetMaintenanceStore()
+onMounted(() => store.fetchVehicles())
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -69,14 +77,6 @@
     </template>
   </div>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useAssetMaintenanceStore } from '../../../application/asset-maintenance.store.js'
-
-const store = useAssetMaintenanceStore()
-onMounted(() => store.fetchVehicles())
-</script>
 
 <style scoped>
 .gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }

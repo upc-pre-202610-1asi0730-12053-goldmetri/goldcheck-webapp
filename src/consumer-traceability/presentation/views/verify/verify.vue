@@ -1,3 +1,122 @@
+﻿<script setup>
+import { ref, computed, onUnmounted } from 'vue'
+import { Html5Qrcode } from 'html5-qrcode'
+import { useConsumerStore } from '../../../application/consumer.store.js'
+import { useI18n } from 'vue-i18n'
+
+const { t }       = useI18n()
+const store       = useConsumerStore()
+const code        = ref('')
+const result      = ref(null)
+const searched    = ref(false)
+const mode        = ref('manual')
+const cameraState = ref('idle') // idle | requesting | scanning | denied | detected
+
+const traceBatch    = ref(null)
+const traceLoading  = ref(false)
+
+let scanner = null
+
+async function verify() {
+  if (!code.value.trim()) return
+  result.value    = null
+  searched.value  = false
+  traceBatch.value = null
+  const found = await store.verifyPiece(code.value.trim())
+  result.value   = found
+  searched.value = true
+}
+
+async function loadMineralTrace() {
+  const batchRef = result.value?.batchRef || result.value?.materialOrigin
+  if (!batchRef) return
+  traceLoading.value = true
+  traceBatch.value   = null
+  try {
+    const res  = await store.fetchBatch(batchRef)
+    traceBatch.value = res || null
+  } finally {
+    traceLoading.value = false
+  }
+}
+
+const mineralEvents = computed(() => {
+  if (!traceBatch.value) return []
+  const b    = traceBatch.value
+  const base = new Date(b.createdAt)
+  const seed = b.batchCode.replace(/\D/g, '').slice(-4).padStart(4, '0')
+
+  const events = [
+    { icon: 'pi-map-marker', color: '#3b82f6', title: t('trace.eventExtraction'), actor: b.depositName,                        date: base,                                    tx: `0x${seed}A1B2` },
+    { icon: 'pi-truck',      color: '#f59e0b', title: t('trace.eventTransport'),  actor: b.vehicleName || 'Transport Vehicle', date: new Date(base.getTime() + 2 * 3600000),  tx: `0x${seed}C3D4` },
+    { icon: 'pi-map',        color: '#eab308', title: t('trace.eventLocation'),   actor: 'GPS Auto — Ruta Sur',                date: new Date(base.getTime() + 8 * 3600000),  tx: `0x${seed}E5F6` },
+  ]
+  if (b.status === 'Completado' || b.finalWeight) {
+    events.push({ icon: 'pi-building', color: '#4ade80', title: t('trace.eventReceived'), actor: 'Joyería Elite S.A.C.', date: new Date(base.getTime() + 24 * 3600000), tx: `0x${seed}G7H8` })
+  }
+  return events
+})
+
+function formatTraceDate(d) {
+  if (!d) return '—'
+  return new Date(d).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function switchMode(m) {
+  if (mode.value === 'camera' && cameraState.value === 'scanning') stopCamera()
+  mode.value = m
+  result.value   = null
+  searched.value = false
+}
+
+async function startCamera() {
+  cameraState.value = 'requesting'
+  result.value   = null
+  searched.value = false
+
+  try {
+    // Check/request camera permission first
+    await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+  } catch {
+    cameraState.value = 'denied'
+    return
+  }
+
+  cameraState.value = 'scanning'
+
+  // Small delay to let the DOM render the #qr-reader div
+  await new Promise(r => setTimeout(r, 150))
+
+  try {
+    scanner = new Html5Qrcode('qr-reader')
+    await scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
+      async (decodedText) => {
+        code.value = decodedText
+        cameraState.value = 'detected'
+        await stopCamera()
+        await verify()
+      },
+      () => {} // ignore per-frame errors
+    )
+  } catch {
+    cameraState.value = 'denied'
+  }
+}
+
+async function stopCamera() {
+  if (scanner) {
+    try { await scanner.stop() } catch {}
+    try { scanner.clear() } catch {}
+    scanner = null
+  }
+  if (cameraState.value === 'scanning') cameraState.value = 'idle'
+}
+
+onUnmounted(() => stopCamera())
+</script>
+
 <template>
   <div class="gc-page">
     <div class="gc-page-header">
@@ -174,125 +293,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, computed, onUnmounted } from 'vue'
-import { Html5Qrcode } from 'html5-qrcode'
-import { useConsumerStore } from '../../../application/consumer.store.js'
-import { useI18n } from 'vue-i18n'
-
-const { t }       = useI18n()
-const store       = useConsumerStore()
-const code        = ref('')
-const result      = ref(null)
-const searched    = ref(false)
-const mode        = ref('manual')
-const cameraState = ref('idle') // idle | requesting | scanning | denied | detected
-
-const traceBatch    = ref(null)
-const traceLoading  = ref(false)
-
-let scanner = null
-
-async function verify() {
-  if (!code.value.trim()) return
-  result.value    = null
-  searched.value  = false
-  traceBatch.value = null
-  const found = await store.verifyPiece(code.value.trim())
-  result.value   = found
-  searched.value = true
-}
-
-async function loadMineralTrace() {
-  const batchRef = result.value?.batchRef || result.value?.materialOrigin
-  if (!batchRef) return
-  traceLoading.value = true
-  traceBatch.value   = null
-  try {
-    const res  = await store.fetchBatch(batchRef)
-    traceBatch.value = res || null
-  } finally {
-    traceLoading.value = false
-  }
-}
-
-const mineralEvents = computed(() => {
-  if (!traceBatch.value) return []
-  const b    = traceBatch.value
-  const base = new Date(b.createdAt)
-  const seed = b.batchCode.replace(/\D/g, '').slice(-4).padStart(4, '0')
-
-  const events = [
-    { icon: 'pi-map-marker', color: '#3b82f6', title: t('trace.eventExtraction'), actor: b.depositName,                        date: base,                                    tx: `0x${seed}A1B2` },
-    { icon: 'pi-truck',      color: '#f59e0b', title: t('trace.eventTransport'),  actor: b.vehicleName || 'Transport Vehicle', date: new Date(base.getTime() + 2 * 3600000),  tx: `0x${seed}C3D4` },
-    { icon: 'pi-map',        color: '#eab308', title: t('trace.eventLocation'),   actor: 'GPS Auto — Ruta Sur',                date: new Date(base.getTime() + 8 * 3600000),  tx: `0x${seed}E5F6` },
-  ]
-  if (b.status === 'Completado' || b.finalWeight) {
-    events.push({ icon: 'pi-building', color: '#4ade80', title: t('trace.eventReceived'), actor: 'Joyería Elite S.A.C.', date: new Date(base.getTime() + 24 * 3600000), tx: `0x${seed}G7H8` })
-  }
-  return events
-})
-
-function formatTraceDate(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-
-function switchMode(m) {
-  if (mode.value === 'camera' && cameraState.value === 'scanning') stopCamera()
-  mode.value = m
-  result.value   = null
-  searched.value = false
-}
-
-async function startCamera() {
-  cameraState.value = 'requesting'
-  result.value   = null
-  searched.value = false
-
-  try {
-    // Check/request camera permission first
-    await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-  } catch {
-    cameraState.value = 'denied'
-    return
-  }
-
-  cameraState.value = 'scanning'
-
-  // Small delay to let the DOM render the #qr-reader div
-  await new Promise(r => setTimeout(r, 150))
-
-  try {
-    scanner = new Html5Qrcode('qr-reader')
-    await scanner.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
-      async (decodedText) => {
-        code.value = decodedText
-        cameraState.value = 'detected'
-        await stopCamera()
-        await verify()
-      },
-      () => {} // ignore per-frame errors
-    )
-  } catch {
-    cameraState.value = 'denied'
-  }
-}
-
-async function stopCamera() {
-  if (scanner) {
-    try { await scanner.stop() } catch {}
-    try { scanner.clear() } catch {}
-    scanner = null
-  }
-  if (cameraState.value === 'scanning') cameraState.value = 'idle'
-}
-
-onUnmounted(() => stopCamera())
-</script>
 
 <style scoped>
 .verify-card { display:flex; flex-direction:column; align-items:center; padding:2rem; }
