@@ -1,11 +1,10 @@
 ﻿<script setup>
 import { ref, onMounted } from 'vue'
 import { useIncidentManagementStore } from '../../../application/incident-management.store.js'
+import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
 const store     = useIncidentManagementStore()
 const showModal = ref(false)
-
-onMounted(() => store.fetchIncidents())
 
 function severityClass(s) {
   return { 'badge-danger': s === 'CRITICAL' || s === 'HIGH', 'badge-warning': s === 'MEDIUM', 'badge-info': s === 'LOW' }
@@ -15,6 +14,8 @@ function formatDate(iso) {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('es-PE')
 }
+
+onMounted(() => store.fetchIncidents())
 </script>
 
 <template>
@@ -34,15 +35,9 @@ function formatDate(iso) {
     </div>
 
     <template v-else>
-      <div class="gc-stats-row">
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('incidents.openCount') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-danger)">{{ store.openCount }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('incidents.criticalCount') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-gold-mid)">{{ store.criticalIncidents.length }}</p>
-        </div>
+      <div class="gc-kpi-grid">
+        <StatCard :label="$t('incidents.openCount')" :value="store.openCount" icon="pi pi-folder-open" trend="" :alert-active="store.openCount > 0" />
+        <StatCard :label="$t('incidents.criticalCount')" :value="store.criticalIncidents.length" icon="pi pi-exclamation-circle" trend="" :alert-active="store.criticalIncidents.length > 0" />
       </div>
 
       <div class="gc-card" style="margin-top:1.5rem">
@@ -94,10 +89,7 @@ function formatDate(iso) {
 </template>
 
 <style scoped>
-.gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.gc-stat-card { background: var(--gc-dark-card); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
-.gc-stat-label { font-size: 0.75rem; color: var(--gc-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
-.gc-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--gc-text-primary); }
+.gc-kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 .gc-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; text-transform: uppercase; }
 .badge-danger  { background: rgba(239,68,68,.15); color: #ef4444; }
 .badge-warning { background: rgba(234,179,8,.15);  color: #eab308; }

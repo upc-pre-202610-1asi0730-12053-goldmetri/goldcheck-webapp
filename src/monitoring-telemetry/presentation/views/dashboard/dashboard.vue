@@ -1,8 +1,10 @@
 ﻿<script setup>
 import { onMounted } from 'vue'
 import { useMonitoringStore } from '../../../application/monitoring.store.js'
+import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
 const store = useMonitoringStore()
+
 onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
 </script>
 
@@ -20,19 +22,10 @@ onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
     </div>
 
     <template v-else>
-      <div class="gc-stats-row">
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('monitoring.activeAlerts') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-danger)">{{ store.alertCount }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('monitoring.criticalAlerts') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-gold-mid)">{{ store.criticalAlerts.length }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('monitoring.activeBatches') }}</p>
-          <p class="gc-stat-value">{{ store.activeBatches.length }}</p>
-        </div>
+      <div class="gc-kpi-grid">
+        <StatCard :label="$t('monitoring.activeAlerts')" :value="store.alertCount" icon="pi pi-bell" trend="" :alert-active="store.alertCount > 0" />
+        <StatCard :label="$t('monitoring.criticalAlerts')" :value="store.criticalAlerts.length" icon="pi pi-exclamation-circle" trend="" :alert-active="store.criticalAlerts.length > 0" />
+        <StatCard :label="$t('monitoring.activeBatches')" :value="store.activeBatches.length" icon="pi pi-truck" trend="" />
       </div>
 
       <div class="gc-card" style="margin-top:1.5rem">
@@ -78,10 +71,7 @@ onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
 </template>
 
 <style scoped>
-.gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.gc-stat-card { background: var(--gc-dark-card); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
-.gc-stat-label { font-size: 0.75rem; color: var(--gc-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
-.gc-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--gc-text-primary); }
+.gc-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 .gc-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; text-transform: uppercase; }
 .badge-danger { background: rgba(239,68,68,.15); color: #ef4444; }
 .badge-info   { background: rgba(59,130,246,.15); color: #3b82f6; }

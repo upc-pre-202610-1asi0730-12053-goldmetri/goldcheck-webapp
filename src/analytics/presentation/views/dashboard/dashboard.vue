@@ -1,13 +1,15 @@
 ﻿<script setup>
 import { onMounted } from 'vue'
 import { useAnalyticsStore } from '../../../application/analytics.store.js'
+import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
 const store = useAnalyticsStore()
-onMounted(() => store.fetchAnalyticsData())
 
 function shrinkagePct(b) {
   return (((b.initialWeight - b.finalWeight) / b.initialWeight) * 100).toFixed(2)
 }
+
+onMounted(() => store.fetchAnalyticsData())
 </script>
 
 <template>
@@ -24,29 +26,12 @@ function shrinkagePct(b) {
     </div>
 
     <template v-else>
-      <div class="gc-stats-row">
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('analytics.totalBatches') }}</p>
-          <p class="gc-stat-value">{{ store.totalBatches }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('analytics.activeBatches') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-gold-mid)">{{ store.activeBatches }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('analytics.avgShrinkage') }}</p>
-          <p class="gc-stat-value" :style="{ color: store.avgShrinkage > 5 ? 'var(--gc-danger)' : '#4ade80' }">
-            {{ store.avgShrinkage }}%
-          </p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('analytics.totalJewels') }}</p>
-          <p class="gc-stat-value">{{ store.totalJewels }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('analytics.certifiedJewels') }}</p>
-          <p class="gc-stat-value" style="color:#4ade80">{{ store.certifiedJewels }}</p>
-        </div>
+      <div class="gc-kpi-grid">
+        <StatCard :label="$t('analytics.totalBatches')" :value="store.totalBatches" icon="pi pi-inbox" trend="" />
+        <StatCard :label="$t('analytics.activeBatches')" :value="store.activeBatches" icon="pi pi-truck" trend="" />
+        <StatCard :label="$t('analytics.avgShrinkage')" :value="store.avgShrinkage + '%'" icon="pi pi-chart-line" trend="" :alert-active="store.avgShrinkage > 5" />
+        <StatCard :label="$t('analytics.totalJewels')" :value="store.totalJewels" icon="pi pi-star" trend="" />
+        <StatCard :label="$t('analytics.certifiedJewels')" :value="store.certifiedJewels" icon="pi pi-shield" trend="" />
       </div>
 
       <div class="gc-card" style="margin-top:1.5rem">
@@ -84,8 +69,6 @@ function shrinkagePct(b) {
 </template>
 
 <style scoped>
-.gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.gc-stat-card { background: var(--gc-dark-card); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
-.gc-stat-label { font-size: 0.75rem; color: var(--gc-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
-.gc-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--gc-text-primary); }
+.gc-kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+@media (max-width: 1200px) { .gc-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
