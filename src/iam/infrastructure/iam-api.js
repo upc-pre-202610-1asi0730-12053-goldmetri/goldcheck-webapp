@@ -9,7 +9,7 @@ class IamApi extends BaseApi {
     this.#users = new BaseEndpoint(this.http, '/users')
   }
 
-  // US08 – Login (mock: buscar por email, password no persiste en json-server)
+  // US08 – Login (mock: query by email only, password is not persisted in json-server)
   async login(email, password) {
     const res = await this.#users.getAll({ email })
     return res

@@ -1,66 +1,4 @@
-<template>
-  <div class="dashboard-page">
-    <div class="profile-header">
-      <div>
-        <h1>Hello, <span class="text-gold">{{ iamStore.currentUser?.username }}</span></h1>
-      </div>
-      <div class="profile-tabs">
-        <button class="profile-tab" :class="{ active: activeTab === 'profile' }" @click="activeTab = 'profile'">
-          <i class="pi pi-user" /> My Profile
-        </button>
-        <button class="profile-tab" @click="activeTab = 'notifications'">
-          <i class="pi pi-bell" /> Notifications
-        </button>
-        <button class="profile-tab" @click="activeTab = 'settings'">
-          <i class="pi pi-cog" /> Setting
-        </button>
-      </div>
-    </div>
-
-    <div class="profile-body">
-      <div class="profile-avatar-col">
-        <div class="profile-avatar-big">
-          {{ initials }}
-        </div>
-      </div>
-
-      <div class="profile-form-col">
-        <div v-if="saved" class="gc-alert gc-alert-success" style="margin-bottom:1rem">
-          Perfil actualizado correctamente.
-        </div>
-
-        <form @submit.prevent="handleSave">
-          <div class="form-field">
-            <label>Email</label>
-            <input v-model="form.email" type="email" class="gc-input-dark" />
-          </div>
-          <div class="form-field">
-            <label>Username</label>
-            <input v-model="form.username" type="text" class="gc-input-dark" />
-          </div>
-          <div class="form-field">
-            <label>Password</label>
-            <input v-model="form.password" type="password" class="gc-input-dark" placeholder="••••••••" />
-          </div>
-          <div class="form-field">
-            <label>Add phone number</label>
-            <input v-model="form.phoneNumber" type="tel" class="gc-input-dark" />
-          </div>
-          <div class="form-field">
-            <label>Location</label>
-            <input v-model="form.location" type="text" class="gc-input-dark" />
-          </div>
-          <button type="submit" class="gc-btn gc-btn-gold" style="margin-top:1rem" :disabled="iamStore.loading">
-            <i v-if="iamStore.loading" class="pi pi-spinner pi-spin" />
-            Guardar cambios
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup>
+﻿<script setup>
 import { ref, reactive, computed } from 'vue'
 import { useIamStore } from '../../../application/iam.store.js'
 
@@ -91,6 +29,78 @@ async function handleSave() {
   }
 }
 </script>
+
+<template>
+  <div class="dashboard-page">
+    <div class="profile-header">
+      <div>
+        <h1>{{ $t('profile.hello') }} <span class="text-gold">{{ iamStore.currentUser?.username }}</span></h1>
+      </div>
+      <div class="profile-tabs">
+        <button class="profile-tab" :class="{ active: activeTab === 'profile' }" @click="activeTab = 'profile'">
+          <i class="pi pi-user" /> {{ $t('profile.myProfile') }}
+        </button>
+        <button class="profile-tab" :class="{ active: activeTab === 'notifications' }" @click="activeTab = 'notifications'">
+          <i class="pi pi-bell" /> {{ $t('profile.notifications') }}
+        </button>
+        <button class="profile-tab" :class="{ active: activeTab === 'settings' }" @click="activeTab = 'settings'">
+          <i class="pi pi-cog" /> {{ $t('profile.settings') }}
+        </button>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <div class="profile-avatar-col">
+        <div class="profile-avatar-big">
+          {{ initials }}
+        </div>
+      </div>
+
+      <div class="profile-form-col">
+        <div v-if="saved" class="gc-alert gc-alert-success" style="margin-bottom:1rem">
+          {{ $t('profile.updateSuccess') }}
+        </div>
+
+        <form v-if="activeTab === 'profile'" @submit.prevent="handleSave">
+          <div class="form-field">
+            <label>{{ $t('profile.email') }}</label>
+            <input v-model="form.email" type="email" class="gc-input-dark" />
+          </div>
+          <div class="form-field">
+            <label>{{ $t('profile.username') }}</label>
+            <input v-model="form.username" type="text" class="gc-input-dark" />
+          </div>
+          <div class="form-field">
+            <label>{{ $t('profile.password') }}</label>
+            <input v-model="form.password" type="password" class="gc-input-dark" placeholder="••••••••" />
+          </div>
+          <div class="form-field">
+            <label>{{ $t('profile.phoneNumber') }}</label>
+            <input v-model="form.phoneNumber" type="tel" class="gc-input-dark" />
+          </div>
+          <div class="form-field">
+            <label>{{ $t('profile.location') }}</label>
+            <input v-model="form.location" type="text" class="gc-input-dark" />
+          </div>
+          <button type="submit" class="gc-btn gc-btn-gold" style="margin-top:1rem" :disabled="iamStore.loading">
+            <i v-if="iamStore.loading" class="pi pi-spinner pi-spin" />
+            {{ $t('profile.saveChanges') }}
+          </button>
+        </form>
+
+        <div v-else-if="activeTab === 'notifications'" style="padding:2rem 0;text-align:center;color:var(--gc-text-muted)">
+          <i class="pi pi-bell" style="font-size:2rem;margin-bottom:0.75rem;opacity:0.4;display:block" />
+          {{ $t('common.comingSoon') }}
+        </div>
+
+        <div v-else-if="activeTab === 'settings'" style="padding:2rem 0;text-align:center;color:var(--gc-text-muted)">
+          <i class="pi pi-cog" style="font-size:2rem;margin-bottom:0.75rem;opacity:0.4;display:block" />
+          {{ $t('common.comingSoon') }}
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .profile-header {

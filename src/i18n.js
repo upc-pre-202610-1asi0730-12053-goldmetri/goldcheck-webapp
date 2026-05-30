@@ -4,8 +4,8 @@ import en from './locales/en.json'
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'es',
-  fallbackLocale: 'en',
+  locale: 'en',
+  fallbackLocale: 'es',
   messages: { es, en }
 })
 

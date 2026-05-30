@@ -1,12 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useIamStore } from './iam/application/iam.store.js'
 
+import fleetRoutes           from './fleet-operations/presentation/fleet-operations-routes.js'
+import materialRoutes        from './material-operations/presentation/material-operations-routes.js'
+import jewelryRoutes         from './jewelry-inventory-certification/presentation/jewelry-routes.js'
+import consumerRoutes        from './consumer-traceability/presentation/consumer-routes.js'
+import monitoringRoutes      from './monitoring-telemetry/presentation/monitoring-routes.js'
+import analyticsRoutes       from './analytics/presentation/analytics-routes.js'
+import incidentRoutes        from './incident-management/presentation/incident-routes.js'
+import reportingRoutes       from './reporting-notifications/presentation/reporting-routes.js'
+import maintenanceRoutes     from './asset-maintenance/presentation/asset-maintenance-routes.js'
+import subscriptionRoutes    from './subscriptions-billing/presentation/subscriptions-routes.js'
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: '/auth/login' },
 
-    // IAM
+    // IAM – public auth pages
     {
       path: '/auth',
       children: [
@@ -21,40 +32,44 @@ const router = createRouter({
       component: () => import('./shared/presentation/components/app-layout.vue'),
       meta: { requiresAuth: true },
       children: [
-        // Profile
+        // IAM – profile
         { path: 'profile', name: 'profile', component: () => import('./iam/presentation/views/profile/profile.vue') },
 
-        // Mineral Extraction (Minería)
-        { path: 'mineral/dashboard',   name: 'mineral-dashboard',   component: () => import('./mineral-extraction/presentation/views/dashboard/dashboard.vue') },
-        { path: 'mineral/operations',  name: 'mineral-operations',  component: () => import('./mineral-extraction/presentation/views/operations/operations.vue') },
-        { path: 'mineral/fleet',       name: 'mineral-fleet',       component: () => import('./mineral-extraction/presentation/views/fleet/fleet.vue') },
-        { path: 'mineral/reports',     name: 'mineral-reports',     component: () => import('./mineral-extraction/presentation/views/reports/reports.vue') },
+        // Fleet Operations
+        ...fleetRoutes,
 
-        // Jewelry Inventory (Joyería)
-        { path: 'jewelry/dashboard',   name: 'jewelry-dashboard',   component: () => import('./jewelry-inventory/presentation/views/dashboard/dashboard.vue') },
-        { path: 'jewelry/inventory',   name: 'jewelry-inventory',   component: () => import('./jewelry-inventory/presentation/views/inventory/inventory.vue') },
-        { path: 'jewelry/register',    name: 'jewelry-register',    component: () => import('./jewelry-inventory/presentation/views/register-jewelry/register-jewelry.vue') },
-        { path: 'jewelry/certifications', name: 'jewelry-certifications', component: () => import('./jewelry-inventory/presentation/views/certifications/certifications.vue') },
-        { path: 'jewelry/reports',     name: 'jewelry-reports',     component: () => import('./jewelry-inventory/presentation/views/reports/reports.vue') },
+        // Material Operations
+        ...materialRoutes,
 
-        // Consumer Experience (Consumidor)
-        { path: 'consumer/collection', name: 'consumer-collection', component: () => import('./consumer-experience/presentation/views/my-collection/my-collection.vue') },
-        { path: 'consumer/verify',     name: 'consumer-verify',     component: () => import('./consumer-experience/presentation/views/verify/verify.vue') },
-        { path: 'consumer/certificates', name: 'consumer-certificates', component: () => import('./consumer-experience/presentation/views/certificates/certificates.vue') },
+        // Jewelry Inventory & Certification
+        ...jewelryRoutes,
+
+        // Consumer Traceability
+        ...consumerRoutes,
+
+        // Monitoring & Telemetry
+        ...monitoringRoutes,
 
         // Analytics
-        { path: 'analytics/dashboard', name: 'analytics-dashboard', component: () => import('./analytics/presentation/views/dashboard/dashboard.vue') },
+        ...analyticsRoutes,
 
-        // Refinery
-        { path: 'refinery/dashboard',  name: 'refinery-dashboard',  component: () => import('./refinery-processing/presentation/views/dashboard/dashboard.vue') },
+        // Incident Management
+        ...incidentRoutes,
 
-        // Custody Chain
-        { path: 'custody/dashboard',   name: 'custody-dashboard',   component: () => import('./custody-chain/presentation/views/dashboard/dashboard.vue') },
+        // Reporting & Notifications
+        ...reportingRoutes,
 
-        // Subscriptions
-        { path: 'subscriptions/plans', name: 'subscriptions-plans', component: () => import('./subscriptions/presentation/views/plans/plans.vue') }
+        // Asset & Maintenance Management
+        ...maintenanceRoutes,
+
+        // Subscriptions & Billing
+        ...subscriptionRoutes
       ]
     },
+
+    // Static legal pages
+    { path: '/terms',   name: 'terms',   component: () => import('./shared/presentation/views/terms.vue') },
+    { path: '/privacy', name: 'privacy', component: () => import('./shared/presentation/views/privacy.vue') },
 
     // Catch-all
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./shared/presentation/views/page-not-found.vue') }

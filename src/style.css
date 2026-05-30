@@ -1,4 +1,17 @@
 /* GoldCheck Design System - GoldMetrics */
+
+/* Accessibility: visually hidden but readable by screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 :root {
   --gc-dark:        #3A3E40;
   --gc-dark-2:      #2A2D2F;
