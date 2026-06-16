@@ -162,5 +162,6 @@ onMounted(() => store.fetchReceptions())
 .badge-warning { background: rgba(178,148,78,.15);  color: var(--gc-gold-mid); }
 .badge-danger  { background: rgba(239,68,68,.15);  color: #ef4444; }
 .gc-label { display:block; font-size:0.8rem; color:var(--gc-text-muted); margin-bottom:0.4rem; }
-.gc-input { width:100%; padding:0.6rem 0.8rem; background:var(--gc-surface); border:1px solid var(--gc-border); border-radius:8px; color:var(--gc-text-primary); font-size:0.9rem; }
+.gc-input { width:100%; padding:0.6rem 0.8rem; background:var(--gc-dark-2); border:1px solid var(--gc-border); border-radius:8px; color:var(--gc-text-primary); font-size:0.9rem; }
+.gc-input:focus { outline:none; border-color:var(--gc-gold-mid); }
 </style>
