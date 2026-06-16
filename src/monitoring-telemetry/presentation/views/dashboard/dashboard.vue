@@ -26,6 +26,11 @@ function translateSeverity(s) {
   return map[s?.toLowerCase()] || s || '—'
 }
 
+function translateAlertStatus(s) {
+  if (!s || s === 'Activo') return t('monitoring.statusOpen')
+  return t('monitoring.statusResolved')
+}
+
 onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
 </script>
 
@@ -70,7 +75,7 @@ onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
                 </span>
               </td>
               <td>{{ alert.batchCode || '—' }}</td>
-              <td>{{ alert.status }}</td>
+              <td>{{ translateAlertStatus(alert.status) }}</td>
               <td>
                 <button
                   v-if="alert.isActive"
