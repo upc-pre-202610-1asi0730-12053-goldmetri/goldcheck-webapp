@@ -1,12 +1,20 @@
 ﻿<script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 
+const { t } = useI18n()
 const jewelryStore = useJewelryStore()
 const submitted = ref(false)
 const success = ref(false)
 
-const typeOptions   = ['Anillo', 'Collar', 'Pulsera', 'Arete', 'Colgante']
+const typeOptions = computed(() => [
+  { value: 'Anillo',   label: t('jewelry.typeRing') },
+  { value: 'Collar',   label: t('jewelry.typeNecklace') },
+  { value: 'Pulsera',  label: t('jewelry.typeBracelet') },
+  { value: 'Arete',    label: t('jewelry.typeEarring') },
+  { value: 'Colgante', label: t('jewelry.typePendant') },
+])
 const purityOptions = ['18K', '24K', '750', '925 (Plata)']
 
 const form = ref({ name: '', type: '', purity: '', weight: null, batchRef: '', price: null })
@@ -44,7 +52,7 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="jewelry-type">{{ $t('jewelry.fieldType') }}</label>
-            <pv-select id="jewelry-type" v-model="form.type" :options="typeOptions" :placeholder="$t('jewelry.selectType')" :invalid="submitted && !form.type" fluid />
+            <pv-select id="jewelry-type" v-model="form.type" :options="typeOptions" option-label="label" option-value="value" :placeholder="$t('jewelry.selectType')" :invalid="submitted && !form.type" fluid />
             <span v-if="submitted && !form.type" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
           </div>
         </div>
