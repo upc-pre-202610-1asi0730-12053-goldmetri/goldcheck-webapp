@@ -1,7 +1,9 @@
 ﻿<script setup>
 import { reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMineralStore } from '../../../application/mineral.store.js'
 
+const { t } = useI18n()
 const store = useMineralStore()
 onMounted(() => store.fetchBatches())
 
@@ -23,6 +25,20 @@ function statusClass(s) {
   if (s === 'Alerta') return 'badge-danger'
   if (s === 'En Tránsito') return 'badge-transit'
   return 'badge-warning'
+}
+
+function translateStatus(s) {
+  const map = {
+    'Cargando':           t('mineral.statusLoading'),
+    'En Tránsito':        t('mineral.statusInTransit'),
+    'En Balanza':         t('mineral.statusOnScale'),
+    'En Planta':          t('mineral.statusAtPlant'),
+    'Completado':         t('mineral.statusCompleted'),
+    'Procesado':          t('mineral.statusCompleted'),
+    'Alerta':             t('mineral.statusAlert'),
+    'Bajo Investigación': t('mineral.statusUnderInvestigation'),
+  }
+  return map[s] || s || '—'
 }
 </script>
 
@@ -75,7 +91,7 @@ function statusClass(s) {
               <td>{{ b.initialWeight ? `${b.initialWeight} t` : '—' }}</td>
               <td>{{ b.destination || b.depositName || '—' }}</td>
               <td>
-                <span class="gc-badge" :class="statusClass(b.status)">{{ b.status }}</span>
+                <span class="gc-badge" :class="statusClass(b.status)">{{ translateStatus(b.status) }}</span>
               </td>
               <td>
                 <button

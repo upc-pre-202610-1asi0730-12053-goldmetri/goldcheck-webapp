@@ -1,7 +1,9 @@
 ﻿<script setup>
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMineralStore } from '../../../application/mineral.store.js'
 
+const { t, locale } = useI18n()
 const store = useMineralStore()
 onMounted(() => store.fetchBatches())
 
@@ -15,9 +17,23 @@ function statusClass(s) {
   return 'badge-warning'
 }
 
+function translateStatus(s) {
+  const map = {
+    'Cargando':           t('mineral.statusLoading'),
+    'En Tránsito':        t('mineral.statusInTransit'),
+    'En Balanza':         t('mineral.statusOnScale'),
+    'En Planta':          t('mineral.statusAtPlant'),
+    'Completado':         t('mineral.statusCompleted'),
+    'Procesado':          t('mineral.statusCompleted'),
+    'Alerta':             t('mineral.statusAlert'),
+    'Bajo Investigación': t('mineral.statusUnderInvestigation'),
+  }
+  return map[s] || s || '—'
+}
+
 function formatDate(iso) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-PE')
+  return new Date(iso).toLocaleDateString(locale.value === 'es' ? 'es-PE' : 'en-US')
 }
 </script>
 
@@ -74,7 +90,7 @@ function formatDate(iso) {
               <td>{{ b.initialWeight ? `${b.initialWeight} t` : '—' }}</td>
               <td>{{ b.destination || '—' }}</td>
               <td>
-                <span class="gc-badge" :class="statusClass(b.status)">{{ b.status }}</span>
+                <span class="gc-badge" :class="statusClass(b.status)">{{ translateStatus(b.status) }}</span>
               </td>
               <td>{{ formatDate(b.createdAt) }}</td>
             </tr>
