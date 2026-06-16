@@ -1,21 +1,37 @@
-﻿<script setup>
-import { ref } from 'vue'
+<script setup>
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import { useIamStore } from '../../../../iam/application/iam.store.js'
 
+const { t } = useI18n()
 const emit = defineEmits(['close', 'linked'])
 const consumerStore = useConsumerStore()
 const iamStore = useIamStore()
 const submitted = ref(false)
 
-const typeOptions = ['Anillo', 'Collar', 'Pulsera', 'Arete']
+const CODE_PATTERN = /^QR-[A-Z]{2}-\d{4,6}$/i
+
+const typeOptions = computed(() => [
+  { value: 'Anillo',   label: t('jewelry.typeRing') },
+  { value: 'Collar',   label: t('jewelry.typeNecklace') },
+  { value: 'Pulsera',  label: t('jewelry.typeBracelet') },
+  { value: 'Arete',    label: t('jewelry.typeEarring') },
+  { value: 'Colgante', label: t('jewelry.typePendant') },
+])
+
 const form = ref({ traceabilityCode: '', name: '', type: '', purity: '' })
+
+const codeInvalid  = computed(() => submitted.value && !CODE_PATTERN.test(form.value.traceabilityCode.trim()))
+const nameInvalid  = computed(() => submitted.value && form.value.name.trim().length < 3)
 
 async function handleLink() {
   submitted.value = true
-  if (!form.value.traceabilityCode || !form.value.name) return
+  if (codeInvalid.value || nameInvalid.value) return
   const piece = await consumerStore.linkPiece({
     ...form.value,
+    traceabilityCode: form.value.traceabilityCode.trim().toUpperCase(),
+    name: form.value.name.trim(),
     ownerId: iamStore.currentUser?.id || null
   })
   if (piece) emit('linked', piece)
@@ -48,11 +64,11 @@ async function handleLink() {
           id="trace-code"
           v-model="form.traceabilityCode"
           :placeholder="$t('consumer.codePlaceholder')"
-          :invalid="submitted && !form.traceabilityCode"
+          :invalid="codeInvalid"
           fluid
         />
       </pv-icon-field>
-      <span v-if="submitted && !form.traceabilityCode" class="gc-error-msg">{{ $t('consumer.codeRequired') }}</span>
+      <span v-if="codeInvalid" class="gc-error-msg">{{ $t('consumer.codeInvalid') }}</span>
     </div>
 
     <div class="form-field">
@@ -61,10 +77,10 @@ async function handleLink() {
         id="purchase-name"
         v-model="form.name"
         :placeholder="$t('consumer.purchaseNamePh')"
-        :invalid="submitted && !form.name"
+        :invalid="nameInvalid"
         fluid
       />
-      <span v-if="submitted && !form.name" class="gc-error-msg">{{ $t('consumer.nameRequired') }}</span>
+      <span v-if="nameInvalid" class="gc-error-msg">{{ $t('consumer.nameMinLength') }}</span>
     </div>
 
     <div class="form-row">
@@ -74,6 +90,8 @@ async function handleLink() {
           id="piece-type"
           v-model="form.type"
           :options="typeOptions"
+          option-label="label"
+          option-value="value"
           :placeholder="$t('consumer.selectType')"
           fluid
         />

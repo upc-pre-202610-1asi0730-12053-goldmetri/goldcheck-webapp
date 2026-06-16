@@ -1,8 +1,27 @@
 ﻿<script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import { useIamStore } from '../../../../iam/application/iam.store.js'
 import VincularJoyaModal from './vincular-joya-modal.vue'
+
+const { t } = useI18n()
+
+function translateJewelryType(type) {
+  const map = {
+    'Anillo':   t('jewelry.typeRing'),
+    'Collar':   t('jewelry.typeNecklace'),
+    'Pulsera':  t('jewelry.typeBracelet'),
+    'Arete':    t('jewelry.typeEarring'),
+    'Colgante': t('jewelry.typePendant'),
+  }
+  return map[type] || type || '—'
+}
+
+function translateStatus(s) {
+  if (!s || s === 'Activo') return t('mineral.statusAvailable')
+  return s
+}
 
 const consumerStore = useConsumerStore()
 const iamStore = useIamStore()
@@ -60,9 +79,9 @@ onMounted(() => {
         <div class="jewelry-card-body">
           <div class="jewelry-sku">{{ piece.sku || piece.traceabilityCode }}</div>
           <div class="jewelry-name">{{ piece.name }}</div>
-          <div class="jewelry-meta">{{ piece.type }} · {{ piece.purity }} · {{ piece.weight }}g</div>
+          <div class="jewelry-meta">{{ translateJewelryType(piece.type) }} · {{ piece.purity }} · {{ piece.weight }}g</div>
           <div class="jewelry-card-footer">
-            <span class="gc-status gc-status-done">{{ piece.status }}</span>
+            <span class="gc-status gc-status-done">{{ translateStatus(piece.status) }}</span>
             <button class="gc-btn-icon" :title="$t('consumer.viewTraceability')" @click="openTrace(piece)">
               <i class="pi pi-shield" />
             </button>
