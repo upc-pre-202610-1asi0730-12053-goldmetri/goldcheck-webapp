@@ -399,7 +399,22 @@
     "colSeverity": "SEVERITY",
     "colStatus": "STATUS",
     "colDate": "DATE",
-    "noIncidents": "No incidents registered."
+    "noIncidents": "No incidents registered.",
+    "formType": "Incident Type",
+    "formSeverity": "Severity",
+    "formMessage": "Description",
+    "formBatchId": "Batch ID (optional)",
+    "selectType": "Select a type",
+    "selectSeverity": "Select severity",
+    "typeRouteDeviation": "Route Deviation",
+    "typeDelay": "Delay",
+    "typeWeightDiscrepancy": "Weight Discrepancy",
+    "typeOther": "Other",
+    "severityCritical": "Critical",
+    "severityWarning": "Warning",
+    "severityLow": "Low",
+    "fieldRequired": "This field is required.",
+    "createSuccess": "Incident reported successfully."
   },
   "reporting": {
     "dashboardTitle": "Reporting & Notifications",

@@ -399,7 +399,22 @@
     "colSeverity": "GRAVEDAD",
     "colStatus": "ESTADO",
     "colDate": "FECHA",
-    "noIncidents": "No hay incidentes registrados."
+    "noIncidents": "No hay incidentes registrados.",
+    "formType": "Tipo de Incidente",
+    "formSeverity": "Gravedad",
+    "formMessage": "Descripción",
+    "formBatchId": "ID de Lote (opcional)",
+    "selectType": "Selecciona un tipo",
+    "selectSeverity": "Selecciona gravedad",
+    "typeRouteDeviation": "Desviación de Ruta",
+    "typeDelay": "Retraso",
+    "typeWeightDiscrepancy": "Discrepancia de Peso",
+    "typeOther": "Otro",
+    "severityCritical": "Crítico",
+    "severityWarning": "Advertencia",
+    "severityLow": "Bajo",
+    "fieldRequired": "Este campo es obligatorio.",
+    "createSuccess": "Incidente reportado correctamente."
   },
   "reporting": {
     "dashboardTitle": "Reportes y Notificaciones",
