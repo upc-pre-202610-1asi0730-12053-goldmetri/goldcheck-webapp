@@ -13,7 +13,7 @@ export class IncidentAssembler {
   static toEntityFromResource(resource) {
     return new Incident({
       id: resource.id, title: resource.title, description: resource.description,
-      incidentType: resource.incidentType, severity: resource.severity || 'LOW',
+      incidentType: resource.incidentType || resource.type, severity: resource.severity || 'LOW',
       batchId: resource.batchId, vehicleId: resource.vehicleId,
       reportedBy: resource.reportedBy, status: resource.status || 'Abierto',
       reportedAt: resource.reportedAt || resource.createdAt, resolvedAt: resource.resolvedAt
