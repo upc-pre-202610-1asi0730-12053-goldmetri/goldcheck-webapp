@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { useIamStore } from './iam/application/iam.store.js'
 
 import fleetRoutes           from './fleet-operations/presentation/fleet-operations-routes.js'
@@ -13,7 +13,7 @@ import maintenanceRoutes     from './asset-maintenance/presentation/asset-mainte
 import subscriptionRoutes    from './subscriptions-billing/presentation/subscriptions-routes.js'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: '/auth/login' },
 
