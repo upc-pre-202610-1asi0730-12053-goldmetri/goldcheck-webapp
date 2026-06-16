@@ -8,8 +8,8 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
   const loading   = ref(false)
   const errors    = ref([])
 
-  const openIncidents     = computed(() => incidents.value.filter(i => i.status === 'Abierto'))
-  const criticalIncidents = computed(() => incidents.value.filter(i => i.severity === 'CRITICAL'))
+  const openIncidents     = computed(() => incidents.value.filter(i => !i.status || i.status === 'Abierto'))
+  const criticalIncidents = computed(() => incidents.value.filter(i => i.severity?.toUpperCase() === 'CRITICAL'))
   const openCount         = computed(() => openIncidents.value.length)
 
   async function fetchIncidents() {
