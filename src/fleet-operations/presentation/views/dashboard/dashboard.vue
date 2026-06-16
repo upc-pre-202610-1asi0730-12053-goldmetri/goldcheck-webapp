@@ -52,6 +52,17 @@ function translateStatus(status) {
   return map[status] || status
 }
 
+const selectedBatch = ref(null)
+
+function openBatchDetail(batch) {
+  selectedBatch.value = batch
+}
+
+function formatDate(iso) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString()
+}
+
 function onBatchCreated(batch) {
   showNewBatchModal.value = false
 }
@@ -153,8 +164,8 @@ onMounted(async () => {
             </template>
           </pv-column>
           <pv-column :header="$t('mineral.colAction')">
-            <template #body>
-              <pv-button icon="pi pi-eye" text rounded :aria-label="$t('mineral.colAction')" />
+            <template #body="{ data }">
+              <pv-button icon="pi pi-eye" text rounded :aria-label="$t('mineral.viewDetail')" @click="openBatchDetail(data)" />
             </template>
           </pv-column>
         </pv-data-table>
@@ -207,6 +218,59 @@ onMounted(async () => {
       @close="showNewBatchModal = false"
       @created="onBatchCreated"
     />
+
+    <!-- Batch Detail Modal -->
+    <div v-if="selectedBatch" class="gc-modal-overlay" @click.self="selectedBatch = null">
+      <div class="gc-modal" style="max-width:480px">
+        <div class="gc-modal-header">
+          <p class="gc-modal-title">
+            <i class="pi pi-cube" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
+            {{ $t('mineral.batchDetailTitle') }}
+            <span class="gc-badge gc-badge-code" style="margin-left:0.5rem">{{ selectedBatch.batchCode }}</span>
+          </p>
+          <button class="gc-modal-close" @click="selectedBatch = null">✕</button>
+        </div>
+        <div class="batch-detail-grid">
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colVehicle') }}</span>
+            <span class="batch-detail-value">{{ selectedBatch.vehicleName || '—' }}</span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colDeposit') }}</span>
+            <span class="batch-detail-value">{{ selectedBatch.depositName || '—' }}</span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colMineralType') }}</span>
+            <span class="batch-detail-value">{{ selectedBatch.mineralType || '—' }}</span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colLocation') }}</span>
+            <span class="batch-detail-value">{{ selectedBatch.destination || '—' }}</span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colWeight') }}</span>
+            <span class="batch-detail-value">{{ selectedBatch.initialWeight ? selectedBatch.initialWeight.toFixed(2) + ' T' : '—' }}</span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colFinalWeight') }}</span>
+            <span class="batch-detail-value">{{ selectedBatch.finalWeight ? selectedBatch.finalWeight.toFixed(2) + ' T' : $t('mineral.notAvailable') }}</span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colStatus') }}</span>
+            <span class="batch-detail-value">
+              <pv-tag :value="translateStatus(selectedBatch.status)" :severity="statusSeverity(selectedBatch.status)" />
+            </span>
+          </div>
+          <div class="batch-detail-row">
+            <span class="batch-detail-label">{{ $t('mineral.colCreatedAt') }}</span>
+            <span class="batch-detail-value">{{ formatDate(selectedBatch.createdAt) }}</span>
+          </div>
+        </div>
+        <div class="gc-modal-footer">
+          <button class="gc-btn gc-btn-outline" @click="selectedBatch = null">{{ $t('common.cancel') }}</button>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -358,4 +422,10 @@ onMounted(async () => {
   .gc-two-col  { flex-direction: column; }
   .gc-iot-panel { width: 100%; }
 }
+
+.batch-detail-grid { display: flex; flex-direction: column; gap: 0; padding: 0.5rem 0; }
+.batch-detail-row  { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--gc-border); }
+.batch-detail-row:last-child { border-bottom: none; }
+.batch-detail-label { font-size: 0.75rem; font-weight: 600; color: var(--gc-text-muted); letter-spacing: 0.04em; }
+.batch-detail-value { font-size: 0.85rem; color: var(--gc-text-primary); text-align: right; }
 </style>
