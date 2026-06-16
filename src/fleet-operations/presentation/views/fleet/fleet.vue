@@ -19,11 +19,20 @@ function vehicleStatusClass(s) {
 
 function translateVehicleStatus(s) {
   const map = {
-    'Disponible':   t('mineral.statusAvailable'),
-    'En Ruta':      t('mineral.statusOnRoute'),
+    'Disponible':    t('mineral.statusAvailable'),
+    'En Ruta':       t('mineral.statusOnRoute'),
     'Mantenimiento': t('mineral.statusMaintenance'),
   }
   return map[s] || s || '—'
+}
+
+function translateVehicleType(type) {
+  const map = {
+    'Camión Minero':    t('mineral.vehicleTypeMiningTruck'),
+    'Volquete':         t('mineral.vehicleTypeDumpTruck'),
+    'Camión de Acarreo': t('mineral.vehicleTypeHaulingTruck'),
+  }
+  return map[type] || type || '—'
 }
 </script>
 
@@ -76,7 +85,7 @@ function translateVehicleStatus(s) {
             <tr v-for="v in store.vehicles" :key="v.id">
               <td>{{ v.name }}</td>
               <td>{{ v.plate }}</td>
-              <td>{{ v.type }}</td>
+              <td>{{ translateVehicleType(v.type) }}</td>
               <td>{{ v.capacity }} t</td>
               <td>
                 <span class="gc-badge" :class="vehicleStatusClass(v.status)">{{ translateVehicleStatus(v.status) }}</span>
