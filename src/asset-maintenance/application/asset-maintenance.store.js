@@ -40,9 +40,9 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
   async function activateVehicle(vehicleId) {
     errors.value = []
     try {
-      await assetMaintenanceApi.updateVehicleStatus(vehicleId, 'Activo')
+      await assetMaintenanceApi.updateVehicleStatus(vehicleId, 'Disponible')
       const idx = vehicles.value.findIndex(v => v.id === vehicleId)
-      if (idx !== -1) vehicles.value[idx].status = 'Activo'
+      if (idx !== -1) vehicles.value[idx].status = 'Disponible'
       return true
     } catch {
       errors.value = ['updateError']
