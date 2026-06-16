@@ -1,9 +1,29 @@
-﻿<script setup>
+<script setup>
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAssetMaintenanceStore } from '../../../application/asset-maintenance.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
+const { t } = useI18n()
 const store = useAssetMaintenanceStore()
+
+function translateVehicleType(type) {
+  const map = {
+    'Camión Minero':    t('mineral.vehicleTypeMiningTruck'),
+    'Volquete':         t('mineral.vehicleTypeDumpTruck'),
+    'Camión de Acarreo': t('mineral.vehicleTypeHaulingTruck'),
+  }
+  return map[type] || type || '—'
+}
+
+function translateVehicleStatus(s) {
+  const map = {
+    'Disponible':   t('mineral.statusAvailable'),
+    'En Ruta':      t('mineral.statusOnRoute'),
+    'Mantenimiento': t('mineral.statusMaintenance'),
+  }
+  return map[s] || s || '—'
+}
 
 onMounted(() => store.fetchVehicles())
 </script>
@@ -43,15 +63,15 @@ onMounted(() => store.fetchVehicles())
             <tr v-for="v in store.vehicles" :key="v.id">
               <td>{{ v.name }}</td>
               <td>{{ v.plate }}</td>
-              <td>{{ v.type }}</td>
+              <td>{{ translateVehicleType(v.type) }}</td>
               <td>
-                <span class="gc-badge" :class="v.status === 'Activo' ? 'badge-ok' : 'badge-warning'">
-                  {{ v.status }}
+                <span class="gc-badge" :class="v.status === 'Mantenimiento' ? 'badge-warning' : 'badge-ok'">
+                  {{ translateVehicleStatus(v.status) }}
                 </span>
               </td>
               <td>
                 <button
-                  v-if="v.status === 'Activo'"
+                  v-if="v.status !== 'Mantenimiento'"
                   class="gc-btn gc-btn-outline"
                   style="font-size:0.75rem;padding:0.3rem 0.8rem"
                   @click="store.sendToMaintenance(v.id)"

@@ -7,6 +7,14 @@ import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 const { t, locale } = useI18n()
 const store = useReportingStore()
 
+function translateMineralType(type) {
+  const map = {
+    'Oro':       t('mineral.mineralTypeGold'),
+    'Cobre-Oro': t('mineral.mineralTypeCopperGold'),
+  }
+  return map[type] || type || '—'
+}
+
 function translateStatus(s) {
   const map = {
     'Cargando':           t('mineral.statusLoading'),
@@ -98,7 +106,7 @@ onMounted(() => store.fetchReports())
           <tbody>
             <tr v-for="b in store.batchReport" :key="b.id">
               <td><span class="rep-code">{{ b.batchCode || `#${b.id}` }}</span></td>
-              <td>{{ b.mineralType || '—' }}</td>
+              <td>{{ translateMineralType(b.mineralType) }}</td>
               <td>{{ b.initialWeight ? b.initialWeight.toFixed(2) + ' T' : '—' }}</td>
               <td>{{ b.finalWeight  ? b.finalWeight.toFixed(2)  + ' T' : '—' }}</td>
               <td>

@@ -66,8 +66,9 @@ function translateSeverity(s) {
 
 function translateStatus(s) {
   const map = {
-    'Abierto': t('incidents.statusOpen'),
-    'Cerrado': t('incidents.statusClosed'),
+    'Abierto':  t('incidents.statusOpen'),
+    'Cerrado':  t('incidents.statusClosed'),
+    'Resuelta': t('incidents.statusClosed'),
   }
   return map[s] || s || '—'
 }

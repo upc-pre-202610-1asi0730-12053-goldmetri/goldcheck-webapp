@@ -501,7 +501,14 @@
     "errCardNumber": "El número de tarjeta debe tener 16 dígitos.",
     "errHolder": "El nombre del titular es obligatorio.",
     "errExpiry": "Fecha de vencimiento inválida (MM/AA).",
-    "errCvv": "El CVV debe tener 3 dígitos."
+    "errCvv": "El CVV debe tener 3 dígitos.",
+    "planFree": "Gratis",
+    "planPeriodMonthly": "/mes",
+    "bronzeBatches": "5 lotes/mes",
+    "goldBatches": "50 lotes/mes",
+    "platinumBatches": "Lotes ilimitados",
+    "featureApiAccess": "API access",
+    "featureSla": "SLA 99.9%"
   },
   "trace": {
     "pageTitle": "Origen Mineral",
