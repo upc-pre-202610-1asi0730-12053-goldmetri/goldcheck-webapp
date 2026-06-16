@@ -72,7 +72,17 @@
     "phoneNumber": "Phone number",
     "location": "Location",
     "saveChanges": "Save changes",
-    "updateSuccess": "Profile updated successfully."
+    "updateSuccess": "Profile updated successfully.",
+    "notifEmailLabel": "Email notifications",
+    "notifEmailDesc": "Receive alerts and reports via email",
+    "notifAppLabel": "In-app notifications",
+    "notifAppDesc": "Receive real-time alerts in the app",
+    "notifSaved": "Preferences saved",
+    "settingsLanguage": "Language",
+    "settingsLangEn": "English",
+    "settingsLangEs": "Spanish",
+    "settingsDanger": "Danger Zone",
+    "settingsLogout": "Log out of account"
   },
   "mineral": {
     "dashboardTitle": "Operations Summary",
@@ -266,7 +276,16 @@
     "receivedWeight": "Actual received weight",
     "shrinkageMargin": "Transport shrinkage margin:",
     "withinLimit": "Within acceptable limit (±0.5%)",
-    "confirmReception": "Confirm Reception & Seal on Blockchain"
+    "confirmReception": "Confirm Reception & Seal on Blockchain",
+    "statusPending": "Pending",
+    "statusValidated": "Validated",
+    "statusCertified": "Certified",
+    "statusSold": "Sold",
+    "typeRing": "Ring",
+    "typeNecklace": "Necklace",
+    "typeBracelet": "Bracelet",
+    "typeEarring": "Earring",
+    "typePendant": "Pendant"
   },
   "consumer": {
     "collectionTitle": "My Certified Collection",

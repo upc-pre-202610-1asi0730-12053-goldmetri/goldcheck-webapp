@@ -1,10 +1,33 @@
 ﻿<script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 import ValidateLotModal from './validate-lot-modal.vue'
 
+const { t } = useI18n()
 const jewelryStore = useJewelryStore()
+
+function translateJewelryType(type) {
+  const map = {
+    'Anillo':   t('jewelry.typeRing'),
+    'Collar':   t('jewelry.typeNecklace'),
+    'Pulsera':  t('jewelry.typeBracelet'),
+    'Arete':    t('jewelry.typeEarring'),
+    'Colgante': t('jewelry.typePendant'),
+  }
+  return map[type] || type || '—'
+}
+
+function translateJewelryStatus(s) {
+  const map = {
+    'Pendiente':   t('jewelry.statusPending'),
+    'Validado':    t('jewelry.statusValidated'),
+    'Certificado': t('jewelry.statusCertified'),
+    'Vendido':     t('jewelry.statusSold'),
+  }
+  return map[s] || s || '—'
+}
 const statusFilter = ref('')
 const showValidateModal = ref(false)
 const selectedItem = ref(null)
@@ -81,10 +104,10 @@ onMounted(() => jewelryStore.fetchItems())
         <div style="display:flex;gap:0.5rem;align-items:center">
           <select v-model="statusFilter" class="gc-input-dark gc-select-sm">
             <option value="">{{ $t('jewelry.allStatuses') }}</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Validado">Validado</option>
-            <option value="Certificado">Certificado</option>
-            <option value="Vendido">Vendido</option>
+            <option value="Pendiente">{{ $t('jewelry.statusPending') }}</option>
+            <option value="Validado">{{ $t('jewelry.statusValidated') }}</option>
+            <option value="Certificado">{{ $t('jewelry.statusCertified') }}</option>
+            <option value="Vendido">{{ $t('jewelry.statusSold') }}</option>
           </select>
         </div>
       </div>
@@ -112,10 +135,10 @@ onMounted(() => jewelryStore.fetchItems())
           <tr v-for="item in filteredItems" :key="item.id">
             <td><span class="gc-badge gc-badge-code">{{ item.sku }}</span></td>
             <td>{{ item.name }}</td>
-            <td>{{ item.type }}</td>
+            <td>{{ translateJewelryType(item.type) }}</td>
             <td>{{ item.purity }}</td>
             <td>{{ item.weight }}g</td>
-            <td><span :class="itemStatusClass(item.status)">{{ item.status }}</span></td>
+            <td><span :class="itemStatusClass(item.status)">{{ translateJewelryStatus(item.status) }}</span></td>
             <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
               <button
                 v-if="item.status === 'Pendiente'"

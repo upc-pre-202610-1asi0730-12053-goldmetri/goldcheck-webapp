@@ -82,7 +82,7 @@ async function handleSubmit() {
         </div>
 
         <div class="flex gap-2 justify-content-end" style="margin-top:1.5rem">
-          <pv-button type="button" :label="$t('mineral.cancel')" severity="secondary" outlined @click="$router.push('/jewelry/dashboard')" />
+          <pv-button type="button" :label="$t('mineral.cancel')" severity="secondary" outlined @click="$router.push({ name: 'jewelry-dashboard' })" />
           <pv-button type="submit" :label="$t('jewelry.registerBtn')" icon="pi pi-plus" :loading="jewelryStore.loading" />
         </div>
 

@@ -1,8 +1,31 @@
 ﻿<script setup>
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 
+const { t } = useI18n()
 const store = useJewelryStore()
+
+function translateJewelryType(type) {
+  const map = {
+    'Anillo':   t('jewelry.typeRing'),
+    'Collar':   t('jewelry.typeNecklace'),
+    'Pulsera':  t('jewelry.typeBracelet'),
+    'Arete':    t('jewelry.typeEarring'),
+    'Colgante': t('jewelry.typePendant'),
+  }
+  return map[type] || type || '—'
+}
+
+function translateJewelryStatus(s) {
+  const map = {
+    'Pendiente':   t('jewelry.statusPending'),
+    'Validado':    t('jewelry.statusValidated'),
+    'Certificado': t('jewelry.statusCertified'),
+    'Vendido':     t('jewelry.statusSold'),
+  }
+  return map[s] || s || '—'
+}
 onMounted(() => store.fetchItems())
 
 const totalValidatedWeight = computed(() =>
@@ -67,10 +90,10 @@ function statusClass(s) {
           <tbody>
             <tr v-for="item in store.items" :key="item.id">
               <td>{{ item.name }}</td>
-              <td>{{ item.type }}</td>
+              <td>{{ translateJewelryType(item.type) }}</td>
               <td>{{ item.weight }}g</td>
               <td>{{ item.purity }}</td>
-              <td><span class="gc-status" :class="statusClass(item.status)">{{ item.status }}</span></td>
+              <td><span class="gc-status" :class="statusClass(item.status)">{{ translateJewelryStatus(item.status) }}</span></td>
               <td>
                 <span class="gc-status" :class="item.certificationId ? 'gc-status-done' : 'gc-status-loading'">
                   {{ item.certificationId ? $t('jewelry.generated') : $t('jewelry.pending') }}
