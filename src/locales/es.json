@@ -168,7 +168,13 @@
     "iotTime4": "hace 12 min",
     "iotTime5": "hace 18 min",
     "trendBatches": "+2 hoy",
-    "trendTons": "+12.5T vs ayer"
+    "trendTons": "+12.5T vs ayer",
+    "batchDetailTitle": "Detalle del Lote",
+    "colDeposit": "YACIMIENTO",
+    "colMineralType": "TIPO DE MINERAL",
+    "colFinalWeight": "PESO FINAL",
+    "colCreatedAt": "FECHA",
+    "notAvailable": "N/D"
   },
   "jewelry": {
     "dashboardTitle": "Inventario y Certificación",
