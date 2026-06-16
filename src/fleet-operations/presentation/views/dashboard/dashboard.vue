@@ -1,9 +1,11 @@
 ﻿<script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMineralStore } from '../../../application/mineral.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 import NewBatchModal from './new-batch-modal.vue'
 
+const { t } = useI18n()
 const mineralStore = useMineralStore()
 const showNewBatchModal = ref(false)
 const searchTerm = ref('')
@@ -18,12 +20,12 @@ const filteredBatches = computed(() => {
   )
 })
 
-const iotEvents = ref([
-  { message: 'Balanza BL-01: 38.50 T registradas', time: 'hace 2 min', color: 'iot-green' },
-  { message: 'Vehículo CAT-07 en ruta confirmada', time: 'hace 5 min', color: 'iot-green' },
-  { message: 'GPS TRK-003: señal reestablecida', time: 'hace 8 min', color: 'iot-yellow' },
-  { message: 'Lote GM-4821 llegó a Planta Principal', time: 'hace 12 min', color: 'iot-green' },
-  { message: 'Sensor BL-02: sin conexión', time: 'hace 18 min', color: 'iot-red' },
+const iotEvents = computed(() => [
+  { message: t('mineral.iotMsg1'), time: t('mineral.iotTime1'), color: 'iot-green' },
+  { message: t('mineral.iotMsg2'), time: t('mineral.iotTime2'), color: 'iot-green' },
+  { message: t('mineral.iotMsg3'), time: t('mineral.iotTime3'), color: 'iot-yellow' },
+  { message: t('mineral.iotMsg4'), time: t('mineral.iotTime4'), color: 'iot-green' },
+  { message: t('mineral.iotMsg5'), time: t('mineral.iotTime5'), color: 'iot-red' },
 ])
 
 function statusSeverity(status) {
@@ -35,6 +37,19 @@ function statusSeverity(status) {
     'Alerta':      'danger',
   }
   return map[status] || 'secondary'
+}
+
+function translateStatus(status) {
+  const map = {
+    'Cargando':           t('mineral.statusLoading'),
+    'En Tránsito':        t('mineral.statusInTransit'),
+    'En Balanza':         t('mineral.statusOnScale'),
+    'En Planta':          t('mineral.statusAtPlant'),
+    'Completado':         t('mineral.statusCompleted'),
+    'Alerta':             t('mineral.statusAlert'),
+    'Bajo Investigación': t('mineral.statusUnderInvestigation'),
+  }
+  return map[status] || status
 }
 
 function onBatchCreated(batch) {
@@ -66,13 +81,13 @@ onMounted(async () => {
       <StatCard
         :label="$t('mineral.activeBatches')"
         :value="mineralStore.activeBatchCount"
-        trend="+2 hoy"
+        :trend="$t('mineral.trendBatches')"
         icon="pi-cube"
       />
       <StatCard
         :label="$t('mineral.tonsToday')"
         :value="mineralStore.totalTonsToday.toFixed(1) + ' T'"
-        trend="+12.5T vs ayer"
+        :trend="$t('mineral.trendTons')"
         icon="pi-chart-bar"
       />
       <StatCard
@@ -125,7 +140,7 @@ onMounted(async () => {
             <template #body="{ data }">
               <span style="color:var(--gc-text-muted);font-size:0.8rem">
                 <i class="pi pi-map-marker" style="margin-right:0.25rem" />
-                {{ data.destination || 'Planta Principal' }}
+                {{ data.destination || '—' }}
               </span>
             </template>
           </pv-column>
@@ -134,7 +149,7 @@ onMounted(async () => {
           </pv-column>
           <pv-column :header="$t('mineral.colStatus')">
             <template #body="{ data }">
-              <pv-tag :value="data.status" :severity="statusSeverity(data.status)" />
+              <pv-tag :value="translateStatus(data.status)" :severity="statusSeverity(data.status)" />
             </template>
           </pv-column>
           <pv-column :header="$t('mineral.colAction')">
