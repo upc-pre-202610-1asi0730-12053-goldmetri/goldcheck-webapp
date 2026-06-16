@@ -31,6 +31,10 @@ function toggleLocale() {
 function goToProfile() {
   router.push({ name: 'profile' })
 }
+
+function goToNotifications() {
+  router.push({ name: 'profile', query: { tab: 'notifications' } })
+}
 </script>
 
 <template>
@@ -54,7 +58,7 @@ function goToProfile() {
         <span class="lang-sep" aria-hidden="true">|</span>
         <span :class="{ active: locale === 'es' }">ES</span>
       </button>
-      <button class="topbar-icon-btn" :aria-label="$t('nav.notifications')" :aria-haspopup="true">
+      <button class="topbar-icon-btn" :aria-label="$t('nav.notifications')" @click="goToNotifications">
         <i class="pi pi-bell" aria-hidden="true" />
         <span v-if="hasNotifications" class="notif-dot" role="status" :aria-label="$t('nav.newNotifications')" />
       </button>

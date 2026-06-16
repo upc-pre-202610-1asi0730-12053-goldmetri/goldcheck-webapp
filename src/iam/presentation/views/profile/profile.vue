@@ -1,13 +1,19 @@
 ﻿<script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useIamStore } from '../../../application/iam.store.js'
 
 const { t, locale } = useI18n()
 const router = useRouter()
+const route  = useRoute()
 const iamStore = useIamStore()
 const activeTab = ref('profile')
+
+onMounted(() => {
+  const tab = route.query.tab
+  if (tab === 'notifications' || tab === 'settings') activeTab.value = tab
+})
 const saved = ref(false)
 
 const notifPrefs = reactive({ email: true, inApp: true })
