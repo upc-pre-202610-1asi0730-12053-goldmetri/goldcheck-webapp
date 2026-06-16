@@ -173,6 +173,8 @@
     "vehicleTypeMiningTruck": "Mining Truck",
     "vehicleTypeDumpTruck": "Dump Truck",
     "vehicleTypeHaulingTruck": "Hauling Truck",
+    "mineralTypeGold": "Gold",
+    "mineralTypeCopperGold": "Copper-Gold",
     "trendBatches": "+2 today",
     "trendTons": "+12.5T vs yesterday",
     "batchDetailTitle": "Batch Detail",

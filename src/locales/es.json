@@ -173,6 +173,8 @@
     "vehicleTypeMiningTruck": "Camión Minero",
     "vehicleTypeDumpTruck": "Volquete",
     "vehicleTypeHaulingTruck": "Camión de Acarreo",
+    "mineralTypeGold": "Oro",
+    "mineralTypeCopperGold": "Cobre-Oro",
     "trendBatches": "+2 hoy",
     "trendTons": "+12.5T vs ayer",
     "batchDetailTitle": "Detalle del Lote",

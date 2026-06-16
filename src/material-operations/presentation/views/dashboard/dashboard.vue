@@ -1,9 +1,33 @@
 ﻿<script setup>
 import { reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMaterialOperationsStore } from '../../../application/material-operations.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
+const { t } = useI18n()
 const store = useMaterialOperationsStore()
+
+function translateMineralType(type) {
+  const map = {
+    'Oro':       t('mineral.mineralTypeGold'),
+    'Cobre-Oro': t('mineral.mineralTypeCopperGold'),
+  }
+  return map[type] || type || '—'
+}
+
+function translateStatus(s) {
+  const map = {
+    'Cargando':           t('mineral.statusLoading'),
+    'En Tránsito':        t('mineral.statusInTransit'),
+    'En Balanza':         t('mineral.statusOnScale'),
+    'En Planta':          t('mineral.statusAtPlant'),
+    'Completado':         t('mineral.statusCompleted'),
+    'Procesado':          t('mineral.statusCompleted'),
+    'Alerta':             t('mineral.statusAlert'),
+    'Bajo Investigación': t('mineral.statusUnderInvestigation'),
+  }
+  return map[s] || s || '—'
+}
 
 const weightModal = reactive({ show: false, batchId: null, initialWeight: 0, value: null })
 
@@ -65,7 +89,7 @@ onMounted(() => store.fetchReceptions())
           <tbody>
             <tr v-for="r in store.receptions" :key="r.id">
               <td>{{ r.batchCode || `#${r.id}` }}</td>
-              <td>{{ r.mineralType || '—' }}</td>
+              <td>{{ translateMineralType(r.mineralType) }}</td>
               <td>{{ r.initialWeight ? `${r.initialWeight} t` : '—' }}</td>
               <td>{{ r.receivedWeight ? `${r.receivedWeight} t` : '—' }}</td>
               <td>
@@ -75,7 +99,7 @@ onMounted(() => store.fetchReceptions())
                 <span v-else style="color:var(--gc-text-muted)">—</span>
               </td>
               <td>
-                <span class="gc-badge" :class="statusClass(r.status)">{{ r.status }}</span>
+                <span class="gc-badge" :class="statusClass(r.status)">{{ translateStatus(r.status) }}</span>
               </td>
               <td>
                 <button
@@ -90,7 +114,7 @@ onMounted(() => store.fetchReceptions())
                   style="font-size:0.75rem;padding:0.3rem 0.8rem"
                   @click="openWeightModal(r)"
                 >{{ $t('materialOps.registerWeight') }}</button>
-                <span v-else style="color:var(--gc-text-muted);font-size:0.8rem">{{ r.status }}</span>
+                <span v-else style="color:var(--gc-text-muted);font-size:0.8rem">{{ translateStatus(r.status) }}</span>
               </td>
             </tr>
           </tbody>
