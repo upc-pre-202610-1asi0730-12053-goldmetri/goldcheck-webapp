@@ -1,8 +1,10 @@
 ﻿<script setup>
 import { onMounted } from 'vue'
 import { useReportingStore } from '../../../application/reporting.store.js'
+import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
 const store = useReportingStore()
+
 onMounted(() => store.fetchReports())
 </script>
 
@@ -20,23 +22,11 @@ onMounted(() => store.fetchReports())
     </div>
 
     <template v-else>
-      <div class="gc-stats-row">
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('reporting.totalBatches') }}</p>
-          <p class="gc-stat-value">{{ store.totalBatches }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('reporting.processed') }}</p>
-          <p class="gc-stat-value" style="color:#4ade80">{{ store.processedBatches }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('reporting.totalAlerts') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-danger)">{{ store.totalAlerts }}</p>
-        </div>
-        <div class="gc-stat-card">
-          <p class="gc-stat-label">{{ $t('reporting.certified') }}</p>
-          <p class="gc-stat-value" style="color:var(--gc-gold-mid)">{{ store.certifiedItems }}</p>
-        </div>
+      <div class="gc-kpi-grid">
+        <StatCard :label="$t('reporting.totalBatches')" :value="store.totalBatches" icon="pi pi-inbox" trend="" />
+        <StatCard :label="$t('reporting.processed')" :value="store.processedBatches" icon="pi pi-check-circle" trend="" />
+        <StatCard :label="$t('reporting.totalAlerts')" :value="store.totalAlerts" icon="pi pi-bell" trend="" :alert-active="store.totalAlerts > 0" />
+        <StatCard :label="$t('reporting.certified')" :value="store.certifiedItems" icon="pi pi-shield" trend="" />
       </div>
 
       <div class="gc-card gc-coming-soon" style="margin-top:1.5rem">
@@ -48,9 +38,6 @@ onMounted(() => store.fetchReports())
 </template>
 
 <style scoped>
-.gc-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.gc-stat-card { background: var(--gc-dark-card); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1.25rem 2rem; min-width: 160px; }
-.gc-stat-label { font-size: 0.75rem; color: var(--gc-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
-.gc-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--gc-text-primary); }
+.gc-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 .gc-coming-soon { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center; }
 </style>

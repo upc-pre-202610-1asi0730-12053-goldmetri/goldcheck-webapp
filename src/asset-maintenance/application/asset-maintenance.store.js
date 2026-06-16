@@ -7,7 +7,7 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
   const loading  = ref(false)
   const errors   = ref([])
 
-  const activeVehicles      = computed(() => vehicles.value.filter(v => v.status === 'Activo'))
+  const activeVehicles      = computed(() => vehicles.value.filter(v => v.status !== 'Mantenimiento'))
   const maintenanceVehicles = computed(() => vehicles.value.filter(v => v.status === 'Mantenimiento'))
   const activeCount         = computed(() => activeVehicles.value.length)
 
