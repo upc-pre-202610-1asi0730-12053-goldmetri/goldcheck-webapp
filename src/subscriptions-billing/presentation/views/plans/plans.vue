@@ -10,23 +10,38 @@ const store       = useSubscriptionsStore()
 
 const currentPlan = computed(() => iamStore.currentUser?.plan || 'BRONZE')
 
-const plans = [
+const plans = computed(() => [
   {
-    id: 'BRONZE', name: 'Bronze', basePrice: 'Gratis', period: '', icon: 'pi-shield',
-    features: ['5 lotes/mes', 'Dashboard básico', 'Soporte por email']
+    id: 'BRONZE', name: 'Bronze', basePrice: t('subscriptions.planFree'), period: '', icon: 'pi-shield',
+    features: [
+      t('subscriptions.bronzeBatches'),
+      t('subscriptions.compDashboard'),
+      t('subscriptions.compEmail'),
+    ]
   },
   {
-    id: 'GOLD', name: 'Gold', basePrice: 'S/ 199', period: '/mes', icon: 'pi-star',
-    features: ['50 lotes/mes', 'Analytics avanzado', 'IoT en tiempo real', 'Soporte prioritario']
+    id: 'GOLD', name: 'Gold', basePrice: 'S/ 199', period: t('subscriptions.planPeriodMonthly'), icon: 'pi-star',
+    features: [
+      t('subscriptions.goldBatches'),
+      t('subscriptions.compAnalytics'),
+      t('subscriptions.compIoT'),
+      t('subscriptions.compPriority'),
+    ]
   },
   {
-    id: 'PLATINUM', name: 'Platinum', basePrice: 'S/ 499', period: '/mes', icon: 'pi-crown',
-    features: ['Lotes ilimitados', 'API access', 'Multi-empresa', 'SLA 99.9%', 'Gerente dedicado']
+    id: 'PLATINUM', name: 'Platinum', basePrice: 'S/ 499', period: t('subscriptions.planPeriodMonthly'), icon: 'pi-crown',
+    features: [
+      t('subscriptions.platinumBatches'),
+      t('subscriptions.featureApiAccess'),
+      t('subscriptions.compMulti'),
+      t('subscriptions.featureSla'),
+      t('subscriptions.compManager'),
+    ]
   }
-]
+])
 
 const compareRows = computed(() => [
-  { label: t('subscriptions.compLotes'),     BRONZE: '5/mes',  GOLD: '50/mes', PLATINUM: t('subscriptions.compUnlimited') },
+  { label: t('subscriptions.compLotes'),     BRONZE: t('subscriptions.bronzeBatches'),  GOLD: t('subscriptions.goldBatches'), PLATINUM: t('subscriptions.compUnlimited') },
   { label: t('subscriptions.compDashboard'), BRONZE: true,     GOLD: true,     PLATINUM: true  },
   { label: t('subscriptions.compAnalytics'), BRONZE: false,    GOLD: true,     PLATINUM: true  },
   { label: t('subscriptions.compIoT'),       BRONZE: false,    GOLD: true,     PLATINUM: true  },

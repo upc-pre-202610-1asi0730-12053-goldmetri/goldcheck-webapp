@@ -501,7 +501,14 @@
     "errCardNumber": "Card number must be 16 digits.",
     "errHolder": "Cardholder name is required.",
     "errExpiry": "Invalid expiry date (MM/YY).",
-    "errCvv": "CVV must be 3 digits."
+    "errCvv": "CVV must be 3 digits.",
+    "planFree": "Free",
+    "planPeriodMonthly": "/mo",
+    "bronzeBatches": "5 batches/mo",
+    "goldBatches": "50 batches/mo",
+    "platinumBatches": "Unlimited batches",
+    "featureApiAccess": "API access",
+    "featureSla": "SLA 99.9%"
   },
   "trace": {
     "pageTitle": "Mineral Origin",
