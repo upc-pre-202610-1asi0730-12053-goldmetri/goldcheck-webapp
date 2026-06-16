@@ -299,6 +299,8 @@
     "traceabilityCode": "Traceability Code",
     "codePlaceholder": "E.g.: QR-GJ-10021",
     "codeRequired": "Code is required.",
+    "codeInvalid": "Enter a valid code (e.g.: QR-GJ-10021).",
+    "nameMinLength": "Name must be at least 3 characters.",
     "purchaseName": "Piece name",
     "purchaseNamePh": "E.g.: Classic Solitaire Ring",
     "nameRequired": "Name is required.",

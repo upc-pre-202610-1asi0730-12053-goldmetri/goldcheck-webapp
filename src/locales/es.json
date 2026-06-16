@@ -299,6 +299,8 @@
     "traceabilityCode": "Código de Trazabilidad",
     "codePlaceholder": "Ej: QR-GJ-10021",
     "codeRequired": "El código es obligatorio.",
+    "codeInvalid": "Ingresa un código válido (ej.: QR-GJ-10021).",
+    "nameMinLength": "El nombre debe tener al menos 3 caracteres.",
     "purchaseName": "Nombre de la pieza",
     "purchaseNamePh": "Ej: Anillo Solitario Clásico",
     "nameRequired": "El nombre es obligatorio.",
