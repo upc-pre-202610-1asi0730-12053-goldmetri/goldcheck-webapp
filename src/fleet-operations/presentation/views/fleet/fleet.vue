@@ -1,7 +1,9 @@
 ﻿<script setup>
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMineralStore } from '../../../application/mineral.store.js'
 
+const { t } = useI18n()
 const store = useMineralStore()
 onMounted(() => store.fetchSupporting())
 
@@ -13,6 +15,15 @@ function vehicleStatusClass(s) {
   if (s === 'Disponible') return 'badge-ok'
   if (s === 'En Ruta') return 'badge-transit'
   return 'badge-warning'
+}
+
+function translateVehicleStatus(s) {
+  const map = {
+    'Disponible':   t('mineral.statusAvailable'),
+    'En Ruta':      t('mineral.statusOnRoute'),
+    'Mantenimiento': t('mineral.statusMaintenance'),
+  }
+  return map[s] || s || '—'
 }
 </script>
 
@@ -68,7 +79,7 @@ function vehicleStatusClass(s) {
               <td>{{ v.type }}</td>
               <td>{{ v.capacity }} t</td>
               <td>
-                <span class="gc-badge" :class="vehicleStatusClass(v.status)">{{ v.status }}</span>
+                <span class="gc-badge" :class="vehicleStatusClass(v.status)">{{ translateVehicleStatus(v.status) }}</span>
               </td>
             </tr>
           </tbody>
