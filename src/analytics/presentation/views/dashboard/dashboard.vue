@@ -1,12 +1,28 @@
 ﻿<script setup>
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAnalyticsStore } from '../../../application/analytics.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
+const { t } = useI18n()
 const store = useAnalyticsStore()
 
 function shrinkagePct(b) {
   return (((b.initialWeight - b.finalWeight) / b.initialWeight) * 100).toFixed(2)
+}
+
+function translateStatus(s) {
+  const map = {
+    'Cargando':           t('mineral.statusLoading'),
+    'En Tránsito':        t('mineral.statusInTransit'),
+    'En Balanza':         t('mineral.statusOnScale'),
+    'En Planta':          t('mineral.statusAtPlant'),
+    'Completado':         t('mineral.statusCompleted'),
+    'Procesado':          t('mineral.statusCompleted'),
+    'Alerta':             t('mineral.statusAlert'),
+    'Bajo Investigación': t('mineral.statusUnderInvestigation'),
+  }
+  return map[s] || s || '—'
 }
 
 onMounted(() => store.fetchAnalyticsData())
@@ -56,7 +72,7 @@ onMounted(() => store.fetchAnalyticsData())
                   {{ shrinkagePct(b) }}%
                 </span>
               </td>
-              <td>{{ b.status }}</td>
+              <td>{{ translateStatus(b.status) }}</td>
             </tr>
           </tbody>
         </table>
