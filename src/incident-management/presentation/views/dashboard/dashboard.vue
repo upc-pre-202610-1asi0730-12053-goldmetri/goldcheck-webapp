@@ -205,7 +205,10 @@ onMounted(() => store.fetchIncidents())
 .inc-field  { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.9rem; }
 .inc-label  { font-size: 0.78rem; font-weight: 600; color: var(--gc-text-muted); letter-spacing: 0.03em; }
 .inc-error  { font-size: 0.75rem; color: var(--gc-danger); }
-.gc-select  { width: 100%; padding: 0.6rem 0.8rem; background: var(--gc-surface); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; }
-.gc-textarea { width: 100%; padding: 0.6rem 0.8rem; background: var(--gc-surface); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; resize: vertical; font-family: inherit; }
-.gc-input   { width: 100%; padding: 0.6rem 0.8rem; background: var(--gc-surface); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; }
+.gc-select  { width: 100%; padding: 0.6rem 0.8rem; background: var(--gc-dark-2); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; }
+.gc-select:focus  { outline: none; border-color: var(--gc-gold-mid); }
+.gc-textarea { width: 100%; padding: 0.6rem 0.8rem; background: var(--gc-dark-2); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; resize: vertical; font-family: inherit; }
+.gc-textarea:focus { outline: none; border-color: var(--gc-gold-mid); }
+.gc-input   { width: 100%; padding: 0.6rem 0.8rem; background: var(--gc-dark-2); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; }
+.gc-input:focus   { outline: none; border-color: var(--gc-gold-mid); }
 </style>
