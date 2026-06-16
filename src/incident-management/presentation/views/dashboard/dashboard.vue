@@ -51,7 +51,25 @@ async function submitIncident() {
 }
 
 function severityClass(s) {
-  return { 'badge-danger': s === 'CRITICAL' || s === 'HIGH', 'badge-warning': s === 'MEDIUM', 'badge-info': s === 'LOW' }
+  const u = s?.toUpperCase()
+  return { 'badge-danger': u === 'CRITICAL' || u === 'HIGH', 'badge-warning': u === 'MEDIUM' || u === 'WARNING', 'badge-info': u === 'LOW' }
+}
+
+function translateSeverity(s) {
+  const map = {
+    'critical': t('incidents.severityCritical'),
+    'warning':  t('incidents.severityWarning'),
+    'low':      t('incidents.severityLow'),
+  }
+  return map[s?.toLowerCase()] || s || '—'
+}
+
+function translateStatus(s) {
+  const map = {
+    'Abierto': t('incidents.statusOpen'),
+    'Cerrado': t('incidents.statusClosed'),
+  }
+  return map[s] || s || '—'
 }
 
 function translateIncidentType(type) {
@@ -104,9 +122,9 @@ onMounted(() => store.fetchIncidents())
             <tr v-for="inc in store.incidents" :key="inc.id">
               <td>{{ translateIncidentType(inc.incidentType) }}</td>
               <td>
-                <span class="gc-badge" :class="severityClass(inc.severity)">{{ inc.severity }}</span>
+                <span class="gc-badge" :class="severityClass(inc.severity)">{{ translateSeverity(inc.severity) }}</span>
               </td>
-              <td>{{ inc.status }}</td>
+              <td>{{ translateStatus(inc.status) }}</td>
               <td>{{ formatDate(inc.reportedAt) }}</td>
             </tr>
           </tbody>

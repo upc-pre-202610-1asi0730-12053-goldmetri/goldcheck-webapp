@@ -1,9 +1,30 @@
 ﻿<script setup>
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMonitoringStore } from '../../../application/monitoring.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
+const { t } = useI18n()
 const store = useMonitoringStore()
+
+const alertTypeMap = {
+  'ROUTE_DEVIATION':    'monitoring.typeRouteDeviation',
+  'DELAY':              'monitoring.typeDelay',
+  'WEIGHT_DISCREPANCY': 'monitoring.typeWeightDiscrepancy',
+}
+
+function translateAlertType(type) {
+  return alertTypeMap[type] ? t(alertTypeMap[type]) : (type || '—')
+}
+
+function translateSeverity(s) {
+  const map = {
+    'critical': t('monitoring.severityCritical'),
+    'warning':  t('monitoring.severityWarning'),
+    'low':      t('monitoring.severityLow'),
+  }
+  return map[s?.toLowerCase()] || s || '—'
+}
 
 onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
 </script>
@@ -42,10 +63,10 @@ onMounted(() => Promise.all([store.fetchAlerts(), store.fetchActiveBatches()]))
           </thead>
           <tbody>
             <tr v-for="alert in store.alerts" :key="alert.id">
-              <td>{{ alert.alertType }}</td>
+              <td>{{ translateAlertType(alert.alertType) }}</td>
               <td>
                 <span class="gc-badge" :class="alert.isCritical ? 'badge-danger' : 'badge-info'">
-                  {{ alert.severity }}
+                  {{ translateSeverity(alert.severity) }}
                 </span>
               </td>
               <td>{{ alert.batchCode || '—' }}</td>
