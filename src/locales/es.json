@@ -370,7 +370,16 @@
     "colAction": "ACCIÓN",
     "resolve": "Resolver",
     "resolved": "Resuelto",
-    "noAlerts": "Sin alertas activas."
+    "noAlerts": "Sin alertas activas.",
+    "typeRouteDeviation": "Desviación de Ruta",
+    "typeDelay": "Retraso",
+    "typeWeightDiscrepancy": "Discrepancia de Peso",
+    "typeOther": "Otro",
+    "severityCritical": "Crítico",
+    "severityWarning": "Advertencia",
+    "severityLow": "Bajo",
+    "statusOpen": "Abierto",
+    "statusResolved": "Resuelto"
   },
   "analytics": {
     "dashboardTitle": "Analítica y Reportes",
@@ -414,7 +423,9 @@
     "severityWarning": "Advertencia",
     "severityLow": "Bajo",
     "fieldRequired": "Este campo es obligatorio.",
-    "createSuccess": "Incidente reportado correctamente."
+    "createSuccess": "Incidente reportado correctamente.",
+    "statusOpen": "Abierto",
+    "statusClosed": "Cerrado"
   },
   "reporting": {
     "dashboardTitle": "Reportes y Notificaciones",
