@@ -48,7 +48,7 @@ export const useIamStore = defineStore('iam', () => {
     loading.value = true
     try {
       const res = await iamApi.register(data)
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return false }
+      if (res.status < 200 || res.status >= 300) { console.error(`${res.status}, ${res.statusText}`); return false }
       const user = res.data
       currentUser.value = user
       token.value = `mock-jwt-${user.id}`
