@@ -433,7 +433,19 @@
     "totalBatches": "Total de Lotes",
     "processed": "Procesados",
     "totalAlerts": "Total de Alertas",
-    "certified": "Joyas Certificadas"
+    "certified": "Joyas Certificadas",
+    "batchHistoryTitle": "Historial de Lotes",
+    "alertHistoryTitle": "Alertas Recientes",
+    "colBatch": "LOTE",
+    "colMineral": "MINERAL",
+    "colInitialWeight": "PESO INICIAL",
+    "colFinalWeight": "PESO FINAL",
+    "colStatus": "ESTADO",
+    "colDate": "FECHA",
+    "colType": "TIPO",
+    "colSeverity": "GRAVEDAD",
+    "noBatches": "Sin datos de lotes disponibles.",
+    "noAlerts": "Sin alertas registradas."
   },
   "assetMaintenance": {
     "dashboardTitle": "Activos y Mantenimiento",

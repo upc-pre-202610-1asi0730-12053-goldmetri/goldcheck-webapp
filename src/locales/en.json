@@ -433,7 +433,19 @@
     "totalBatches": "Total Batches",
     "processed": "Processed",
     "totalAlerts": "Total Alerts",
-    "certified": "Certified Jewels"
+    "certified": "Certified Jewels",
+    "batchHistoryTitle": "Batch History",
+    "alertHistoryTitle": "Recent Alerts",
+    "colBatch": "BATCH",
+    "colMineral": "MINERAL",
+    "colInitialWeight": "INITIAL WEIGHT",
+    "colFinalWeight": "FINAL WEIGHT",
+    "colStatus": "STATUS",
+    "colDate": "DATE",
+    "colType": "TYPE",
+    "colSeverity": "SEVERITY",
+    "noBatches": "No batch data available.",
+    "noAlerts": "No alerts recorded."
   },
   "assetMaintenance": {
     "dashboardTitle": "Asset & Maintenance",
