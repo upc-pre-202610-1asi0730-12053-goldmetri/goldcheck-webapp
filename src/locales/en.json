@@ -458,6 +458,7 @@
     "severityLow": "Low",
     "fieldRequired": "This field is required.",
     "createSuccess": "Incident reported successfully.",
+    "createError": "Could not save the incident. Please check your connection and try again.",
     "statusOpen": "Open",
     "statusClosed": "Closed"
   },

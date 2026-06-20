@@ -193,7 +193,7 @@
       "plate": "DEF-456",
       "type": "Camión Minero",
       "capacity": 45,
-      "status": "En Ruta",
+      "status": "Mantenimiento",
       "driverId": null
     },
     {
@@ -202,7 +202,7 @@
       "plate": "GHI-789",
       "type": "Volquete",
       "capacity": 60,
-      "status": "Disponible",
+      "status": "Mantenimiento",
       "driverId": null
     },
     {
@@ -211,7 +211,7 @@
       "plate": "JKL-012",
       "type": "Camión de Acarreo",
       "capacity": 91,
-      "status": "Mantenimiento",
+      "status": "Disponible",
       "driverId": null
     }
   ],
@@ -290,6 +290,32 @@
       "status": "Alerta",
       "destination": "Puerto Pisco",
       "createdAt": "2026-05-12T10:00:00.000Z"
+    },
+    {
+      "batchCode": "GM-7442",
+      "depositId": 3,
+      "depositName": "Yacimiento Alto Chicama",
+      "vehicleId": 1,
+      "vehicleName": "Camión CAT 01",
+      "status": "En Tránsito",
+      "destination": "Planta Principal",
+      "initialWeight": 10,
+      "mineralType": "Oro",
+      "createdAt": "2026-06-20T06:41:27.442Z",
+      "id": 6
+    },
+    {
+      "batchCode": "GM-4025",
+      "depositId": 3,
+      "depositName": "Yacimiento Alto Chicama",
+      "vehicleId": 1,
+      "vehicleName": "Camión CAT 01",
+      "status": "En Tránsito",
+      "destination": "Planta Principal",
+      "initialWeight": 38.5,
+      "mineralType": "Oro",
+      "createdAt": "2026-06-20T06:41:34.025Z",
+      "id": 7
     }
   ],
   "anomalyAlerts": [
@@ -308,6 +334,24 @@
       "message": "Camión CAT 02 con retraso de 45 min en entrega",
       "severity": "warning",
       "createdAt": "2026-05-13T07:45:00.000Z"
+    },
+    {
+      "incidentType": "WEIGHT_DISCREPANCY",
+      "severity": "warning",
+      "description": "Existe una perdida de oro.",
+      "batchId": null,
+      "status": "Abierto",
+      "reportedAt": "2026-06-20T06:38:42.030Z",
+      "id": 3
+    },
+    {
+      "incidentType": "ROUTE_DEVIATION",
+      "severity": "critical",
+      "description": "Se desvió",
+      "batchId": 552,
+      "status": "Abierto",
+      "reportedAt": "2026-06-20T06:40:27.696Z",
+      "id": 4
     }
   ],
   "jewelryItems": [

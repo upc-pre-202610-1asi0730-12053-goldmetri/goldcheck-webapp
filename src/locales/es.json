@@ -458,6 +458,7 @@
     "severityLow": "Bajo",
     "fieldRequired": "Este campo es obligatorio.",
     "createSuccess": "Incidente reportado correctamente.",
+    "createError": "No se pudo guardar el incidente. Verifica tu conexión e intenta nuevamente.",
     "statusOpen": "Abierto",
     "statusClosed": "Cerrado"
   },

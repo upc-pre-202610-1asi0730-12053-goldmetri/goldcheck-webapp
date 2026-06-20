@@ -8,7 +8,7 @@ const { t, locale } = useI18n()
 const store     = useIncidentManagementStore()
 const showModal = ref(false)
 
-const form = reactive({ type: '', severity: '', message: '', batchId: '' })
+const form = reactive({ incidentType: '', severity: '', description: '', batchId: '' })
 const formErrors = reactive({ type: false, severity: false, message: false })
 const submitSuccess = ref(false)
 
@@ -26,22 +26,22 @@ const severityLevels = [
 ]
 
 function openModal() {
-  form.type = ''; form.severity = ''; form.message = ''; form.batchId = ''
+  form.incidentType = ''; form.severity = ''; form.description = ''; form.batchId = ''
   formErrors.type = false; formErrors.severity = false; formErrors.message = false
   submitSuccess.value = false
   showModal.value = true
 }
 
 async function submitIncident() {
-  formErrors.type    = !form.type
+  formErrors.type    = !form.incidentType
   formErrors.severity = !form.severity
-  formErrors.message = !form.message.trim()
+  formErrors.message = !form.description.trim()
   if (formErrors.type || formErrors.severity || formErrors.message) return
 
   const ok = await store.createIncident({
-    type: form.type,
+    incidentType: form.incidentType,
     severity: form.severity,
-    message: form.message.trim(),
+    description: form.description.trim(),
     batchId: form.batchId ? Number(form.batchId) : null,
   })
   if (ok) {
@@ -154,7 +154,7 @@ onMounted(() => store.fetchIncidents())
         <div v-else style="padding:0.5rem 0">
           <div class="inc-field">
             <label class="inc-label">{{ $t('incidents.formType') }}</label>
-            <select class="gc-select" v-model="form.type">
+            <select class="gc-select" v-model="form.incidentType">
               <option value="" disabled>{{ $t('incidents.selectType') }}</option>
               <option v-for="it in incidentTypes" :key="it.value" :value="it.value">{{ $t(it.labelKey) }}</option>
             </select>
@@ -172,7 +172,7 @@ onMounted(() => store.fetchIncidents())
 
           <div class="inc-field">
             <label class="inc-label">{{ $t('incidents.formMessage') }}</label>
-            <textarea class="gc-textarea" v-model="form.message" rows="3" />
+            <textarea class="gc-textarea" v-model="form.description" rows="3" />
             <span v-if="formErrors.message" class="inc-error">{{ $t('incidents.fieldRequired') }}</span>
           </div>
 
@@ -182,13 +182,16 @@ onMounted(() => store.fetchIncidents())
           </div>
 
           <p v-if="store.errors.length" style="color:var(--gc-danger);font-size:0.8rem;margin-top:0.5rem">
-            {{ store.errors[0] }}
+            {{ $t('incidents.' + store.errors[0]) }}
           </p>
         </div>
 
         <div class="gc-modal-footer">
           <button class="gc-btn gc-btn-outline" @click="showModal = false">{{ $t('common.cancel') }}</button>
-          <button v-if="!submitSuccess" class="gc-btn gc-btn-gold" @click="submitIncident">{{ $t('common.save') }}</button>
+          <button v-if="!submitSuccess" class="gc-btn gc-btn-gold" :disabled="store.loading" @click="submitIncident">
+            <i v-if="store.loading" class="pi pi-spin pi-spinner" style="margin-right:0.4rem" />
+            {{ $t('common.save') }}
+          </button>
         </div>
       </div>
     </div>
