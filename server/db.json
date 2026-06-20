@@ -31,14 +31,15 @@
       "location": "Arequipa, Perú"
     },
     {
-      "email": "katty.philco17@gmail.com",
-      "username": "katty.philco17@gmail.com",
-      "password": "Atu123456*",
+      "email": "katty.philc@gmail.com",
+      "username": "Katty Philco",
+      "password": "123456",
       "phoneNumber": "912350323",
       "segment": "consumer",
       "plan": "BRONZE",
       "apiId": "v1",
-      "id": 4
+      "id": 4,
+      "location": ""
     },
     {
       "email": "katty.philco17@gmail.com",
