@@ -87,5 +87,15 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
-  return { pieces, certificates, errors, loading, fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchBatch }
+  async function lookupInventoryItem(traceabilityCode) {
+    try {
+      const sku = traceabilityCode.startsWith('QR-') ? traceabilityCode.slice(3) : traceabilityCode
+      const res = await consumerApi.getJewelryItem(sku)
+      return (res.data || []).length > 0 ? res.data[0] : null
+    } catch {
+      return null
+    }
+  }
+
+  return { pieces, certificates, errors, loading, fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchBatch, lookupInventoryItem }
 })

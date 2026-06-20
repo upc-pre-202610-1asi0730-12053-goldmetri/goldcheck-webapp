@@ -136,6 +136,15 @@
       "segment": "mining",
       "plan": "GOLD",
       "id": 14
+    },
+    {
+      "email": "ket@gmail.com",
+      "username": "kett",
+      "password": "12345",
+      "phoneNumber": "912350655",
+      "segment": "jewelry",
+      "plan": "PLATINUM",
+      "id": 15
     }
   ],
   "deposits": [
@@ -391,6 +400,16 @@
       "status": "Activo",
       "imageUrl": "",
       "traceabilityCode": "QR-GJ-10021"
+    },
+    {
+      "traceabilityCode": "QR-GJ-10021",
+      "name": "Anillo zafiro",
+      "type": "Anillo",
+      "purity": "18k",
+      "ownerId": 4,
+      "status": "Activo",
+      "purchaseDate": "2026-06-20T06:25:08.170Z",
+      "id": 2
     }
   ]
 }
