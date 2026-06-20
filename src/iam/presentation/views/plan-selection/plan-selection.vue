@@ -11,9 +11,11 @@ const { t }    = useI18n()
 const iamStore = useIamStore()
 const subStore = useSubscriptionsStore()
 
-const isAnnual  = ref(false)
-const segment   = computed(() => iamStore.currentUser?.segment)
+const isAnnual   = ref(false)
+const segment    = computed(() => iamStore.currentUser?.segment)
 const isConsumer = computed(() => segment.value === 'consumer')
+const isJewelry  = computed(() => segment.value === 'jewelry')
+const showToggle = computed(() => isConsumer.value || isJewelry.value)
 
 // ── Consumer plans ──────────────────────────────────────────────
 const consumerPlans = computed(() => [
@@ -21,15 +23,14 @@ const consumerPlans = computed(() => [
     id: 'FREE',
     name: t('subscriptions.consumerFreeName'),
     desc: t('subscriptions.consumerFreeDesc'),
-    price: '$0',
+    price: '$0', priceSuffix: '',
     priceNote: t('subscriptions.consumerFreeForever'),
     features: [
       t('subscriptions.consumerFeat1'),
       t('subscriptions.consumerFeat2'),
       t('subscriptions.consumerFeat3'),
     ],
-    free: true,
-    popular: false,
+    free: true, popular: false,
   },
   {
     id: 'PRO',
@@ -45,16 +46,67 @@ const consumerPlans = computed(() => [
       t('subscriptions.consumerProFeat4'),
       t('subscriptions.consumerProFeat5'),
     ],
-    free: false,
-    popular: true,
+    free: false, popular: true,
   }
 ])
 
-// ── B2B plans (mining / jewelry) ────────────────────────────────
-const b2bPlans = computed(() => [
+// ── Jewelry plans ───────────────────────────────────────────────
+const jewelryPlans = computed(() => [
+  {
+    id: 'BRONZE',
+    name: t('subscriptions.jewelryFreeName'),
+    desc: t('subscriptions.jewelryFreeDesc'),
+    icon: 'pi-shield',
+    price: '$0', priceSuffix: '',
+    priceNote: t('subscriptions.jewelryFreeForever'),
+    features: [
+      t('subscriptions.jewelryFreeFeat1'),
+      t('subscriptions.jewelryFreeFeat2'),
+      t('subscriptions.jewelryFreeFeat3'),
+    ],
+    free: true, popular: false,
+  },
+  {
+    id: 'GOLD',
+    name: t('subscriptions.jewelryGoldName'),
+    desc: t('subscriptions.jewelryGoldDesc'),
+    icon: 'pi-star',
+    price: isAnnual.value ? '$39' : '$49',
+    priceSuffix: t('subscriptions.planPeriodMonthly'),
+    priceNote: isAnnual.value ? t('subscriptions.planPeriodAnnual') : '',
+    features: [
+      t('subscriptions.jewelryGoldFeat1'),
+      t('subscriptions.jewelryGoldFeat2'),
+      t('subscriptions.jewelryGoldFeat3'),
+      t('subscriptions.jewelryGoldFeat4'),
+    ],
+    free: false, popular: true,
+  },
+  {
+    id: 'PLATINUM',
+    name: t('subscriptions.jewelryPlatName'),
+    desc: t('subscriptions.jewelryPlatDesc'),
+    icon: 'pi-crown',
+    price: isAnnual.value ? '$103' : '$129',
+    priceSuffix: t('subscriptions.planPeriodMonthly'),
+    priceNote: isAnnual.value ? t('subscriptions.planPeriodAnnual') : '',
+    features: [
+      t('subscriptions.jewelryPlatFeat1'),
+      t('subscriptions.jewelryPlatFeat2'),
+      t('subscriptions.jewelryPlatFeat3'),
+      t('subscriptions.jewelryPlatFeat4'),
+      t('subscriptions.jewelryPlatFeat5'),
+    ],
+    free: false, popular: false,
+  }
+])
+
+// ── Mining plans ────────────────────────────────────────────────
+const miningPlans = computed(() => [
   {
     id: 'BRONZE', name: 'Bronze', icon: 'pi-shield',
     price: t('subscriptions.planFree'), priceSuffix: '',
+    priceNote: '',
     features: [
       t('subscriptions.bronzeBatches'),
       t('subscriptions.compDashboard'),
@@ -65,6 +117,7 @@ const b2bPlans = computed(() => [
   {
     id: 'GOLD', name: 'Gold', icon: 'pi-star',
     price: 'S/ 199', priceSuffix: t('subscriptions.planPeriodMonthly'),
+    priceNote: '',
     features: [
       t('subscriptions.goldBatches'),
       t('subscriptions.compAnalytics'),
@@ -76,6 +129,7 @@ const b2bPlans = computed(() => [
   {
     id: 'PLATINUM', name: 'Platinum', icon: 'pi-crown',
     price: 'S/ 499', priceSuffix: t('subscriptions.planPeriodMonthly'),
+    priceNote: '',
     features: [
       t('subscriptions.platinumBatches'),
       t('subscriptions.featureApiAccess'),
@@ -87,7 +141,11 @@ const b2bPlans = computed(() => [
   }
 ])
 
-const plans = computed(() => isConsumer.value ? consumerPlans.value : b2bPlans.value)
+const plans = computed(() => {
+  if (isConsumer.value) return consumerPlans.value
+  if (isJewelry.value)  return jewelryPlans.value
+  return miningPlans.value
+})
 
 // ── Payment modal ────────────────────────────────────────────────
 const payModal   = reactive({ show: false, plan: null, success: false })
@@ -163,8 +221,8 @@ function selectPlan(plan) {
     <h1 class="ps-title">{{ $t('subscriptions.onboardingTitle') }}</h1>
     <p class="ps-subtitle">{{ $t('subscriptions.onboardingSubtitle') }}</p>
 
-    <!-- Monthly / Annual toggle (consumer only) -->
-    <div v-if="isConsumer" class="billing-toggle">
+    <!-- Monthly / Annual toggle -->
+    <div v-if="showToggle" class="billing-toggle">
       <span :class="{ 'toggle-active': !isAnnual }">{{ $t('subscriptions.planBillingMonthly') }}</span>
       <button
         class="toggle-switch"
@@ -181,7 +239,7 @@ function selectPlan(plan) {
     </div>
 
     <!-- Plan cards -->
-    <div :class="isConsumer ? 'plans-grid plans-grid--2' : 'plans-grid plans-grid--3'">
+    <div :class="isConsumer ? 'plans-grid plans-grid--2' : 'plans-grid plans-grid--3'" >
       <div
         v-for="plan in plans"
         :key="plan.id"

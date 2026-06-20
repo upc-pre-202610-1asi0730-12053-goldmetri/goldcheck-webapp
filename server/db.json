@@ -49,6 +49,16 @@
       "plan": "BRONZE",
       "apiId": "v1",
       "id": 5
+    },
+    {
+      "email": "flor@gmail.com",
+      "username": "flor",
+      "password": "12356",
+      "phoneNumber": "912350323",
+      "segment": "jewelry",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 6
     }
   ],
   "deposits": [
