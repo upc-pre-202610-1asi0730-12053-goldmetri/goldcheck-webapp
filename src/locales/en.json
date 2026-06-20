@@ -27,6 +27,8 @@
     "toggleLanguage": "Toggle language",
     "notifications": "Notifications",
     "newNotifications": "New notifications available",
+    "notifMarkAllRead": "Mark all as read",
+    "notifSettings": "Notification settings",
     "userMenu": "User menu for {name}"
   },
   "footer": {
@@ -721,5 +723,15 @@
       "jewelry": "JEWELRY",
       "consumer": "CONSUMER"
     }
+  },
+  "notif": {
+    "alertRoute":    "Route alert",
+    "alertRouteDesc":"Batch GM-4817 deviated 12 km from the planned route.",
+    "newBatch":      "New batch registered",
+    "newBatchDesc":  "Batch AP-0923 was created with 42 tons in transit.",
+    "weightOk":      "Weight validated",
+    "weightOkDesc":  "Batch GJ-1002 passed the final weight verification.",
+    "certReady":     "Certificate ready",
+    "certReadyDesc": "The QR certificate for piece #AN-7741 is ready to download."
   }
 }
