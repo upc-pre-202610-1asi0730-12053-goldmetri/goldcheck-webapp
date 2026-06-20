@@ -331,6 +331,32 @@
       "mineralType": "Oro",
       "createdAt": "2026-06-20T06:50:28.246Z",
       "id": 8
+    },
+    {
+      "batchCode": "GM-7066",
+      "depositId": 3,
+      "depositName": "Yacimiento Alto Chicama",
+      "vehicleId": 1,
+      "vehicleName": "Camión CAT 01",
+      "status": "Cargando",
+      "destination": "Planta Principal",
+      "initialWeight": 0,
+      "mineralType": "Oro",
+      "createdAt": "2026-06-20T07:04:37.066Z",
+      "id": 9
+    },
+    {
+      "batchCode": "GM-6220",
+      "depositId": 2,
+      "depositName": "Mina Cerro Verde - Zona Norte",
+      "vehicleId": 2,
+      "vehicleName": "Camión CAT 02",
+      "status": "Cargando",
+      "destination": "Refinería Central",
+      "initialWeight": 0,
+      "mineralType": "Oro",
+      "createdAt": "2026-06-20T07:06:16.220Z",
+      "id": 10
     }
   ],
   "anomalyAlerts": [
