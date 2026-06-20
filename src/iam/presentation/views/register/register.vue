@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useIamStore } from '../../../application/iam.store.js'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
+import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue'
 
 const { t } = useI18n()
 
@@ -57,6 +58,9 @@ async function handleRegister() {
     <!-- Form panel -->
     <div class="auth-form-panel">
       <div class="auth-form-inner">
+        <div class="auth-lang-row">
+          <LanguageSwitcher />
+        </div>
         <h1>{{ $t('auth.createAccount') }}</h1>
 
         <div v-if="iamStore.errors.length" class="gc-alert gc-alert-danger">
@@ -183,6 +187,12 @@ async function handleRegister() {
 </template>
 
 <style scoped>
+.auth-lang-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
 .brand-logo { max-width: 260px; margin-bottom: 1rem; }
 .brand-text-block { text-align: center; }
 .brand-name { font-size: 1.6rem; font-weight: 900; color: var(--gc-gold-mid); letter-spacing: 0.12em; }
