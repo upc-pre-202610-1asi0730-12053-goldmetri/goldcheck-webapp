@@ -99,6 +99,34 @@
       "plan": "BRONZE",
       "apiId": "v1",
       "id": 10
+    },
+    {
+      "email": "katty.philco17@gmail.com",
+      "username": "katty.philco@gmail.com",
+      "password": "123455",
+      "phoneNumber": "912350323",
+      "segment": "consumer",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 11
+    },
+    {
+      "email": "consumidor@gmail.com",
+      "username": "katty philco",
+      "password": "12345",
+      "phoneNumber": "912350367",
+      "segment": "consumer",
+      "plan": "PRO",
+      "id": 12
+    },
+    {
+      "email": "katty.philc@gmail.com",
+      "username": "mota philco",
+      "password": "12345",
+      "phoneNumber": "912350323",
+      "segment": "jewelry",
+      "plan": "BRONZE",
+      "id": 13
     }
   ],
   "deposits": [

@@ -78,7 +78,7 @@ function openPayment(plan) {
   saveCard.value   = false
   Object.assign(form,   { number: '', holder: '', expiry: '', cvv: '' })
   Object.assign(errors, { number: '', holder: '', expiry: '', cvv: '' })
-  store.errors = []
+  store.$patch({ errors: [] })
 }
 
 function closeModal() {
