@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import { useIamStore } from '../../../../iam/application/iam.store.js'
@@ -22,12 +22,31 @@ const typeOptions = computed(() => [
 
 const form = ref({ traceabilityCode: '', name: '', type: '', purity: '' })
 
-const codeInvalid  = computed(() => submitted.value && !CODE_PATTERN.test(form.value.traceabilityCode.trim()))
-const nameInvalid  = computed(() => submitted.value && form.value.name.trim().length < 3)
+// Inventory validation state
+const inventoryStatus = ref(null) // null | 'checking' | 'found' | 'not-found'
+let debounceTimer = null
+
+watch(() => form.value.traceabilityCode, (val) => {
+  clearTimeout(debounceTimer)
+  inventoryStatus.value = null
+  if (!CODE_PATTERN.test(val.trim())) return
+  inventoryStatus.value = 'checking'
+  debounceTimer = setTimeout(async () => {
+    const item = await consumerStore.lookupInventoryItem(val.trim().toUpperCase())
+    inventoryStatus.value = item ? 'found' : 'not-found'
+  }, 500)
+})
+
+const codeInvalid       = computed(() => submitted.value && !CODE_PATTERN.test(form.value.traceabilityCode.trim()))
+const codeNotInInventory = computed(() => submitted.value && inventoryStatus.value === 'not-found')
+const nameInvalid       = computed(() => submitted.value && form.value.name.trim().length < 3)
 
 async function handleLink() {
   submitted.value = true
   if (codeInvalid.value || nameInvalid.value) return
+  if (inventoryStatus.value === 'checking') return
+  if (inventoryStatus.value !== 'found') return
+
   const piece = await consumerStore.linkPiece({
     ...form.value,
     traceabilityCode: form.value.traceabilityCode.trim().toUpperCase(),
@@ -59,16 +78,28 @@ async function handleLink() {
     <div class="form-field">
       <label for="trace-code">{{ $t('consumer.traceabilityCode') }}</label>
       <pv-icon-field>
-        <pv-input-icon class="pi pi-qrcode" />
+        <pv-input-icon
+          :class="inventoryStatus === 'checking' ? 'pi pi-spin pi-spinner'
+                : inventoryStatus === 'found'    ? 'pi pi-check-circle icon-found'
+                : inventoryStatus === 'not-found'? 'pi pi-times-circle icon-notfound'
+                : 'pi pi-qrcode'"
+        />
         <pv-input-text
           id="trace-code"
           v-model="form.traceabilityCode"
           :placeholder="$t('consumer.codePlaceholder')"
-          :invalid="codeInvalid"
+          :invalid="codeInvalid || codeNotInInventory"
           fluid
         />
       </pv-icon-field>
       <span v-if="codeInvalid" class="gc-error-msg">{{ $t('consumer.codeInvalid') }}</span>
+      <span v-else-if="codeNotInInventory" class="gc-error-msg">{{ $t('consumer.codeNotInInventory') }}</span>
+      <span v-else-if="inventoryStatus === 'checking'" class="status-msg status-checking">
+        <i class="pi pi-spin pi-spinner" /> {{ $t('consumer.codeChecking') }}
+      </span>
+      <span v-else-if="inventoryStatus === 'found'" class="status-msg status-found">
+        <i class="pi pi-check-circle" /> {{ $t('consumer.codeFoundInInventory') }}
+      </span>
     </div>
 
     <div class="form-field">
@@ -111,7 +142,8 @@ async function handleLink() {
       <pv-button
         :label="$t('consumer.linkBtn')"
         icon="pi pi-link"
-        :loading="consumerStore.loading"
+        :loading="consumerStore.loading || inventoryStatus === 'checking'"
+        :disabled="inventoryStatus === 'not-found' || inventoryStatus === 'checking'"
         @click="handleLink"
       />
     </template>
@@ -122,4 +154,18 @@ async function handleLink() {
 .form-field { margin-bottom: 1rem; }
 .form-field label { display: block; font-size: 0.82rem; color: var(--gc-text-secondary); margin-bottom: 0.4rem; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.status-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+.status-checking { color: var(--gc-text-muted); }
+.status-found    { color: #4ade80; }
+
+.icon-found    { color: #4ade80 !important; }
+.icon-notfound { color: var(--gc-danger) !important; }
 </style>
