@@ -22,6 +22,8 @@
     "subscriptions": "Suscripciones",
     "sidebar": "Navegación lateral",
     "mainNav": "Navegación principal",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
     "toggleLanguage": "Cambiar idioma",
     "notifications": "Notificaciones",
     "newNotifications": "Nuevas notificaciones disponibles",
