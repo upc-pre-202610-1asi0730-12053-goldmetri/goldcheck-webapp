@@ -15,7 +15,8 @@ const isAnnual   = ref(false)
 const segment    = computed(() => iamStore.currentUser?.segment)
 const isConsumer = computed(() => segment.value === 'consumer')
 const isJewelry  = computed(() => segment.value === 'jewelry')
-const showToggle = computed(() => isConsumer.value || isJewelry.value)
+const isMining   = computed(() => segment.value === 'mining')
+const showToggle = computed(() => isConsumer.value || isJewelry.value || isMining.value)
 
 // ── Consumer plans ──────────────────────────────────────────────
 const consumerPlans = computed(() => [
@@ -104,38 +105,49 @@ const jewelryPlans = computed(() => [
 // ── Mining plans ────────────────────────────────────────────────
 const miningPlans = computed(() => [
   {
-    id: 'BRONZE', name: 'Bronze', icon: 'pi-shield',
-    price: t('subscriptions.planFree'), priceSuffix: '',
-    priceNote: '',
+    id: 'BRONZE',
+    name: t('subscriptions.miningFreeName'),
+    desc: t('subscriptions.miningFreeDesc'),
+    icon: 'pi-shield',
+    price: '$0', priceSuffix: '',
+    priceNote: t('subscriptions.miningFreeForever'),
     features: [
-      t('subscriptions.bronzeBatches'),
-      t('subscriptions.compDashboard'),
-      t('subscriptions.compEmail'),
+      t('subscriptions.miningFreeFeat1'),
+      t('subscriptions.miningFreeFeat2'),
+      t('subscriptions.miningFreeFeat3'),
     ],
     free: true, popular: false,
   },
   {
-    id: 'GOLD', name: 'Gold', icon: 'pi-star',
-    price: 'S/ 199', priceSuffix: t('subscriptions.planPeriodMonthly'),
-    priceNote: '',
+    id: 'GOLD',
+    name: t('subscriptions.miningGoldName'),
+    desc: t('subscriptions.miningGoldDesc'),
+    icon: 'pi-star',
+    price: isAnnual.value ? '$39' : '$49',
+    priceSuffix: t('subscriptions.planPeriodMonthly'),
+    priceNote: isAnnual.value ? t('subscriptions.planPeriodAnnual') : '',
     features: [
-      t('subscriptions.goldBatches'),
-      t('subscriptions.compAnalytics'),
-      t('subscriptions.compIoT'),
-      t('subscriptions.compPriority'),
+      t('subscriptions.miningGoldFeat1'),
+      t('subscriptions.miningGoldFeat2'),
+      t('subscriptions.miningGoldFeat3'),
+      t('subscriptions.miningGoldFeat4'),
     ],
     free: false, popular: true,
   },
   {
-    id: 'PLATINUM', name: 'Platinum', icon: 'pi-crown',
-    price: 'S/ 499', priceSuffix: t('subscriptions.planPeriodMonthly'),
-    priceNote: '',
+    id: 'PLATINUM',
+    name: t('subscriptions.miningPlatName'),
+    desc: t('subscriptions.miningPlatDesc'),
+    icon: 'pi-crown',
+    price: isAnnual.value ? '$103' : '$129',
+    priceSuffix: t('subscriptions.planPeriodMonthly'),
+    priceNote: isAnnual.value ? t('subscriptions.planPeriodAnnual') : '',
     features: [
-      t('subscriptions.platinumBatches'),
-      t('subscriptions.featureApiAccess'),
-      t('subscriptions.compMulti'),
-      t('subscriptions.featureSla'),
-      t('subscriptions.compManager'),
+      t('subscriptions.miningPlatFeat1'),
+      t('subscriptions.miningPlatFeat2'),
+      t('subscriptions.miningPlatFeat3'),
+      t('subscriptions.miningPlatFeat4'),
+      t('subscriptions.miningPlatFeat5'),
     ],
     free: false, popular: false,
   }

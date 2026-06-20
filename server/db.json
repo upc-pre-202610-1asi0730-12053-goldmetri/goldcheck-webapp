@@ -59,6 +59,16 @@
       "plan": "BRONZE",
       "apiId": "v1",
       "id": 6
+    },
+    {
+      "email": "mina@mineria.com",
+      "username": "mina",
+      "password": "12345",
+      "phoneNumber": "912560879",
+      "segment": "mining",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 7
     }
   ],
   "deposits": [
