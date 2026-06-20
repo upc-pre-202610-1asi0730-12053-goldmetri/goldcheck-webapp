@@ -180,10 +180,26 @@ function formatExpiry() {
 
 function validateCard() {
   const num = cardForm.number.replace(/\s/g, '')
-  cardErrors.number = num.length !== 16           ? t('subscriptions.errCardNumber') : ''
-  cardErrors.holder = !cardForm.holder.trim()     ? t('subscriptions.errHolder')     : ''
-  cardErrors.expiry = !/^\d{2}\/\d{2}$/.test(cardForm.expiry) ? t('subscriptions.errExpiry') : ''
-  cardErrors.cvv    = cardForm.cvv.length !== 3   ? t('subscriptions.errCvv')        : ''
+  cardErrors.number = num.length !== 16 ? t('subscriptions.errCardNumber') : ''
+  cardErrors.holder = !cardForm.holder.trim() ? t('subscriptions.errHolder') : ''
+  cardErrors.cvv    = cardForm.cvv.length !== 3 ? t('subscriptions.errCvv') : ''
+
+  if (!/^\d{2}\/\d{2}$/.test(cardForm.expiry)) {
+    cardErrors.expiry = t('subscriptions.errExpiry')
+  } else {
+    const [mm, yy] = cardForm.expiry.split('/').map(Number)
+    const now = new Date()
+    const expYear  = 2000 + yy
+    const expMonth = mm
+    const curYear  = now.getFullYear()
+    const curMonth = now.getMonth() + 1
+    if (expYear < curYear || (expYear === curYear && expMonth < curMonth)) {
+      cardErrors.expiry = t('subscriptions.errExpiryPast')
+    } else {
+      cardErrors.expiry = ''
+    }
+  }
+
   return !cardErrors.number && !cardErrors.holder && !cardErrors.expiry && !cardErrors.cvv
 }
 

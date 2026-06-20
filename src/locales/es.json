@@ -526,6 +526,7 @@
     "errCardNumber": "El número de tarjeta debe tener 16 dígitos.",
     "errHolder": "El nombre del titular es obligatorio.",
     "errExpiry": "Fecha de vencimiento inválida (MM/AA).",
+    "errExpiryPast": "La fecha de vencimiento no puede ser anterior a la fecha actual.",
     "errCvv": "El CVV debe tener 3 dígitos.",
     "planFree": "Gratis",
     "planPeriodMonthly": "/mes",

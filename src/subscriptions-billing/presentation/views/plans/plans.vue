@@ -88,12 +88,27 @@ function formatExpiry() {
 }
 
 function validate() {
-  let ok = true
   const num = form.number.replace(/\s/g, '')
-  errors.number = num.length !== 16       ? t('subscriptions.errCardNumber') : ''
-  errors.holder = !form.holder.trim()     ? t('subscriptions.errHolder')     : ''
-  errors.expiry = !/^\d{2}\/\d{2}$/.test(form.expiry) ? t('subscriptions.errExpiry') : ''
-  errors.cvv    = form.cvv.length !== 3   ? t('subscriptions.errCvv')        : ''
+  errors.number = num.length !== 16 ? t('subscriptions.errCardNumber') : ''
+  errors.holder = !form.holder.trim() ? t('subscriptions.errHolder') : ''
+  errors.cvv    = form.cvv.length !== 3 ? t('subscriptions.errCvv') : ''
+
+  if (!/^\d{2}\/\d{2}$/.test(form.expiry)) {
+    errors.expiry = t('subscriptions.errExpiry')
+  } else {
+    const [mm, yy] = form.expiry.split('/').map(Number)
+    const now = new Date()
+    const expYear  = 2000 + yy
+    const expMonth = mm
+    const curYear  = now.getFullYear()
+    const curMonth = now.getMonth() + 1
+    if (expYear < curYear || (expYear === curYear && expMonth < curMonth)) {
+      errors.expiry = t('subscriptions.errExpiryPast')
+    } else {
+      errors.expiry = ''
+    }
+  }
+
   return !errors.number && !errors.holder && !errors.expiry && !errors.cvv
 }
 
