@@ -66,6 +66,9 @@ const fieldErrors = reactive({
 const saved      = ref(false)
 const saveError  = ref(false)
 
+// ── Save-confirmation modal ────────────────────────────────────────────────
+const showSaveConfirm = ref(false)
+
 // ── Confirm-current-password modal (shown when email changes) ──────────────
 const showConfirmModal = ref(false)
 const currentPwdInput  = ref('')
@@ -105,6 +108,11 @@ function validate() {
 
 async function handleSave() {
   if (!validate()) return
+  showSaveConfirm.value = true
+}
+
+async function proceedAfterConfirm() {
+  showSaveConfirm.value = false
   if (emailChanged.value) {
     currentPwdInput.value = ''
     currentPwdError.value = ''
@@ -285,6 +293,30 @@ async function persistUpdate() {
               <i class="pi pi-sign-out" /> {{ $t('profile.settingsLogout') }}
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Save confirmation modal ── -->
+    <div v-if="showSaveConfirm" class="gc-modal-overlay" @click.self="showSaveConfirm = false">
+      <div class="gc-modal" style="max-width:400px">
+        <div class="gc-modal-header">
+          <p class="gc-modal-title">
+            <i class="pi pi-save" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
+            {{ $t('profile.confirmSaveTitle') }}
+          </p>
+          <button class="gc-modal-close" @click="showSaveConfirm = false">✕</button>
+        </div>
+        <div style="padding:1rem 0">
+          <p style="font-size:0.85rem;color:var(--gc-text-secondary)">
+            {{ $t('profile.confirmSaveDesc') }}
+          </p>
+        </div>
+        <div class="gc-modal-footer">
+          <button class="gc-btn gc-btn-outline" @click="showSaveConfirm = false">{{ $t('common.cancel') }}</button>
+          <button class="gc-btn gc-btn-gold" @click="proceedAfterConfirm">
+            {{ $t('profile.confirmSaveBtn') }}
+          </button>
         </div>
       </div>
     </div>
