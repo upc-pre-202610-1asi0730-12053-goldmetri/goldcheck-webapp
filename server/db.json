@@ -29,9 +29,18 @@
       "segment": "consumer",
       "plan": "BRONZE",
       "location": "Arequipa, Perú"
+    },
+    {
+      "email": "katty.philco17@gmail.com",
+      "username": "katty.philco17@gmail.com",
+      "password": "Atu123456*",
+      "phoneNumber": "912350323",
+      "segment": "consumer",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 4
     }
   ],
-
   "deposits": [
     {
       "id": 1,
@@ -62,7 +71,6 @@
       "mineralType": "Cobre-Oro"
     }
   ],
-
   "vehicles": [
     {
       "id": 1,
@@ -101,7 +109,6 @@
       "driverId": null
     }
   ],
-
   "mineralBatches": [
     {
       "id": 1,
@@ -156,7 +163,7 @@
       "vehicleId": 1,
       "vehicleName": "Camión CAT 01",
       "driverId": null,
-      "initialWeight": 35.0,
+      "initialWeight": 35,
       "finalWeight": 34.7,
       "mineralType": "Oro",
       "status": "Completado",
@@ -179,7 +186,6 @@
       "createdAt": "2026-05-12T10:00:00.000Z"
     }
   ],
-
   "anomalyAlerts": [
     {
       "id": 1,
@@ -198,7 +204,6 @@
       "createdAt": "2026-05-13T07:45:00.000Z"
     }
   ],
-
   "jewelryItems": [
     {
       "id": 1,
@@ -236,7 +241,7 @@
       "name": "Pulsera Esclava Moderna",
       "type": "Pulsera",
       "materialOrigin": "GM-4821",
-      "weight": 12.0,
+      "weight": 12,
       "purity": "18K",
       "batchRef": "GM-4821",
       "status": "Pendiente",
@@ -261,7 +266,6 @@
       "createdAt": "2026-05-13T09:00:00.000Z"
     }
   ],
-
   "jewelryCertificates": [
     {
       "id": 1,
@@ -276,7 +280,6 @@
       "status": "Activo"
     }
   ],
-
   "consumerPieces": [
     {
       "id": 1,

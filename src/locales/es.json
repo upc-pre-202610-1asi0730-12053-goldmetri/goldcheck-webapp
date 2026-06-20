@@ -493,6 +493,9 @@
     "noVehicles": "No hay vehículos registrados."
   },
   "subscriptions": {
+    "onboardingTitle": "Elige tu plan",
+    "onboardingSubtitle": "Selecciona el plan que mejor se adapte a tu operación. Podrás cambiarlo en cualquier momento.",
+    "selectPlan": "Seleccionar plan",
     "plansTitle": "Planes y Suscripciones",
     "plansSubtitle": "Elige el plan que mejor se adapte a tu operación.",
     "currentPlan": "Plan Actual",
