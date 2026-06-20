@@ -39,6 +39,16 @@
       "plan": "BRONZE",
       "apiId": "v1",
       "id": 4
+    },
+    {
+      "email": "katty.philco17@gmail.com",
+      "username": "katty philco",
+      "password": "123456",
+      "phoneNumber": "912350323",
+      "segment": "consumer",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 5
     }
   ],
   "deposits": [
