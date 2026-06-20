@@ -27,6 +27,8 @@
     "toggleLanguage": "Cambiar idioma",
     "notifications": "Notificaciones",
     "newNotifications": "Nuevas notificaciones disponibles",
+    "notifMarkAllRead": "Marcar todo como leído",
+    "notifSettings": "Configurar notificaciones",
     "userMenu": "Menú de usuario para {name}"
   },
   "footer": {
@@ -721,5 +723,15 @@
       "jewelry": "JOYERÍA",
       "consumer": "CONSUMIDOR"
     }
+  },
+  "notif": {
+    "alertRoute":    "Alerta de ruta",
+    "alertRouteDesc":"El lote GM-4817 se desvió 12 km de la ruta planificada.",
+    "newBatch":      "Nuevo lote registrado",
+    "newBatchDesc":  "Se creó el lote AP-0923 con 42 toneladas en tránsito.",
+    "weightOk":      "Peso validado",
+    "weightOkDesc":  "El lote GJ-1002 pasó la verificación de peso final.",
+    "certReady":     "Certificado disponible",
+    "certReadyDesc": "El certificado QR de la pieza #AN-7741 está listo para descarga."
   }
 }
