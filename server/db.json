@@ -69,6 +69,16 @@
       "plan": "BRONZE",
       "apiId": "v1",
       "id": 7
+    },
+    {
+      "email": "soykat@gmaill.con",
+      "username": "katy",
+      "password": "12345",
+      "phoneNumber": "779898999",
+      "segment": "consumer",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 8
     }
   ],
   "deposits": [

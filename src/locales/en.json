@@ -526,6 +526,7 @@
     "errCardNumber": "Card number must be 16 digits.",
     "errHolder": "Cardholder name is required.",
     "errExpiry": "Invalid expiry date (MM/YY).",
+    "errExpiryPast": "The expiry date cannot be in the past.",
     "errCvv": "CVV must be 3 digits.",
     "planFree": "Free",
     "planPeriodMonthly": "/mo",
