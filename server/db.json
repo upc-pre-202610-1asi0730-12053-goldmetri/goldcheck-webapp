@@ -225,9 +225,9 @@
       "vehicleName": "Camión CAT 01",
       "driverId": null,
       "initialWeight": 38.5,
-      "finalWeight": null,
+      "finalWeight": 15,
       "mineralType": "Oro",
-      "status": "En Tránsito",
+      "status": "Bajo Investigación",
       "destination": "Planta Procesadora Sur",
       "createdAt": "2026-05-13T08:00:00.000Z"
     },

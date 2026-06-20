@@ -387,7 +387,8 @@
     "finalWeightTitle": "Registrar Peso Final",
     "finalWeightLabel": "Peso Final (toneladas)",
     "weightPlaceholder": "ej. 38.2",
-    "noReceptions": "No hay recepciones registradas."
+    "noReceptions": "No hay recepciones registradas.",
+    "weightExceedsInitial": "El peso ingresado supera el peso inicial registrado. Ingresa un valor menor o igual al inicial."
   },
   "monitoring": {
     "dashboardTitle": "Monitoreo y Telemetría",
