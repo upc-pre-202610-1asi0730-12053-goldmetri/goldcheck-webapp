@@ -82,7 +82,14 @@ onMounted(async () => {
         <p class="gc-page-subtitle">{{ $t('mineral.dashboardSubtitle') }}</p>
       </div>
       <div class="gc-page-actions">
-        <pv-button :label="$t('mineral.today')" icon="pi pi-calendar" severity="secondary" outlined size="small" />
+        <pv-button
+          :label="$t('mineral.today')"
+          icon="pi pi-calendar"
+          severity="secondary"
+          outlined
+          size="small"
+          v-tooltip.bottom="$t('mineral.todayTooltip')"
+        />
         <pv-button :label="$t('mineral.newRecord')" icon="pi pi-plus" @click="showNewBatchModal = true" />
       </div>
     </div>
