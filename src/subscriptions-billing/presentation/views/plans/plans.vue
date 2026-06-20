@@ -60,8 +60,14 @@ const errors      = reactive({ number: '', holder: '', expiry: '', cvv: '' })
 const saveCard    = ref(false)
 const usingSaved  = ref(false)
 
+const savedCardKey = computed(() => `gc_saved_card_${iamStore.currentUser?.id}`)
+
 const savedCard = ref((() => {
-  try { return JSON.parse(localStorage.getItem('gc_saved_card') || 'null') } catch { return null }
+  try {
+    const uid = iamStore.currentUser?.id
+    if (!uid) return null
+    return JSON.parse(localStorage.getItem(`gc_saved_card_${uid}`) || 'null')
+  } catch { return null }
 })())
 
 const cardNumberDisplay = computed(() => {
@@ -87,7 +93,7 @@ function closeModal() {
 }
 
 function removeSavedCard() {
-  localStorage.removeItem('gc_saved_card')
+  localStorage.removeItem(savedCardKey.value)
   savedCard.value  = null
   usingSaved.value = false
 }
@@ -138,7 +144,7 @@ async function confirmUpgrade() {
     if (saveCard.value) {
       const last4 = form.number.replace(/\s/g, '').slice(-4)
       const token = { last4, holder: form.holder, expiry: form.expiry, token: `mock-tok-${Date.now()}` }
-      localStorage.setItem('gc_saved_card', JSON.stringify(token))
+      localStorage.setItem(savedCardKey.value, JSON.stringify(token))
       savedCard.value = token
     }
     payModal.success = true

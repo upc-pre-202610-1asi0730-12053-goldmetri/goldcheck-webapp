@@ -127,6 +127,15 @@
       "segment": "jewelry",
       "plan": "BRONZE",
       "id": 13
+    },
+    {
+      "email": "katty.p17@gmail.com",
+      "username": "katty",
+      "password": "12345",
+      "phoneNumber": "912350323",
+      "segment": "mining",
+      "plan": "GOLD",
+      "id": 14
     }
   ],
   "deposits": [

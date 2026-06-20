@@ -16,6 +16,9 @@ export const useIamStore = defineStore('iam', () => {
     try { currentUser.value = JSON.parse(savedUser) } catch {}
   }
 
+  // Remove legacy shared card key (was not scoped per user)
+  localStorage.removeItem('gc_saved_card')
+
   // US08 – Sign In
   async function login(email, password) {
     errors.value = []
