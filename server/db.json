@@ -469,6 +469,16 @@
       "status": "Activo",
       "purchaseDate": "2026-06-20T06:25:08.170Z",
       "id": 2
+    },
+    {
+      "traceabilityCode": "QR-GJ-10021",
+      "name": "Anillo zafiro",
+      "type": "Anillo",
+      "purity": "18kk",
+      "ownerId": 5,
+      "status": "Activo",
+      "purchaseDate": "2026-06-20T07:01:36.615Z",
+      "id": 3
     }
   ]
 }
