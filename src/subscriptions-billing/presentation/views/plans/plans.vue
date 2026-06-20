@@ -54,9 +54,15 @@ const compareRows = computed(() => [
 ])
 
 // Payment modal state
-const payModal = reactive({ show: false, plan: null, success: false })
-const form     = reactive({ number: '', holder: '', expiry: '', cvv: '' })
-const errors   = reactive({ number: '', holder: '', expiry: '', cvv: '' })
+const payModal    = reactive({ show: false, plan: null, success: false })
+const form        = reactive({ number: '', holder: '', expiry: '', cvv: '' })
+const errors      = reactive({ number: '', holder: '', expiry: '', cvv: '' })
+const saveCard    = ref(false)
+const usingSaved  = ref(false)
+
+const savedCard = ref((() => {
+  try { return JSON.parse(localStorage.getItem('gc_saved_card') || 'null') } catch { return null }
+})())
 
 const cardNumberDisplay = computed(() => {
   const digits = form.number.replace(/\s/g, '')
@@ -68,6 +74,8 @@ function openPayment(plan) {
   payModal.plan    = plan
   payModal.show    = true
   payModal.success = false
+  usingSaved.value = !!savedCard.value
+  saveCard.value   = false
   Object.assign(form,   { number: '', holder: '', expiry: '', cvv: '' })
   Object.assign(errors, { number: '', holder: '', expiry: '', cvv: '' })
   store.errors = []
@@ -76,6 +84,12 @@ function openPayment(plan) {
 function closeModal() {
   payModal.show    = false
   payModal.success = false
+}
+
+function removeSavedCard() {
+  localStorage.removeItem('gc_saved_card')
+  savedCard.value  = null
+  usingSaved.value = false
 }
 
 function formatCardNumber() {
@@ -113,9 +127,22 @@ function validate() {
 }
 
 async function confirmUpgrade() {
+  if (usingSaved.value) {
+    const ok = await store.upgradePlan(payModal.plan.id)
+    if (ok) payModal.success = true
+    return
+  }
   if (!validate()) return
   const ok = await store.upgradePlan(payModal.plan.id)
-  if (ok) payModal.success = true
+  if (ok) {
+    if (saveCard.value) {
+      const last4 = form.number.replace(/\s/g, '').slice(-4)
+      const token = { last4, holder: form.holder, expiry: form.expiry, token: `mock-tok-${Date.now()}` }
+      localStorage.setItem('gc_saved_card', JSON.stringify(token))
+      savedCard.value = token
+    }
+    payModal.success = true
+  }
 }
 </script>
 
@@ -258,61 +285,84 @@ async function confirmUpgrade() {
             </div>
           </div>
 
-          <!-- Inputs -->
-          <div class="pay-fields">
-            <div class="pay-field">
-              <label>{{ $t('subscriptions.cardNumber') }}</label>
-              <input
-                v-model="form.number"
-                class="gc-input-dark"
-                :placeholder="$t('subscriptions.cardNumberPh')"
-                maxlength="19"
-                inputmode="numeric"
-                @input="formatCardNumber"
-              />
-              <span v-if="errors.number" class="field-err">{{ errors.number }}</span>
-            </div>
-
-            <div class="pay-field">
-              <label>{{ $t('subscriptions.cardHolder') }}</label>
-              <input
-                v-model="form.holder"
-                class="gc-input-dark"
-                :placeholder="$t('subscriptions.cardHolderPh')"
-                @input="form.holder = form.holder.toUpperCase()"
-              />
-              <span v-if="errors.holder" class="field-err">{{ errors.holder }}</span>
-            </div>
-
-            <div class="pay-row">
-              <div class="pay-field">
-                <label>{{ $t('subscriptions.cardExpiry') }}</label>
-                <input
-                  v-model="form.expiry"
-                  class="gc-input-dark"
-                  placeholder="MM/AA"
-                  maxlength="5"
-                  inputmode="numeric"
-                  @input="formatExpiry"
-                />
-                <span v-if="errors.expiry" class="field-err">{{ errors.expiry }}</span>
-              </div>
-              <div class="pay-field">
-                <label>CVV</label>
-                <input
-                  v-model="form.cvv"
-                  class="gc-input-dark"
-                  placeholder="•••"
-                  maxlength="3"
-                  type="password"
-                  inputmode="numeric"
-                />
-                <span v-if="errors.cvv" class="field-err">{{ errors.cvv }}</span>
+          <!-- Saved card panel -->
+          <div v-if="savedCard && usingSaved" class="saved-card-panel">
+            <div class="saved-card-info">
+              <i class="pi pi-credit-card saved-card-icon" />
+              <div>
+                <p class="saved-card-label">{{ $t('subscriptions.savedCard') }}</p>
+                <p class="saved-card-mask">•••• •••• •••• {{ savedCard.last4 }} · {{ savedCard.expiry }}</p>
+                <p class="saved-card-holder">{{ savedCard.holder }}</p>
               </div>
             </div>
+            <div class="saved-card-actions">
+              <button class="link-btn" @click="usingSaved = false">{{ $t('subscriptions.useNewCard') }}</button>
+              <button class="link-btn link-btn--danger" @click="removeSavedCard">{{ $t('subscriptions.removeCard') }}</button>
+            </div>
+          </div>
 
-            <div v-if="store.errors.length" class="gc-alert gc-alert-danger">
-              {{ $t('subscriptions.upgradeError') }}
+          <!-- New card form -->
+          <div v-else>
+            <div class="pay-fields">
+              <div class="pay-field">
+                <label>{{ $t('subscriptions.cardNumber') }}</label>
+                <input
+                  v-model="form.number"
+                  class="gc-input-dark"
+                  :placeholder="$t('subscriptions.cardNumberPh')"
+                  maxlength="19"
+                  inputmode="numeric"
+                  @input="formatCardNumber"
+                />
+                <span v-if="errors.number" class="field-err">{{ errors.number }}</span>
+              </div>
+
+              <div class="pay-field">
+                <label>{{ $t('subscriptions.cardHolder') }}</label>
+                <input
+                  v-model="form.holder"
+                  class="gc-input-dark"
+                  :placeholder="$t('subscriptions.cardHolderPh')"
+                  @input="form.holder = form.holder.toUpperCase()"
+                />
+                <span v-if="errors.holder" class="field-err">{{ errors.holder }}</span>
+              </div>
+
+              <div class="pay-row">
+                <div class="pay-field">
+                  <label>{{ $t('subscriptions.cardExpiry') }}</label>
+                  <input
+                    v-model="form.expiry"
+                    class="gc-input-dark"
+                    placeholder="MM/AA"
+                    maxlength="5"
+                    inputmode="numeric"
+                    @input="formatExpiry"
+                  />
+                  <span v-if="errors.expiry" class="field-err">{{ errors.expiry }}</span>
+                </div>
+                <div class="pay-field">
+                  <label>CVV</label>
+                  <input
+                    v-model="form.cvv"
+                    class="gc-input-dark"
+                    placeholder="•••"
+                    maxlength="3"
+                    type="password"
+                    inputmode="numeric"
+                  />
+                  <span v-if="errors.cvv" class="field-err">{{ errors.cvv }}</span>
+                </div>
+              </div>
+
+              <label class="save-card-row">
+                <input type="checkbox" v-model="saveCard" />
+                <span>{{ $t('subscriptions.saveCard') }}</span>
+              </label>
+
+              <div v-if="store.errors.length" class="gc-alert gc-alert-danger">
+                {{ $t('subscriptions.upgradeError') }}
+              </div>
             </div>
           </div>
 
@@ -321,7 +371,7 @@ async function confirmUpgrade() {
             <button class="gc-btn gc-btn-gold" :disabled="store.loading" @click="confirmUpgrade">
               <i v-if="store.loading" class="pi pi-spin pi-spinner" />
               <i v-else class="pi pi-lock" />
-              {{ $t('subscriptions.confirmPay') }} {{ payModal.plan?.basePrice }}
+              {{ usingSaved ? $t('subscriptions.useSavedCard') : $t('subscriptions.confirmPay') + ' ' + payModal.plan?.basePrice }}
             </button>
           </div>
         </div>
@@ -411,6 +461,55 @@ async function confirmUpgrade() {
 
 /* ---------- Payment modal ---------- */
 .pay-modal { max-width: 480px; }
+
+.saved-card-panel {
+  background: rgba(178,148,78,0.07);
+  border: 1px solid var(--gc-gold-mid);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.saved-card-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.saved-card-icon { font-size: 1.5rem; color: var(--gc-gold-mid); margin-top: 0.1rem; }
+
+.saved-card-label  { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gc-gold-mid); font-weight: 700; margin-bottom: 0.2rem; }
+.saved-card-mask   { font-size: 0.9rem; font-weight: 600; color: var(--gc-text-primary); letter-spacing: 0.05em; }
+.saved-card-holder { font-size: 0.78rem; color: var(--gc-text-muted); margin-top: 0.1rem; }
+
+.saved-card-actions { display: flex; gap: 1rem; }
+
+.link-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--gc-text-muted);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-btn:hover { color: var(--gc-text-primary); }
+.link-btn--danger:hover { color: var(--gc-danger); }
+
+.save-card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--gc-text-muted);
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.save-card-row input[type="checkbox"] { accent-color: var(--gc-gold-mid); width: 15px; height: 15px; cursor: pointer; }
 
 .pay-success {
   display: flex; flex-direction: column; align-items: center;

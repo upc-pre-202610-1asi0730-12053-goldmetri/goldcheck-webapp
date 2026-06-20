@@ -79,6 +79,26 @@
       "plan": "BRONZE",
       "apiId": "v1",
       "id": 8
+    },
+    {
+      "email": "yolanda@gmail.com",
+      "username": "yolita",
+      "password": "12345",
+      "phoneNumber": "912350626",
+      "segment": "consumer",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 9
+    },
+    {
+      "email": "carlos@gmail.com",
+      "username": "carlos philco",
+      "password": "12345",
+      "phoneNumber": "908825569",
+      "segment": "mining",
+      "plan": "BRONZE",
+      "apiId": "v1",
+      "id": 10
     }
   ],
   "deposits": [
