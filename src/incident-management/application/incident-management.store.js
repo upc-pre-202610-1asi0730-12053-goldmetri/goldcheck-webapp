@@ -27,6 +27,7 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
 
   async function createIncident(data) {
     errors.value = []
+    loading.value = true
     try {
       const res = await incidentManagementApi.createIncident({
         ...data, status: 'Abierto', reportedAt: new Date().toISOString()
@@ -36,6 +37,8 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
     } catch {
       errors.value = ['createError']
       return false
+    } finally {
+      loading.value = false
     }
   }
 
