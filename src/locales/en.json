@@ -43,6 +43,7 @@
     "continueGoogle": "Continue with Google",
     "username": "Username",
     "phoneNumber": "Phone number",
+    "phoneInvalid": "Enter digits only (7–15 numbers).",
     "segment": "Segment",
     "consumer": "Consumer",
     "jewelry": "Jewelry",

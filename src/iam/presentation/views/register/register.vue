@@ -4,7 +4,12 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useIamStore } from '../../../application/iam.store.js'
 import { useVuelidate } from '@vuelidate/core'
-import { required, email } from '@vuelidate/validators'
+import { required, email, minLength, maxLength, helpers } from '@vuelidate/validators'
+
+const phonePattern = helpers.withMessage(
+  () => '',
+  helpers.regex(/^\d{7,15}$/)
+)
 import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue'
 
 const { t } = useI18n()
@@ -23,10 +28,17 @@ const form = reactive({
 })
 
 const rules = {
-  email:    { required, email },
-  username: { required },
-  password: { required },
-  segment:  { required }
+  email:       { required, email },
+  username:    { required },
+  password:    { required },
+  segment:     { required },
+  phoneNumber: { phonePattern }
+}
+
+function onlyDigits(e) {
+  if (!/[\d]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    e.preventDefault()
+  }
 }
 
 const v$ = useVuelidate(rules, form)
@@ -138,11 +150,19 @@ async function handleRegister() {
                 id="reg-phone"
                 v-model="form.phoneNumber"
                 type="tel"
+                inputmode="numeric"
                 autocomplete="tel"
+                :invalid="v$.phoneNumber.$error"
+                :aria-invalid="v$.phoneNumber.$error"
+                aria-describedby="reg-phone-error"
+                @keydown="onlyDigits"
                 fluid
               />
               <label for="reg-phone">{{ $t('auth.phoneNumber') }}</label>
             </pv-float-label>
+            <span v-if="v$.phoneNumber.$error" id="reg-phone-error" class="gc-error-msg" role="alert">
+              {{ $t('auth.phoneInvalid') }}
+            </span>
           </div>
 
           <!-- Segmento: US06 (Minerías) / US07 (Joyerías) -->

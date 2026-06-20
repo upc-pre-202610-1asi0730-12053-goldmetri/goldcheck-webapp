@@ -43,6 +43,7 @@
     "continueGoogle": "Continuar con Google",
     "username": "Usuario",
     "phoneNumber": "Número de teléfono",
+    "phoneInvalid": "Ingresa solo dígitos (7–15 números).",
     "segment": "Segmento",
     "consumer": "Consumidor",
     "jewelry": "Joyerías",
