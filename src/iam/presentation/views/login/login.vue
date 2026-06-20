@@ -4,6 +4,7 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useIamStore } from '../../../application/iam.store.js'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
+import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue'
 
 const router   = useRouter()
 const iamStore = useIamStore()
@@ -36,6 +37,9 @@ async function handleLogin() {
     <!-- Form panel -->
     <div class="auth-form-panel">
       <div class="auth-form-inner">
+        <div class="auth-lang-row">
+          <LanguageSwitcher />
+        </div>
         <h1>LOG IN</h1>
 
         <div v-if="iamStore.errors.length" class="gc-alert gc-alert-danger">
@@ -119,6 +123,12 @@ async function handleLogin() {
 </template>
 
 <style scoped>
+.auth-lang-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
 .login-row {
   display: flex;
   align-items: center;
