@@ -217,7 +217,7 @@ function openPayment(plan) {
   saveCard.value   = false
   Object.assign(cardForm,   { number: '', holder: '', expiry: '', cvv: '' })
   Object.assign(cardErrors, { number: '', holder: '', expiry: '', cvv: '' })
-  subStore.errors = []
+  subStore.$patch({ errors: [] })
 }
 
 function closeModal() {
@@ -360,83 +360,87 @@ function selectPlan(plan) {
           </button>
         </div>
 
-        <!-- Saved card panel -->
-        <div v-if="savedCard && usingSaved" class="saved-card-panel">
-          <div class="saved-card-info">
-            <i class="pi pi-credit-card saved-card-icon" />
-            <div>
-              <p class="saved-card-label">{{ $t('subscriptions.savedCard') }}</p>
-              <p class="saved-card-mask">•••• •••• •••• {{ savedCard.last4 }} · {{ savedCard.expiry }}</p>
-              <p class="saved-card-holder">{{ savedCard.holder }}</p>
-            </div>
-          </div>
-          <div class="saved-card-actions">
-            <button class="link-btn" @click="usingSaved = false">{{ $t('subscriptions.useNewCard') }}</button>
-            <button class="link-btn link-btn--danger" @click="removeSavedCard">{{ $t('subscriptions.removeCard') }}</button>
-          </div>
-        </div>
-
-        <!-- New card form -->
-        <div v-else>
-          <div class="card-visual">
-            <div class="card-visual-top">
-              <div class="card-chip" />
-              <i class="pi pi-wifi card-wifi" />
-            </div>
-            <div class="card-number-display">{{ cardDisplay }}</div>
-            <div class="card-visual-bottom">
+        <!-- Payment form (only when not in success state) -->
+        <template v-else>
+          <!-- Saved card panel -->
+          <div v-if="savedCard && usingSaved" class="saved-card-panel">
+            <div class="saved-card-info">
+              <i class="pi pi-credit-card saved-card-icon" />
               <div>
-                <p class="card-meta-label">{{ $t('subscriptions.cardHolder') }}</p>
-                <p class="card-meta-value">{{ cardForm.holder || $t('subscriptions.cardHolderPh') }}</p>
+                <p class="saved-card-label">{{ $t('subscriptions.savedCard') }}</p>
+                <p class="saved-card-mask">•••• •••• •••• {{ savedCard.last4 }} · {{ savedCard.expiry }}</p>
+                <p class="saved-card-holder">{{ savedCard.holder }}</p>
               </div>
-              <div style="text-align:right">
-                <p class="card-meta-label">{{ $t('subscriptions.cardExpiry') }}</p>
-                <p class="card-meta-value">{{ cardForm.expiry || 'MM/AA' }}</p>
-              </div>
+            </div>
+            <div class="saved-card-actions">
+              <button class="link-btn" @click="usingSaved = false">{{ $t('subscriptions.useNewCard') }}</button>
+              <button class="link-btn link-btn--danger" @click="removeSavedCard">{{ $t('subscriptions.removeCard') }}</button>
             </div>
           </div>
 
-          <div class="pay-fields">
-            <div class="pay-field">
-              <label>{{ $t('subscriptions.cardNumber') }}</label>
-              <input v-model="cardForm.number" class="gc-input-dark" :placeholder="$t('subscriptions.cardNumberPh')" maxlength="19" inputmode="numeric" @input="formatCardNumber" />
-              <span v-if="cardErrors.number" class="field-err">{{ cardErrors.number }}</span>
-            </div>
-            <div class="pay-field">
-              <label>{{ $t('subscriptions.cardHolder') }}</label>
-              <input v-model="cardForm.holder" class="gc-input-dark" :placeholder="$t('subscriptions.cardHolderPh')" @input="cardForm.holder = cardForm.holder.toUpperCase()" />
-              <span v-if="cardErrors.holder" class="field-err">{{ cardErrors.holder }}</span>
-            </div>
-            <div class="pay-row">
-              <div class="pay-field">
-                <label>{{ $t('subscriptions.cardExpiry') }}</label>
-                <input v-model="cardForm.expiry" class="gc-input-dark" placeholder="MM/AA" maxlength="5" inputmode="numeric" @input="formatExpiry" />
-                <span v-if="cardErrors.expiry" class="field-err">{{ cardErrors.expiry }}</span>
+          <!-- New card form -->
+          <div v-else>
+            <div class="card-visual">
+              <div class="card-visual-top">
+                <div class="card-chip" />
+                <i class="pi pi-wifi card-wifi" />
               </div>
-              <div class="pay-field">
-                <label>CVV</label>
-                <input v-model="cardForm.cvv" class="gc-input-dark" placeholder="•••" maxlength="3" type="password" inputmode="numeric" />
-                <span v-if="cardErrors.cvv" class="field-err">{{ cardErrors.cvv }}</span>
+              <div class="card-number-display">{{ cardDisplay }}</div>
+              <div class="card-visual-bottom">
+                <div>
+                  <p class="card-meta-label">{{ $t('subscriptions.cardHolder') }}</p>
+                  <p class="card-meta-value">{{ cardForm.holder || $t('subscriptions.cardHolderPh') }}</p>
+                </div>
+                <div style="text-align:right">
+                  <p class="card-meta-label">{{ $t('subscriptions.cardExpiry') }}</p>
+                  <p class="card-meta-value">{{ cardForm.expiry || 'MM/AA' }}</p>
+                </div>
               </div>
             </div>
-            <label class="save-card-row">
-              <input type="checkbox" v-model="saveCard" />
-              <span>{{ $t('subscriptions.saveCard') }}</span>
-            </label>
-            <div v-if="subStore.errors.length" class="gc-alert gc-alert-danger">
-              {{ $t('subscriptions.upgradeError') }}
+
+            <div class="pay-fields">
+              <div class="pay-field">
+                <label>{{ $t('subscriptions.cardNumber') }}</label>
+                <input v-model="cardForm.number" class="gc-input-dark" :placeholder="$t('subscriptions.cardNumberPh')" maxlength="19" inputmode="numeric" @input="formatCardNumber" />
+                <span v-if="cardErrors.number" class="field-err">{{ cardErrors.number }}</span>
+              </div>
+              <div class="pay-field">
+                <label>{{ $t('subscriptions.cardHolder') }}</label>
+                <input v-model="cardForm.holder" class="gc-input-dark" :placeholder="$t('subscriptions.cardHolderPh')" @input="cardForm.holder = cardForm.holder.toUpperCase()" />
+                <span v-if="cardErrors.holder" class="field-err">{{ cardErrors.holder }}</span>
+              </div>
+              <div class="pay-row">
+                <div class="pay-field">
+                  <label>{{ $t('subscriptions.cardExpiry') }}</label>
+                  <input v-model="cardForm.expiry" class="gc-input-dark" placeholder="MM/AA" maxlength="5" inputmode="numeric" @input="formatExpiry" />
+                  <span v-if="cardErrors.expiry" class="field-err">{{ cardErrors.expiry }}</span>
+                </div>
+                <div class="pay-field">
+                  <label>CVV</label>
+                  <input v-model="cardForm.cvv" class="gc-input-dark" placeholder="•••" maxlength="3" type="password" inputmode="numeric" />
+                  <span v-if="cardErrors.cvv" class="field-err">{{ cardErrors.cvv }}</span>
+                </div>
+              </div>
+              <label class="save-card-row">
+                <input type="checkbox" v-model="saveCard" />
+                <span>{{ $t('subscriptions.saveCard') }}</span>
+              </label>
             </div>
           </div>
-        </div>
 
-        <div class="ps-modal-footer">
-          <button class="plan-btn plan-btn--outline" @click="closeModal">{{ $t('common.cancel') }}</button>
-          <button class="plan-btn plan-btn--gold" :disabled="subStore.loading" @click="confirmPay">
-            <i v-if="subStore.loading" class="pi pi-spin pi-spinner" />
-            <i v-else class="pi pi-lock" />
-            {{ usingSaved ? $t('subscriptions.useSavedCard') : $t('subscriptions.confirmPay') + ' ' + payModal.plan?.price + (payModal.plan?.priceSuffix || '') }}
-          </button>
-        </div>
+          <div v-if="subStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:0.75rem">
+            {{ $t('subscriptions.upgradeError') }}
+          </div>
+
+          <div class="ps-modal-footer">
+            <button class="plan-btn plan-btn--outline" @click="closeModal">{{ $t('common.cancel') }}</button>
+            <button class="plan-btn plan-btn--gold" :disabled="subStore.loading" @click="confirmPay">
+              <i v-if="subStore.loading" class="pi pi-spin pi-spinner" />
+              <i v-else class="pi pi-lock" />
+              {{ usingSaved ? $t('subscriptions.useSavedCard') : $t('subscriptions.confirmPay') + ' ' + payModal.plan?.price + (payModal.plan?.priceSuffix || '') }}
+            </button>
+          </div>
+        </template>
       </div>
     </div>
   </div>
