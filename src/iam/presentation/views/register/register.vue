@@ -58,10 +58,7 @@ async function handleRegister() {
 
   if (!ok) return
 
-  const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
-  else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
-  else router.push({ name: 'consumer-collection' })
+  router.push({ name: 'plan-selection' })
 }
 </script>
 

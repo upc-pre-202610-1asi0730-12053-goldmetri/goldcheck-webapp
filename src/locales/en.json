@@ -493,6 +493,9 @@
     "noVehicles": "No vehicles registered."
   },
   "subscriptions": {
+    "onboardingTitle": "Choose your plan",
+    "onboardingSubtitle": "Select the plan that best fits your operation. You can change it at any time.",
+    "selectPlan": "Select plan",
     "plansTitle": "Plans & Subscriptions",
     "plansSubtitle": "Choose the plan that best fits your operation.",
     "currentPlan": "Current Plan",
