@@ -50,6 +50,18 @@ export const useIamStore = defineStore('iam', () => {
     errors.value = []
     loading.value = true
     try {
+      const [emailRes, phoneRes] = await Promise.all([
+        iamApi.checkEmail(data.email),
+        data.phoneNumber ? iamApi.checkPhone(data.phoneNumber) : Promise.resolve({ data: [] })
+      ])
+      if ((emailRes.data || []).length > 0) {
+        errors.value = ['emailTaken']
+        return false
+      }
+      if ((phoneRes.data || []).length > 0) {
+        errors.value = ['phoneTaken']
+        return false
+      }
       const res = await iamApi.register(data)
       if (res.status < 200 || res.status >= 300) { console.error(`${res.status}, ${res.statusText}`); return false }
       const user = res.data

@@ -73,7 +73,7 @@ async function handleRegister() {
         <h1>{{ $t('auth.createAccount') }}</h1>
 
         <div v-if="iamStore.errors.length" class="gc-alert gc-alert-danger">
-          {{ $t('auth.registerError') }}
+          {{ $t('auth.' + iamStore.errors[0]) }}
         </div>
 
         <pv-button

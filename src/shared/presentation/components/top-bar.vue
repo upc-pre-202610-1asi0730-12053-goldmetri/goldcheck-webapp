@@ -58,6 +58,7 @@ const showSearchDropdown = computed(() => isFocused.value && filteredSuggestions
 function onFocus()  { isFocused.value = true }
 function onBlur()   { setTimeout(() => { isFocused.value = false }, 150) }
 function onEscape() { isFocused.value = false; searchQuery.value = '' }
+function onEnter()  { if (filteredSuggestions.value.length) selectSuggestion(filteredSuggestions.value[0]) }
 
 function selectSuggestion(item) {
   searchQuery.value = ''
@@ -123,6 +124,7 @@ function goToProfile()  { router.push({ name: 'profile' }) }
           @focus="onFocus"
           @blur="onBlur"
           @keyup.escape="onEscape"
+          @keyup.enter="onEnter"
         />
       </div>
 
