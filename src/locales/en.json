@@ -387,7 +387,8 @@
     "finalWeightTitle": "Register Final Weight",
     "finalWeightLabel": "Final Weight (tons)",
     "weightPlaceholder": "e.g. 38.2",
-    "noReceptions": "No receptions registered."
+    "noReceptions": "No receptions registered.",
+    "weightExceedsInitial": "The entered weight exceeds the initial recorded weight. Please enter a value less than or equal to the initial weight."
   },
   "monitoring": {
     "dashboardTitle": "Monitoring & Telemetry",

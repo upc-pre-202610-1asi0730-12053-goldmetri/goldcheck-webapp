@@ -143,7 +143,7 @@ onMounted(() => store.fetchReceptions())
             :placeholder="$t('materialOps.weightPlaceholder')"
           />
           <p v-if="store.errors.length" style="color:var(--gc-danger);font-size:0.8rem;margin-top:0.5rem">
-            {{ store.errors[0] }}
+            {{ $t(`materialOps.${store.errors[0]}`) }}
           </p>
         </div>
         <div class="gc-modal-footer">
