@@ -35,7 +35,7 @@
   },
   "auth": {
     "login": "LOG IN",
-    "email": "Email",
+    "email": "Correo electrónico",
     "password": "Contraseña",
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "rememberMe": "Recuérdame",
