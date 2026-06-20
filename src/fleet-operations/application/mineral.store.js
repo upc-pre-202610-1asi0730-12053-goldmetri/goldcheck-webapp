@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { mineralApi } from '../infrastructure/mineral-api.js'
 import { MineralBatchAssembler } from '../infrastructure/mineral-batch.assembler.js'
+import { useIamStore } from '../../iam/application/iam.store.js'
 
 export const useMineralStore = defineStore('mineral', () => {
   const batches  = ref([])
@@ -22,7 +23,9 @@ export const useMineralStore = defineStore('mineral', () => {
   async function fetchBatches() {
     loading.value = true
     try {
-      const res = await mineralApi.getBatches()
+      const iamStore = useIamStore()
+      const userId = iamStore.currentUser?.id
+      const res = await mineralApi.getBatches(userId ? { userId } : {})
       batches.value = MineralBatchAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']

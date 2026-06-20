@@ -20,6 +20,9 @@ class IamApi extends BaseApi {
     return this.#users.create(data)
   }
 
+  checkEmail(email)       { return this.#users.getAll({ email }) }
+  checkPhone(phoneNumber) { return this.#users.getAll({ phoneNumber }) }
+
   // TS03 – Get profile
   getProfile(id) {
     return this.#users.getById(id)
