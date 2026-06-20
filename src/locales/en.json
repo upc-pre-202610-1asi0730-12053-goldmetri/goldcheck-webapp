@@ -83,6 +83,7 @@
     "passwordOptionalPh": "Leave blank to keep current password",
     "confirmPasswordPh": "Repeat the new password",
     "currentPasswordPh": "Enter your current password",
+    "locationPlaceholder": "Select a location",
     "emailChangedHint": "Your current password will be required to confirm the email change.",
     "confirmEmailChangeTitle": "Confirm email change",
     "confirmEmailChangeDesc": "You are about to change your email address. For security, please enter your current password to confirm.",

@@ -31,6 +31,23 @@ function logout() {
 }
 
 // ── Profile tab ────────────────────────────────────────────────────────────
+const LOCATIONS = [
+  'Áncash, Perú',
+  'Apurímac, Perú',
+  'Arequipa, Perú',
+  'Cajamarca, Perú',
+  'Cusco, Perú',
+  'Huancavelica, Perú',
+  'Junín, Perú',
+  'La Libertad, Perú',
+  'Lima, Perú',
+  'Madre de Dios, Perú',
+  'Moquegua, Perú',
+  'Pasco, Perú',
+  'Puno, Perú',
+  'Tacna, Perú',
+]
+
 const originalEmail = iamStore.currentUser?.email || ''
 
 const form = reactive({
@@ -193,7 +210,10 @@ async function persistUpdate() {
 
           <div class="form-field">
             <label>{{ $t('profile.location') }}</label>
-            <input v-model="form.location" type="text" class="gc-input-dark" />
+            <select v-model="form.location" class="gc-input-dark gc-select-field">
+              <option value="">{{ $t('profile.locationPlaceholder') }}</option>
+              <option v-for="loc in LOCATIONS" :key="loc" :value="loc">{{ loc }}</option>
+            </select>
           </div>
 
           <p class="section-label" style="margin-top:1.5rem">{{ $t('profile.sectionPassword') }}</p>
@@ -399,6 +419,8 @@ async function persistUpdate() {
   transition: border-color 0.2s;
 }
 .gc-input-dark:focus { outline: none; border-color: var(--gc-gold-mid); }
+.gc-select-field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.8rem center; padding-right: 2.2rem; cursor: pointer; }
+.gc-select-field option { background: var(--gc-dark-2); color: var(--gc-text-primary); }
 .input-error { border-color: var(--gc-danger) !important; }
 
 .field-err  { font-size: 0.76rem; color: var(--gc-danger); }

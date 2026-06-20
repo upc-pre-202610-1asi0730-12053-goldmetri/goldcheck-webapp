@@ -83,6 +83,7 @@
     "passwordOptionalPh": "Dejar vacío para no cambiar",
     "confirmPasswordPh": "Repite la nueva contraseña",
     "currentPasswordPh": "Ingresa tu contraseña actual",
+    "locationPlaceholder": "Selecciona una ubicación",
     "emailChangedHint": "Se solicitará tu contraseña actual para confirmar el cambio de correo.",
     "confirmEmailChangeTitle": "Confirmar cambio de correo",
     "confirmEmailChangeDesc": "Estás a punto de cambiar tu correo electrónico. Por seguridad, ingresa tu contraseña actual para confirmar.",
