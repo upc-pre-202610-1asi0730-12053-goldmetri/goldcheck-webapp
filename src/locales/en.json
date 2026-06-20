@@ -21,6 +21,8 @@
     "maintenance": "Maintenance",
     "subscriptions": "Subscriptions",
     "sidebar": "Sidebar navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "mainNav": "Main navigation",
     "toggleLanguage": "Toggle language",
     "notifications": "Notifications",
