@@ -3,20 +3,23 @@ import { ref, computed } from 'vue'
 import { assetMaintenanceApi } from '../infrastructure/asset-maintenance-api.js'
 
 export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
-  const vehicles = ref([])
-  const loading  = ref(false)
-  const errors   = ref([])
+  const machinery = ref([])
+  const loading   = ref(false)
+  const errors    = ref([])
 
-  const activeVehicles      = computed(() => vehicles.value.filter(v => v.status !== 'Mantenimiento'))
-  const maintenanceVehicles = computed(() => vehicles.value.filter(v => v.status === 'Mantenimiento'))
-  const activeCount         = computed(() => activeVehicles.value.length)
+  const activeMachinery      = computed(() => machinery.value.filter(m => m.maintenanceStatus !== 'UnderMaintenance'))
+  const maintenanceMachinery = computed(() => machinery.value.filter(m => m.maintenanceStatus === 'UnderMaintenance'))
+  const activeCount          = computed(() => activeMachinery.value.length)
+
+  // keep backward-compat alias used by views that still reference "vehicles"
+  const vehicles = machinery
 
   async function fetchVehicles() {
     loading.value = true
     errors.value  = []
     try {
-      const res = await assetMaintenanceApi.getVehicles()
-      vehicles.value = res.data || []
+      const res = await assetMaintenanceApi.getAllMachinery()
+      machinery.value = res.data || []
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -24,12 +27,12 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
     }
   }
 
-  async function sendToMaintenance(vehicleId) {
+  async function sendToMaintenance(machineryId, engineHours = 0) {
     errors.value = []
     try {
-      await assetMaintenanceApi.updateVehicleStatus(vehicleId, 'Mantenimiento')
-      const idx = vehicles.value.findIndex(v => v.id === vehicleId)
-      if (idx !== -1) vehicles.value[idx].status = 'Mantenimiento'
+      const res = await assetMaintenanceApi.scheduleMaintenance(machineryId, engineHours)
+      const idx = machinery.value.findIndex(m => m.machineryId === machineryId)
+      if (idx !== -1) machinery.value[idx] = res.data
       return true
     } catch {
       errors.value = ['updateError']
@@ -37,22 +40,34 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
     }
   }
 
-  async function activateVehicle(vehicleId) {
+  async function dischargeMachinery(machineryId, reason) {
     errors.value = []
     try {
-      await assetMaintenanceApi.updateVehicleStatus(vehicleId, 'Disponible')
-      const idx = vehicles.value.findIndex(v => v.id === vehicleId)
-      if (idx !== -1) vehicles.value[idx].status = 'Disponible'
+      const res = await assetMaintenanceApi.dischargeMachinery(machineryId, reason)
+      const idx = machinery.value.findIndex(m => m.machineryId === machineryId)
+      if (idx !== -1) machinery.value[idx] = res.data
       return true
     } catch {
       errors.value = ['updateError']
+      return false
+    }
+  }
+
+  async function registerMachinery(data) {
+    errors.value = []
+    try {
+      const res = await assetMaintenanceApi.registerMachinery(data)
+      machinery.value.push(res.data)
+      return true
+    } catch {
+      errors.value = ['registerError']
       return false
     }
   }
 
   return {
-    vehicles, loading, errors,
-    activeVehicles, maintenanceVehicles, activeCount,
-    fetchVehicles, sendToMaintenance, activateVehicle
+    machinery, vehicles, loading, errors,
+    activeMachinery, maintenanceMachinery, activeCount,
+    fetchVehicles, sendToMaintenance, dischargeMachinery, registerMachinery
   }
 })
