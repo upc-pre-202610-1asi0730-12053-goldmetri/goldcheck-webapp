@@ -18,14 +18,11 @@ export const useReportingStore = defineStore('reporting', () => {
     loading.value = true
     errors.value  = []
     try {
-      const [bRes, jRes, aRes] = await Promise.all([
-        reportingApi.getBatchReport(),
-        reportingApi.getJewelryReport(),
-        reportingApi.getAlertReport()
-      ])
-      batchReport.value   = bRes.data || []
-      jewelryReport.value = jRes.data || []
-      alertReport.value   = aRes.data || []
+      const res = await reportingApi.getAllReports()
+      const reports = res.data || []
+      batchReport.value   = reports
+      jewelryReport.value = []
+      alertReport.value   = []
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -33,9 +30,20 @@ export const useReportingStore = defineStore('reporting', () => {
     }
   }
 
+  async function requestReport(incidentId, supervisorId) {
+    errors.value = []
+    try {
+      const res = await reportingApi.requestAccidentData(incidentId, supervisorId)
+      return res.data || null
+    } catch {
+      errors.value = ['requestError']
+      return null
+    }
+  }
+
   return {
     batchReport, jewelryReport, alertReport, loading, errors,
     totalBatches, processedBatches, totalAlerts, certifiedItems,
-    fetchReports
+    fetchReports, requestReport
   }
 })
