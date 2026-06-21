@@ -7,14 +7,17 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
   const loading = ref(false)
   const errors  = ref([])
 
+  const PLAN_KEY_MAP = { BRONZE: 'Basic', GOLD: 'Professional', PLATINUM: 'Enterprise', Free: 'Free', Basic: 'Basic', Professional: 'Professional', Enterprise: 'Enterprise' }
+
   async function upgradePlan(planKey) {
-    const iamStore = useIamStore()
-    const userId   = iamStore.currentUser?.userId || iamStore.currentUser?.id
+    const iamStore  = useIamStore()
+    const userId    = iamStore.currentUser?.userId || iamStore.currentUser?.id
     if (!userId) return false
+    const backendPlanType = PLAN_KEY_MAP[planKey] || 'Basic'
     loading.value = true
     errors.value  = []
     try {
-      await subscriptionsApi.selectPlan(userId, planKey, 'Monthly')
+      await subscriptionsApi.selectPlan(userId, backendPlanType, 'Monthly')
     } catch(e) {
       const status = e?.response?.status
       if (status !== 409) {
@@ -26,7 +29,7 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     try {
       await subscriptionsApi.confirmSubscription(userId, 'Card')
     } catch {}
-    iamStore.applyPlanUpgrade && iamStore.applyPlanUpgrade(planKey)
+    iamStore.applyPlanUpgrade && iamStore.applyPlanUpgrade(backendPlanType)
     loading.value = false
     return true
   }
