@@ -9,7 +9,17 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   const loading      = ref(false)
   const errors       = ref([])
 
-  // US22 – Shrinkage calculation: batches with initialWeight & finalWeight
+  // Map MaterialResource → batch-like shape
+  function toAnalyticsBatch(r) {
+    return {
+      id:            r.id,
+      routeId:       r.routeId,
+      status:        r.routeStatus === 'Active' ? 'En Tránsito' : r.routeStatus || r.status,
+      initialWeight: r.productionTons  || 0,
+      finalWeight:   null
+    }
+  }
+
   const batchesWithShrinkage = computed(() =>
     batches.value.filter(b => b.initialWeight && b.finalWeight)
   )
@@ -17,29 +27,28 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   const avgShrinkage = computed(() => {
     const eligible = batchesWithShrinkage.value
     if (!eligible.length) return 0
-    const total = eligible.reduce((sum, b) => {
-      return sum + ((b.initialWeight - b.finalWeight) / b.initialWeight) * 100
-    }, 0)
+    const total = eligible.reduce((sum, b) =>
+      sum + ((b.initialWeight - b.finalWeight) / b.initialWeight) * 100, 0)
     return (total / eligible.length).toFixed(2)
   })
 
-  const totalBatches   = computed(() => batches.value.length)
-  const activeBatches  = computed(() => batches.value.filter(b => b.status === 'En Tránsito').length)
-  const totalJewels    = computed(() => jewelryItems.value.length)
-  const certifiedJewels = computed(() => jewelryItems.value.filter(j => j.status === 'Certificado').length)
+  const totalBatches    = computed(() => batches.value.length)
+  const activeBatches   = computed(() => batches.value.filter(b => b.status === 'En Tránsito').length)
+  const totalJewels     = computed(() => jewelryItems.value.length)
+  const certifiedJewels = computed(() => jewelryItems.value.filter(j => j.certificateIdRef).length)
 
   async function fetchAnalyticsData() {
     loading.value = true
     errors.value  = []
     try {
-      const [bRes, vRes, jRes] = await Promise.all([
-        analyticsApi.getBatches(),
-        analyticsApi.getVehicles(),
-        analyticsApi.getJewelryItems()
+      const [rRes, mRes, jRes] = await Promise.all([
+        analyticsApi.getAllRoutes(),
+        analyticsApi.getAllMachinery(),
+        analyticsApi.getAllJewelryMaterials()
       ])
-      batches.value      = bRes.data || []
-      vehicles.value     = vRes.data || []
-      jewelryItems.value = jRes.data || []
+      batches.value      = (rRes.data  || []).map(toAnalyticsBatch)
+      vehicles.value     = mRes.data   || []
+      jewelryItems.value = jRes.data   || []
     } catch {
       errors.value = ['fetchError']
     } finally {
