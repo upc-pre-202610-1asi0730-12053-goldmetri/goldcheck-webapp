@@ -13,12 +13,18 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
   const criticalIncidents = computed(() => incidents.value.filter(i => i.severity === 'critical'))
   const openCount         = computed(() => openIncidents.value.length)
 
+  // Fetch only incidents belonging to the current operator
   async function fetchIncidents() {
     loading.value = true
     errors.value  = []
     try {
-      const res = await incidentManagementApi.getAllIncidents()
-      incidents.value = IncidentAssembler.toEntitiesFromResponse(res)
+      const iamStore = useIamStore()
+      const userId   = String(iamStore.currentUser?.userId || '')
+      const res      = await incidentManagementApi.getAllIncidents()
+      if (res.status !== 200) { incidents.value = []; return }
+      const resources = Array.isArray(res.data) ? res.data : []
+      const filtered  = userId ? resources.filter(r => String(r.operatorId ?? r.OperatorId ?? '') === userId) : []
+      incidents.value = filtered.map(r => IncidentAssembler.toEntityFromResource(r))
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -26,23 +32,15 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
     }
   }
 
+  // US – Commit Accident → evento Accident committed
   async function createIncident(data) {
-    errors.value = []
+    errors.value  = []
     loading.value = true
     try {
-      const iamStore  = useIamStore()
-      const operatorId = iamStore.currentUser?.userId || iamStore.currentUser?.id || 'unknown'
-      const assetId    = data.assetId || data.batchId || 'unknown'
+      const iamStore   = useIamStore()
+      const operatorId = String(iamStore.currentUser?.userId || 'unknown')
 
-      let res
-      if (data.incidentType === 'SMOKE') {
-        res = await incidentManagementApi.detectSmoke(assetId)
-      } else if (data.incidentType === 'FATIGUE') {
-        res = await incidentManagementApi.detectFatigue(operatorId, assetId)
-      } else {
-        res = await incidentManagementApi.commitAccident(operatorId, data.description || '')
-      }
-
+      const res = await incidentManagementApi.commitAccident(operatorId, data.description || '')
       incidents.value.unshift(IncidentAssembler.toEntityFromResource(res.data))
       return true
     } catch {
@@ -66,7 +64,6 @@ export const useIncidentManagementStore = defineStore('incident-management', () 
     }
   }
 
-  // kept for backward compatibility with views that call closeIncident
   async function closeIncident(id) {
     return escalateIncident(id, 'Low')
   }

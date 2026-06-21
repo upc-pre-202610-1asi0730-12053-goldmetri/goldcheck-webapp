@@ -14,15 +14,15 @@ class MineralApi extends BaseApi {
   }
 
   startHaulingCycle(vehicleId, loadingPoint) {
-    return this.http.post('/hauling-cycles', { vehicleId, loadingPoint })
+    return this.http.post('/hauling-cycles', { VehicleId: vehicleId, LoadingPoint: loadingPoint })
   }
 
   loadMaterial(cycleId, payloadTons) {
-    return this.http.put(`/hauling-cycles/${cycleId}/load`, { payloadTons })
+    return this.http.put(`/hauling-cycles/${cycleId}/load`, { PayloadTons: payloadTons })
   }
 
   completeHaulingCycle(cycleId, dumpingPoint) {
-    return this.http.put(`/hauling-cycles/${cycleId}/complete`, { dumpingPoint })
+    return this.http.put(`/hauling-cycles/${cycleId}/complete`, { DumpingPoint: dumpingPoint })
   }
 
   getAllVehicles() {
@@ -30,7 +30,7 @@ class MineralApi extends BaseApi {
   }
 
   registerVehicle(vehicleId, operatorId) {
-    return this.http.post('/vehicles', { vehicleId, operatorId })
+    return this.http.post('/vehicles', { VehicleId: vehicleId, OperatorId: operatorId })
   }
 }
 

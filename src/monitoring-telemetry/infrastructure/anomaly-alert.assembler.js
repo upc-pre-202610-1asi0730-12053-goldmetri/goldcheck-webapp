@@ -9,15 +9,23 @@ const RISK_TO_SEVERITY = {
 
 export class AnomalyAlertAssembler {
   static toEntityFromResource(resource) {
+    const assetId      = resource.assetId      ?? resource.AssetId      ?? ''
+    const incidentType = resource.incidentType ?? resource.IncidentType ?? ''
+    const riskLevel    = resource.riskLevel    ?? resource.RiskLevel    ?? ''
+    const description  = resource.description  ?? resource.Description  ?? ''
+    const status       = resource.status       ?? resource.Status       ?? ''
+    const operatorId   = resource.operatorId   ?? resource.OperatorId   ?? null
     return new AnomalyAlert({
-      id:          resource.id,
-      batchCode:   resource.assetId ? `Asset ${resource.assetId}` : '',
-      vehicleId:   resource.assetId || resource.vehicleId,
-      alertType:   resource.incidentType || resource.alertType || 'TELEMETRY',
-      severity:    RISK_TO_SEVERITY[resource.riskLevel] || resource.severity || 'LOW',
-      description: resource.description || '',
-      status:      resource.status === 'Closed' ? 'Resuelta' : 'Activa',
-      detectedAt:  resource.detectedAt || null
+      id:          resource.id ?? resource.Id,
+      batchCode:   assetId ? `Asset ${assetId}` : '',
+      vehicleId:   assetId || resource.vehicleId || resource.VehicleId,
+      alertType:   incidentType || resource.alertType || 'TELEMETRY',
+      severity:    RISK_TO_SEVERITY[riskLevel] || resource.severity || 'LOW',
+      description,
+      status:      status === 'Closed' ? 'Resuelta' : 'Activa',
+      detectedAt:  resource.detectedAt ?? resource.DetectedAt ?? null,
+      operatorId,
+      reportedBy:  operatorId
     })
   }
 

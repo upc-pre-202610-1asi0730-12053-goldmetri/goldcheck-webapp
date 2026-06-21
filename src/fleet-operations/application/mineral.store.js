@@ -107,10 +107,10 @@ export const useMineralStore = defineStore('mineral', () => {
     loading.value = true
     try {
       const res = await mineralApi.startHaulingCycle(vehicleId, loadingPoint)
-      addUserCycleId(res.data.id)
       const batch = MineralBatchAssembler.toEntityFromResource(res.data)
+      addUserCycleId(batch.id)
       batches.value.unshift(batch)
-      return res.data
+      return batch
     } catch {
       errors.value = ['createError']
       return null

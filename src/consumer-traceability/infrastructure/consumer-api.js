@@ -1,26 +1,22 @@
-import { MockBaseApi } from '../../shared/infrastructure/mock-base-api.js'
+import { BaseApi } from '../../shared/infrastructure/base-api.js'
 
-class ConsumerApi extends MockBaseApi {
+class ConsumerApi extends BaseApi {
   constructor() { super() }
 
-  getPiecesByOwner(ownerId) {
-    return this.http.get(`/consumerPieces?ownerId=${ownerId}`)
+  scanProductQR(qrCode, consumerId) {
+    return this.http.post('/consumer/scan', { QRCode: qrCode, ConsumerId: consumerId })
   }
 
-  addPiece(piece) {
-    return this.http.post('/consumerPieces', piece)
+  getProductByQR(qrCode) {
+    return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}`)
   }
 
-  findByTraceabilityCode(code) {
-    return this.http.get(`/consumerPieces?traceabilityCode=${encodeURIComponent(code)}`)
+  getJourney(qrCode) {
+    return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}/journey`)
   }
 
-  getCertificateById(certId) {
-    return this.http.get(`/jewelryCertificates/${certId}`)
-  }
-
-  getJewelryItemBySku(sku) {
-    return this.http.get(`/jewelryItems?sku=${encodeURIComponent(sku)}`)
+  getCertificateById(certificateId) {
+    return this.http.get(`/consumer/certificates/${certificateId}`)
   }
 }
 

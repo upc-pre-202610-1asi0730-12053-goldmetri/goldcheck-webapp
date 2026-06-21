@@ -1,9 +1,11 @@
 ﻿<script setup>
 import { ref, computed } from 'vue'
 import { useMineralStore } from '../../../application/mineral.store.js'
+import { useAssetMaintenanceStore } from '../../../../asset-maintenance/application/asset-maintenance.store.js'
 
 const emit = defineEmits(['close', 'created'])
 const mineralStore = useMineralStore()
+const assetStore   = useAssetMaintenanceStore()
 
 const step = ref(1)
 const step1Error = ref(false)
@@ -14,12 +16,12 @@ const form = ref({ depositId: '', vehicleId: '' })
 const simulatedWeight = ref(38.50)
 
 const vehicleOptions = computed(() =>
-  mineralStore.vehicles.map(v => ({ ...v, label: `${v.name} (Placa: ${v.plate})` }))
+  assetStore.machinery.map(m => ({ id: m.machineryId, label: `${m.name} (${m.machineryId})` }))
 )
 
 const selectedVehicleName = computed(() => {
-  const v = mineralStore.vehicles.find(v => v.id === form.value.vehicleId)
-  return v?.name || '—'
+  const m = assetStore.machinery.find(m => m.machineryId === form.value.vehicleId)
+  return m?.name || form.value.vehicleId || '—'
 })
 
 const selectedDestination = computed(() => {
