@@ -74,13 +74,13 @@ onMounted(() => store.fetchVehicles())
                   v-if="v.status !== 'Mantenimiento'"
                   class="gc-btn gc-btn-outline"
                   style="font-size:0.75rem;padding:0.3rem 0.8rem"
-                  @click="store.sendToMaintenance(v.id)"
+                  @click="store.sendToMaintenance(v.machineryId)"
                 >{{ $t('assetMaintenance.sendToMaintenance') }}</button>
                 <button
                   v-else
                   class="gc-btn gc-btn-gold"
                   style="font-size:0.75rem;padding:0.3rem 0.8rem"
-                  @click="store.activateVehicle(v.id)"
+                  @click="store.dischargeMachinery(v.machineryId, 'Mantenimiento completado')"
                 >{{ $t('assetMaintenance.activate') }}</button>
               </td>
             </tr>
