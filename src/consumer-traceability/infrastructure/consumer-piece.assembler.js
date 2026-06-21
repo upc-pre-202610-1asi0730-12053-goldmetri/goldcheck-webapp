@@ -4,17 +4,17 @@ export class ConsumerPieceAssembler {
   static toEntityFromResource(resource) {
     return new ConsumerPiece({
       id:               resource.id,
-      ownerId:          resource.consumerId || null,
-      sku:              resource.materialId || resource.id,
-      name:             resource.materialId || resource.id,
-      type:             'Jewelry',
-      purity:           0,
-      weight:           0,
-      certificationId:  resource.certificateId || null,
-      purchaseDate:     null,
+      ownerId:          resource.ownerId,
+      sku:              resource.sku || resource.traceabilityCode || '',
+      name:             resource.name || resource.sku || '—',
+      type:             resource.type || 'Joya',
+      purity:           resource.purity || '',
+      weight:           resource.weight || 0,
+      certificationId:  resource.certificationId || null,
+      purchaseDate:     resource.purchaseDate || null,
       status:           resource.status || 'Activo',
-      imageUrl:         null,
-      traceabilityCode: resource.qrCode || null
+      imageUrl:         resource.imageUrl || '',
+      traceabilityCode: resource.traceabilityCode || ''
     })
   }
 

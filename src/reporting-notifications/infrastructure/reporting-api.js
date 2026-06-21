@@ -1,40 +1,26 @@
-import { BaseApi } from '../../shared/infrastructure/base-api.js'
+import { MockBaseApi } from '../../shared/infrastructure/mock-base-api.js'
 
-class ReportingApi extends BaseApi {
-  constructor() {
-    super()
+class ReportingApi extends MockBaseApi {
+  constructor() { super() }
+
+  getMineralBatches() {
+    return this.http.get('/mineralBatches')
   }
 
-  getAllReports() {
-    return this.http.get('/reports')
+  getAnomalyAlerts() {
+    return this.http.get('/anomalyAlerts')
   }
 
-  getReportById(reportId) {
-    return this.http.get(`/reports/${reportId}`)
+  getJewelryItems() {
+    return this.http.get('/jewelryItems')
   }
 
-  requestAccidentData(incidentId, supervisorId) {
-    return this.http.post('/reports', { incidentId, supervisorId })
-  }
-
-  loadAccidentData(reportId) {
-    return this.http.put(`/reports/${reportId}/load-data`)
-  }
-
-  generateReport(reportId) {
-    return this.http.put(`/reports/${reportId}/generate`)
-  }
-
-  requestReportExportation(reportId, format) {
-    return this.http.put(`/reports/${reportId}/request-export`, { format })
-  }
-
-  exportReport(reportId) {
-    return this.http.put(`/reports/${reportId}/export`)
-  }
-
-  downloadReport(reportId, userId) {
-    return this.http.get(`/reports/${reportId}/download`, { params: { userId } })
+  addAlert(data) {
+    return this.http.post('/anomalyAlerts', {
+      ...data,
+      status: 'Abierto',
+      reportedAt: new Date().toISOString()
+    })
   }
 }
 

@@ -1,28 +1,26 @@
-import { BaseApi } from '../../shared/infrastructure/base-api.js'
+import { MockBaseApi } from '../../shared/infrastructure/mock-base-api.js'
 
-class ConsumerApi extends BaseApi {
-  constructor() {
-    super()
+class ConsumerApi extends MockBaseApi {
+  constructor() { super() }
+
+  getPiecesByOwner(ownerId) {
+    return this.http.get(`/consumerPieces?ownerId=${ownerId}`)
   }
 
-  scanProductQR(productId, qrCode) {
-    return this.http.post('/consumer/scan', { productId, qrCode })
+  addPiece(piece) {
+    return this.http.post('/consumerPieces', piece)
   }
 
-  getProductByQR(qrCode) {
-    return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}`)
+  findByTraceabilityCode(code) {
+    return this.http.get(`/consumerPieces?traceabilityCode=${encodeURIComponent(code)}`)
   }
 
-  getTraceabilityJourney(qrCode) {
-    return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}/journey`)
+  getCertificateById(certId) {
+    return this.http.get(`/jewelryCertificates/${certId}`)
   }
 
-  getCertificateById(certificateId) {
-    return this.http.get(`/consumer/certificates/${encodeURIComponent(certificateId)}`)
-  }
-
-  downloadCertificate(certificateId, consumerId) {
-    return this.http.post(`/consumer/certificates/${encodeURIComponent(certificateId)}/download`, { consumerId })
+  getJewelryItemBySku(sku) {
+    return this.http.get(`/jewelryItems?sku=${encodeURIComponent(sku)}`)
   }
 }
 

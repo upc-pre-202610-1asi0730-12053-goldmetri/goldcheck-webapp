@@ -1,38 +1,47 @@
-import { BaseApi } from '../../shared/infrastructure/base-api.js'
+import { MockBaseApi } from '../../shared/infrastructure/mock-base-api.js'
 
-class JewelryApi extends BaseApi {
-  constructor() {
-    super()
+class JewelryApi extends MockBaseApi {
+  constructor() { super() }
+
+  getAllItems() {
+    return this.http.get('/jewelryItems')
   }
 
-  // Jewelry Materials
-  getAllMaterials() {
-    return this.http.get('/jewelry-materials')
+  getItemById(id) {
+    return this.http.get(`/jewelryItems/${id}`)
   }
 
-  getMaterialById(materialId) {
-    return this.http.get(`/jewelry-materials/${materialId}`)
+  registerItem(data) {
+    return this.http.post('/jewelryItems', {
+      ...data,
+      status: 'Pendiente',
+      createdAt: new Date().toISOString()
+    })
   }
 
-  registerMaterial(materialId, jewelerId) {
-    return this.http.post('/jewelry-materials', { materialId, jewelerId })
+  updateItemStatus(id, status) {
+    return this.http.patch(`/jewelryItems/${id}`, { status })
   }
 
-  scanQR(materialId, qrCode) {
-    return this.http.put(`/jewelry-materials/${materialId}/scan`, { qrCode })
+  getAllCertificates() {
+    return this.http.get('/jewelryCertificates')
   }
 
-  // Certificates
-  generateCertificate(materialId) {
-    return this.http.post('/certificates', { materialId })
+  getCertificateById(certId) {
+    return this.http.get(`/jewelryCertificates/${certId}`)
   }
 
-  getCertificateById(certificateId) {
-    return this.http.get(`/certificates/${certificateId}`)
+  getCertificateByItemId(itemId) {
+    return this.http.get(`/jewelryCertificates?itemId=${itemId}`)
   }
 
-  signCertificate(certificateId, jewelerSignature) {
-    return this.http.put(`/certificates/${certificateId}/sign`, { jewelerSignature })
+  createCertificate(data) {
+    return this.http.post('/jewelryCertificates', {
+      ...data,
+      issuerName: 'GoldMetrics Cert Authority',
+      issueDate:  new Date().toISOString(),
+      status:     'Activo'
+    })
   }
 }
 
