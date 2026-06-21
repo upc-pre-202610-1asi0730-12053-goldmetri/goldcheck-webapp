@@ -9,12 +9,10 @@ export const useConsumerStore = defineStore('consumer', () => {
   const errors       = ref([])
   const loading      = ref(false)
 
-  async function fetchPieces(ownerId) {
+  async function fetchPieces() {
     loading.value = true
     try {
-      const params = ownerId ? { ownerId } : {}
-      const res = await consumerApi.getPieces(params)
-      pieces.value = ConsumerPieceAssembler.toEntitiesFromResponse(res)
+      pieces.value = []
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -23,36 +21,18 @@ export const useConsumerStore = defineStore('consumer', () => {
   }
 
   async function fetchCertificates() {
-    try {
-      const res = await consumerApi.getCertificates()
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return }
-      const allCerts = res.data || []
-      const certIds = pieces.value.map(p => p.certificationId).filter(Boolean)
-      certificates.value = allCerts.filter(c => certIds.includes(c.id))
-    } catch {
-      errors.value = ['certFetchError']
-    }
+    certificates.value = []
   }
 
-  // US – Verify piece by traceability code
   async function verifyPiece(code) {
     loading.value = true
-    errors.value = []
+    errors.value  = []
     try {
-      const res = await consumerApi.getPieces({ traceabilityCode: code })
-      const found = (res.data || []).find(p => p.traceabilityCode === code)
-      if (!found) {
-        // try searching by sku derived from QR code (QR-GJ-XXXXX -> GJ-XXXXX)
-        const sku = code.startsWith('QR-') ? code.slice(3) : code
-        const jRes = await consumerApi.getJewelryItem(sku)
-        const jewel = (jRes.data || [])[0]
-        return jewel ? { ...jewel, traceabilityCode: code, verified: true } : null
-      }
-      // enrich consumerPiece with batchRef from the corresponding jewelryItem
-      const sku   = found.sku || (code.startsWith('QR-') ? code.slice(3) : code)
-      const jRes  = await consumerApi.getJewelryItem(sku)
-      const jewel = (jRes.data || [])[0]
-      return { ...found, batchRef: jewel?.batchRef || jewel?.materialOrigin || null, verified: true }
+      const qrCode = code.startsWith('QR-') ? code : `QR-${code}`
+      const res    = await consumerApi.getProductByQR(qrCode)
+      if (!res.data) return null
+      const piece = ConsumerPieceAssembler.toEntityFromResource(res.data)
+      return { ...piece, traceabilityCode: qrCode, verified: true }
     } catch {
       errors.value = ['verifyError']
       return null
@@ -62,12 +42,13 @@ export const useConsumerStore = defineStore('consumer', () => {
   }
 
   async function linkPiece(data) {
-    errors.value = []
+    errors.value  = []
     loading.value = true
     try {
-      const payload = { ...data, status: 'Activo', purchaseDate: new Date().toISOString() }
-      const res = await consumerApi.linkPiece(payload)
-      pieces.value.unshift(ConsumerPieceAssembler.toEntityFromResource(res.data))
+      const qrCode = data.traceabilityCode || `QR-${data.sku || Date.now()}`
+      const res    = await consumerApi.scanProductQR(data.sku || null, qrCode)
+      const piece  = ConsumerPieceAssembler.toEntityFromResource(res.data)
+      pieces.value.unshift(piece)
       return res.data
     } catch {
       errors.value = ['linkError']
@@ -77,11 +58,10 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
-  async function fetchBatch(batchCode) {
+  async function fetchBatch(qrCode) {
     try {
-      const res  = await consumerApi.getBatchByCode(batchCode)
-      const list = res.data || []
-      return list[0] || null
+      const res = await consumerApi.getTraceabilityJourney(qrCode)
+      return res.data || null
     } catch {
       return null
     }
@@ -89,13 +69,37 @@ export const useConsumerStore = defineStore('consumer', () => {
 
   async function lookupInventoryItem(traceabilityCode) {
     try {
-      const sku = traceabilityCode.startsWith('QR-') ? traceabilityCode.slice(3) : traceabilityCode
-      const res = await consumerApi.getJewelryItem(sku)
-      return (res.data || []).length > 0 ? res.data[0] : null
+      const qrCode = traceabilityCode.startsWith('QR-') ? traceabilityCode : `QR-${traceabilityCode}`
+      const res    = await consumerApi.getProductByQR(qrCode)
+      return res.data || null
     } catch {
       return null
     }
   }
 
-  return { pieces, certificates, errors, loading, fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchBatch, lookupInventoryItem }
+  async function downloadCertificate(certificateId, consumerId) {
+    errors.value = []
+    try {
+      const res = await consumerApi.downloadCertificate(certificateId, consumerId)
+      return res.data || null
+    } catch {
+      errors.value = ['downloadError']
+      return null
+    }
+  }
+
+  async function getCertificate(certificateId) {
+    try {
+      const res = await consumerApi.getCertificateById(certificateId)
+      return res.data || null
+    } catch {
+      return null
+    }
+  }
+
+  return {
+    pieces, certificates, errors, loading,
+    fetchPieces, fetchCertificates, verifyPiece, linkPiece,
+    fetchBatch, lookupInventoryItem, downloadCertificate, getCertificate
+  }
 })
