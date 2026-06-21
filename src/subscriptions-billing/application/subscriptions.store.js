@@ -7,15 +7,15 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
   const loading = ref(false)
   const errors  = ref([])
 
-  // US02 – Plan upgrade
   async function upgradePlan(planKey) {
     const iamStore = useIamStore()
-    if (!iamStore.currentUser?.id) return false
+    const userId   = iamStore.currentUser?.userId || iamStore.currentUser?.id
+    if (!userId) return false
     loading.value = true
     errors.value  = []
     try {
-      await subscriptionsApi.upgradePlan(iamStore.currentUser.id, planKey)
-      iamStore.applyPlanUpgrade(planKey)
+      await subscriptionsApi.selectPlan(userId, planKey, 'Monthly')
+      iamStore.applyPlanUpgrade && iamStore.applyPlanUpgrade(planKey)
       return true
     } catch {
       errors.value = ['upgradeError']
@@ -25,5 +25,17 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     }
   }
 
-  return { loading, errors, upgradePlan }
+  async function fetchSubscription() {
+    const iamStore = useIamStore()
+    const userId   = iamStore.currentUser?.userId || iamStore.currentUser?.id
+    if (!userId) return null
+    try {
+      const res = await subscriptionsApi.getUserSubscription(userId)
+      return res.data || null
+    } catch {
+      return null
+    }
+  }
+
+  return { loading, errors, upgradePlan, fetchSubscription }
 })
