@@ -1,74 +1,62 @@
-﻿<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
+import { useIamStore }     from '../../../../iam/application/iam.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
-import ValidateLotModal from './validate-lot-modal.vue'
 
-const { t } = useI18n()
-const jewelryStore = useJewelryStore()
+const { t }        = useI18n()
+const store        = useJewelryStore()
+const iamStore     = useIamStore()
 
-function translateJewelryType(type) {
-  const map = {
-    'Anillo':   t('jewelry.typeRing'),
-    'Collar':   t('jewelry.typeNecklace'),
-    'Pulsera':  t('jewelry.typeBracelet'),
-    'Arete':    t('jewelry.typeEarring'),
-    'Colgante': t('jewelry.typePendant'),
-  }
-  return map[type] || type || '—'
+function currentJewelerId() {
+  return String(iamStore.currentUser?.userId || '')
 }
 
-function translateJewelryStatus(s) {
-  const map = {
-    'Pendiente':   t('jewelry.statusPending'),
-    'Validado':    t('jewelry.statusValidated'),
-    'Certificado': t('jewelry.statusCertified'),
-    'Vendido':     t('jewelry.statusSold'),
-  }
-  return map[s] || s || '—'
+// ── Scan QR Modal ─────────────────────────────────────────────────────────────
+const scanModal  = reactive({ show: false, materialId: '' })
+const scanQRCode = ref('')
+const scanError  = ref('')
+
+function openScan(material) {
+  scanModal.materialId = material.materialId
+  scanQRCode.value     = ''
+  scanError.value      = ''
+  scanModal.show       = true
 }
-const statusFilter = ref('')
-const showValidateModal = ref(false)
-const selectedItem = ref(null)
+
+async function submitScan() {
+  if (!scanQRCode.value.trim()) { scanError.value = t('jewelry.qrRequired'); return }
+  const ok = await store.scanQR(scanModal.materialId, scanQRCode.value.trim())
+  if (ok) { scanModal.show = false; await store.fetchItems() }
+  else     { scanError.value = t('jewelry.scanError') }
+}
+
+// ── Generate Certificate ───────────────────────────────────────────────────────
+async function generateCert(material) {
+  const cert = await store.generateCertificate(material.materialId)
+  if (cert) await store.fetchItems()
+}
+
+// ── Sign Certificate ───────────────────────────────────────────────────────────
 const certModal = reactive({ show: false, cert: null })
 
-const filteredItems = computed(() => {
-  if (!statusFilter.value) return jewelryStore.items
-  return jewelryStore.items.filter(i => i.status === statusFilter.value)
-})
+async function signCert(material) {
+  if (!material.certificateId) return
+  const cert = await store.signCertificate(material.certificateId, currentJewelerId())
+  if (cert) { certModal.cert = cert; certModal.show = true }
+}
 
-function itemStatusClass(status) {
+function statusClass(status) {
   const map = {
-    'Pendiente':   'gc-status gc-status-loading',
-    'Validado':    'gc-status gc-status-transit',
-    'Certificado': 'gc-status gc-status-done',
-    'Vendido':     'gc-status gc-status-scale',
+    'NonCertified': 'gc-status gc-status-loading',
+    'Pending':      'gc-status gc-status-transit',
+    'Certified':    'gc-status gc-status-done',
   }
   return map[status] || 'gc-status'
 }
 
-function openValidate(item) {
-  selectedItem.value = item
-  showValidateModal.value = true
-}
-
-function onValidated() {
-  showValidateModal.value = false
-}
-
-async function certify(item) {
-  await jewelryStore.issueCertificate(item.id)
-}
-
-async function viewCert(item) {
-  if (!jewelryStore.certificates.length) await jewelryStore.fetchCertificates()
-  const cert = jewelryStore.certificates.find(c => c.itemId === item.id || c.itemSku === item.sku)
-  certModal.cert = cert || null
-  certModal.show = true
-}
-
-onMounted(() => jewelryStore.fetchItems())
+onMounted(() => store.fetchItems())
 </script>
 
 <template>
@@ -88,98 +76,102 @@ onMounted(() => jewelryStore.fetchItems())
 
     <!-- KPI Cards -->
     <div class="gc-kpi-grid">
-      <StatCard :label="$t('jewelry.pendingItems')" :value="jewelryStore.pendingCount" icon="pi-clock" trend="" />
-      <StatCard :label="$t('jewelry.validatedItems')" :value="jewelryStore.validatedCount" icon="pi-verified" trend="" />
-      <StatCard :label="$t('jewelry.certifiedItems')" :value="jewelryStore.certifiedCount" icon="pi-shield" trend="" />
-      <StatCard :label="$t('jewelry.portfolioValue')" :value="'S/ ' + jewelryStore.totalValue.toLocaleString()" icon="pi-dollar" trend="" />
+      <StatCard :label="$t('jewelry.pendingItems')"   :value="store.pendingCount"   icon="pi-clock"    trend="" />
+      <StatCard :label="$t('jewelry.certifiedItems')" :value="store.certifiedCount" icon="pi-shield"   trend="" />
+      <StatCard :label="$t('jewelry.totalItems')"     :value="store.materials.length" icon="pi-list"   trend="" />
     </div>
 
-    <!-- Inventory Table -->
+    <!-- Materials Table -->
     <div class="gc-card">
       <div class="gc-card-header">
         <span class="gc-card-title">
           <i class="pi pi-list" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
           {{ $t('jewelry.inventoryTable') }}
         </span>
-        <div style="display:flex;gap:0.5rem;align-items:center">
-          <select v-model="statusFilter" class="gc-input-dark gc-select-sm">
-            <option value="">{{ $t('jewelry.allStatuses') }}</option>
-            <option value="Pendiente">{{ $t('jewelry.statusPending') }}</option>
-            <option value="Validado">{{ $t('jewelry.statusValidated') }}</option>
-            <option value="Certificado">{{ $t('jewelry.statusCertified') }}</option>
-            <option value="Vendido">{{ $t('jewelry.statusSold') }}</option>
-          </select>
-        </div>
       </div>
 
-      <div v-if="jewelryStore.loading" class="gc-loading-row">
+      <div v-if="store.loading" class="gc-loading-row">
         <i class="pi pi-spinner pi-spin" /> {{ $t('common.loading') }}
       </div>
 
       <table v-else class="gc-table">
         <thead>
           <tr>
-            <th>SKU</th>
-            <th>{{ $t('jewelry.colName') }}</th>
-            <th>{{ $t('jewelry.colType') }}</th>
-            <th>{{ $t('jewelry.colPurity') }}</th>
-            <th>{{ $t('jewelry.colWeight') }}</th>
+            <th>{{ $t('jewelry.colMaterialId') }}</th>
+            <th>{{ $t('jewelry.colJewelerId') }}</th>
             <th>{{ $t('jewelry.colStatus') }}</th>
+            <th>{{ $t('jewelry.colQR') }}</th>
+            <th>{{ $t('jewelry.colCertificate') }}</th>
             <th>{{ $t('mineral.colAction') }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="filteredItems.length === 0">
-            <td colspan="7" class="gc-table-empty">{{ $t('jewelry.noItems') }}</td>
+          <tr v-if="store.materials.length === 0">
+            <td colspan="6" class="gc-table-empty">{{ $t('jewelry.noItems') }}</td>
           </tr>
-          <tr v-for="item in filteredItems" :key="item.id">
-            <td><span class="gc-badge gc-badge-code">{{ item.sku }}</span></td>
-            <td>{{ item.name }}</td>
-            <td>{{ translateJewelryType(item.type) }}</td>
-            <td>{{ item.purity }}</td>
-            <td>{{ item.weight }}g</td>
-            <td><span :class="itemStatusClass(item.status)">{{ translateJewelryStatus(item.status) }}</span></td>
+          <tr v-for="m in store.materials" :key="m.id">
+            <td><span class="gc-badge gc-badge-code">{{ m.materialId }}</span></td>
+            <td>{{ m.jewelerId }}</td>
+            <td><span :class="statusClass(m.status)">{{ m.status }}</span></td>
+            <td>{{ m.qrCode || '—' }}</td>
+            <td>{{ m.certificateId || '—' }}</td>
             <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
+              <!-- Step 1: scan QR to move to Pending -->
               <button
-                v-if="item.status === 'Pendiente'"
+                v-if="m.status === 'NonCertified'"
                 class="gc-btn gc-btn-xs gc-btn-gold"
-                @click="openValidate(item)"
-              >{{ $t('jewelry.validate') }}</button>
+                @click="openScan(m)"
+              >{{ $t('jewelry.scanQR') }}</button>
+
+              <!-- Step 2: generate certificate -->
               <button
-                v-else-if="item.status === 'Validado'"
+                v-else-if="m.status === 'Pending' && !m.certificateId"
                 class="gc-btn gc-btn-xs gc-btn-gold"
-                @click="certify(item)"
+                @click="generateCert(m)"
               >{{ $t('jewelry.certify') }}</button>
+
+              <!-- Step 3: sign certificate -->
               <button
-                v-else-if="item.status === 'Certificado'"
-                class="gc-btn gc-btn-xs gc-btn-outline"
-                @click="viewCert(item)"
-              >{{ $t('jewelry.viewCert') }}</button>
+                v-else-if="m.certificateId && m.status !== 'Certified'"
+                class="gc-btn gc-btn-xs gc-btn-gold"
+                @click="signCert(m)"
+              >{{ $t('jewelry.signCert') }}</button>
+
               <span v-else class="gc-text-muted" style="font-size:0.75rem">—</span>
-              <button
-                v-if="item.batchRef || item.materialOrigin"
-                class="gc-btn gc-btn-xs gc-btn-origin"
-                @click="$router.push({ name: 'jewelry-mineral-origin', query: { batch: item.batchRef || item.materialOrigin } })"
-                :title="$t('trace.viewMineralOrigin')"
-              >
-                <i class="pi pi-sitemap" />
-              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <ValidateLotModal
-      v-if="showValidateModal"
-      :item="selectedItem"
-      @close="showValidateModal = false"
-      @validated="onValidated"
-    />
+    <!-- Scan QR Modal -->
+    <div v-if="scanModal.show" class="gc-modal-overlay" @click.self="scanModal.show = false">
+      <div class="gc-modal" style="max-width:420px">
+        <div class="gc-modal-header">
+          <p class="gc-modal-title">
+            <i class="pi pi-qrcode" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
+            {{ $t('jewelry.scanModalTitle') }}
+          </p>
+          <button class="gc-modal-close" @click="scanModal.show = false">✕</button>
+        </div>
+        <div style="padding:1rem 0;display:flex;flex-direction:column;gap:0.75rem">
+          <p style="font-size:0.85rem;color:var(--gc-text-muted)">
+            Material: <strong>{{ scanModal.materialId }}</strong>
+          </p>
+          <label style="font-size:0.82rem;color:var(--gc-text-secondary)">{{ $t('jewelry.qrCodeLabel') }}</label>
+          <input v-model="scanQRCode" class="gc-input-dark" :placeholder="$t('jewelry.qrCodePh')" />
+          <span v-if="scanError" class="gc-error-msg">{{ scanError }}</span>
+        </div>
+        <div class="gc-modal-footer">
+          <button class="gc-btn gc-btn-outline" @click="scanModal.show = false">{{ $t('common.cancel') }}</button>
+          <button class="gc-btn gc-btn-gold" :disabled="store.loading" @click="submitScan">{{ $t('jewelry.scanBtn') }}</button>
+        </div>
+      </div>
+    </div>
 
-    <!-- Certificate modal -->
+    <!-- Signed Certificate Modal -->
     <div v-if="certModal.show" class="gc-modal-overlay" @click.self="certModal.show = false">
-      <div class="gc-modal" style="max-width:460px">
+      <div class="gc-modal" style="max-width:420px">
         <div class="gc-modal-header">
           <p class="gc-modal-title">
             <i class="pi pi-shield" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
@@ -188,14 +180,11 @@ onMounted(() => jewelryStore.fetchItems())
           <button class="gc-modal-close" @click="certModal.show = false">✕</button>
         </div>
         <div v-if="certModal.cert" style="padding:1rem 0;display:flex;flex-direction:column;gap:0.75rem">
-          <div class="cert-row"><span>SKU</span><strong>{{ certModal.cert.itemSku }}</strong></div>
-          <div class="cert-row"><span>{{ $t('jewelry.certIssuer') }}</span><strong>{{ certModal.cert.issuerName }}</strong></div>
-          <div class="cert-row"><span>{{ $t('jewelry.certPurity') }}</span><strong>{{ certModal.cert.purity }}</strong></div>
-          <div class="cert-row"><span>{{ $t('jewelry.certWeight') }}</span><strong>{{ certModal.cert.weight }}g</strong></div>
-          <div class="cert-row"><span>{{ $t('jewelry.certDate') }}</span><strong>{{ new Date(certModal.cert.issueDate).toLocaleDateString('es-PE') }}</strong></div>
-          <div class="cert-row"><span>QR</span><strong style="color:var(--gc-gold-mid)">{{ certModal.cert.qrCode }}</strong></div>
+          <div class="cert-row"><span>{{ $t('jewelry.certId') }}</span><strong>{{ certModal.cert.certificateId }}</strong></div>
+          <div class="cert-row"><span>Material ID</span><strong>{{ certModal.cert.materialId }}</strong></div>
+          <div class="cert-row"><span>Jeweler ID</span><strong>{{ certModal.cert.jewelerId }}</strong></div>
           <div class="cert-row"><span>{{ $t('jewelry.certStatus') }}</span>
-            <span class="gc-status gc-status-done">{{ certModal.cert.status }}</span>
+            <span class="gc-status gc-status-done">{{ certModal.cert.isSigned ? $t('jewelry.signed') : $t('jewelry.unsigned') }}</span>
           </div>
         </div>
         <div class="gc-modal-footer">
@@ -210,52 +199,21 @@ onMounted(() => jewelryStore.fetchItems())
 <style scoped>
 .gc-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
-
-.gc-card-header {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
-}
-
-.gc-card-title {
-  font-size: 0.9rem; font-weight: 600; color: var(--gc-text-primary);
-}
-
-.gc-select-sm {
-  appearance: none; height: 2rem; padding: 0 0.75rem;
-  font-size: 0.8rem; cursor: pointer;
-}
-
-.gc-loading-row, .gc-table-empty {
-  text-align: center; color: var(--gc-text-muted); font-size: 0.85rem; padding: 2rem 0;
-}
-
-.gc-badge-code {
-  background: rgba(178,148,78,0.15); color: var(--gc-gold-mid);
-  border: 1px solid rgba(178,148,78,0.3);
-  padding: 0.15rem 0.5rem; border-radius: 4px;
-  font-size: 0.78rem; font-family: monospace;
-}
-
-.gc-status { font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 20px; font-weight: 500; }
-.gc-status-loading  { background: rgba(250,204,21,0.15); color: #facc15; }
-.gc-status-transit  { background: rgba(59,130,246,0.15); color: #60a5fa; }
-.gc-status-done     { background: rgba(74,222,128,0.15); color: #4ade80; }
-.gc-status-scale    { background: rgba(168,85,247,0.15); color: #c084fc; }
-
-.gc-btn-xs { font-size: 0.72rem; padding: 0.2rem 0.6rem; }
-.gc-btn-origin {
-  font-size: 0.75rem; padding: 0.2rem 0.5rem;
-  background: rgba(178,148,78,0.12); border: 1px solid rgba(178,148,78,0.3);
-  color: var(--gc-gold-mid); border-radius: 6px; cursor: pointer; transition: background 0.2s;
-}
-.gc-btn-origin:hover { background: rgba(178,148,78,0.22); }
-
-.gc-text-muted { color: var(--gc-text-muted); }
-
-@media (max-width: 1100px) { .gc-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-.cert-row { display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;padding:0.35rem 0;border-bottom:1px solid var(--gc-border); }
+.gc-card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem; }
+.gc-card-title  { font-size:0.9rem;font-weight:600;color:var(--gc-text-primary); }
+.gc-loading-row, .gc-table-empty { text-align:center;color:var(--gc-text-muted);font-size:0.85rem;padding:2rem 0; }
+.gc-badge-code  { background:rgba(178,148,78,0.15);color:var(--gc-gold-mid);border:1px solid rgba(178,148,78,0.3);padding:0.15rem 0.5rem;border-radius:4px;font-size:0.78rem;font-family:monospace; }
+.gc-status      { font-size:0.75rem;padding:0.2rem 0.55rem;border-radius:20px;font-weight:500; }
+.gc-status-loading { background:rgba(250,204,21,0.15);color:#facc15; }
+.gc-status-transit { background:rgba(59,130,246,0.15);color:#60a5fa; }
+.gc-status-done    { background:rgba(74,222,128,0.15);color:#4ade80; }
+.gc-btn-xs      { font-size:0.72rem;padding:0.2rem 0.6rem; }
+.gc-text-muted  { color:var(--gc-text-muted); }
+.cert-row       { display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;padding:0.35rem 0;border-bottom:1px solid var(--gc-border); }
 .cert-row span:first-child { color:var(--gc-text-muted); }
+@media (max-width:900px) { .gc-kpi-grid { grid-template-columns:repeat(2,1fr); } }
 </style>

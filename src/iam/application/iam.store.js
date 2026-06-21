@@ -79,6 +79,25 @@ export const useIamStore = defineStore('iam', () => {
     }
   }
 
+  // Fetch full user from backend and merge into currentUser
+  async function fetchUserProfile() {
+    const userId = currentUser.value?.userId
+    if (!userId) return
+    try {
+      const res = await iamApi.getUserById(userId)
+      const remote = res.data || {}
+      currentUser.value = {
+        ...currentUser.value,
+        email:       remote.email       || currentUser.value.email       || '',
+        phoneNumber: remote.phoneNumber || currentUser.value.phoneNumber || '',
+        location:    remote.location    || currentUser.value.location    || '',
+      }
+      localStorage.setItem('gc_user', JSON.stringify(currentUser.value))
+    } catch {
+      // profile data not critical — keep existing
+    }
+  }
+
   // US10 – Corporate Profile Management
   async function updateProfile(data) {
     if (!currentUser.value?.userId) return false
@@ -111,5 +130,5 @@ export const useIamStore = defineStore('iam', () => {
     localStorage.removeItem('gc_user')
   }
 
-  return { currentUser, token, errors, loading, isAuthenticated, login, register, updateProfile, applyPlanUpgrade, logout }
+  return { currentUser, token, errors, loading, isAuthenticated, login, register, fetchUserProfile, updateProfile, applyPlanUpgrade, logout }
 })

@@ -15,22 +15,22 @@ class AssetMaintenanceApi extends BaseApi {
 
   registerMachinery(data) {
     return this.http.post('/machinery', {
-      machineryId: data.machineryId,
-      model:       data.model,
-      oem:         data.oem
+      MachineryId: data.machineryId,
+      Model:       data.model,
+      OEM:         data.oem
     })
   }
 
   updateEngineHours(machineryId, currentEngineHours) {
-    return this.http.put(`/machinery/${machineryId}`, { currentEngineHours })
+    return this.http.put(`/machinery/${machineryId}`, { CurrentEngineHours: currentEngineHours })
   }
 
   scheduleMaintenance(machineryId, engineHours) {
-    return this.http.put(`/machinery/${machineryId}/schedule-maintenance`, { engineHours })
+    return this.http.put(`/machinery/${machineryId}/schedule-maintenance`, { EngineHours: engineHours })
   }
 
   dischargeMachinery(machineryId, reason) {
-    return this.http.put(`/machinery/${machineryId}/discharge`, { reason })
+    return this.http.put(`/machinery/${machineryId}/discharge`, { Reason: reason })
   }
 }
 

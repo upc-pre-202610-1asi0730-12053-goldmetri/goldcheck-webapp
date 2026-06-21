@@ -1,33 +1,49 @@
-﻿<script setup>
-import { ref, computed } from 'vue'
+<script setup>
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
+import { useIamStore }     from '../../../../iam/application/iam.store.js'
+import { materialOperationsApi } from '../../../../material-operations/infrastructure/material-operations-api.js'
 
-const { t } = useI18n()
-const jewelryStore = useJewelryStore()
-const submitted = ref(false)
-const success = ref(false)
+const { t }    = useI18n()
+const store    = useJewelryStore()
+const iamStore = useIamStore()
 
-const typeOptions = computed(() => [
-  { value: 'Anillo',   label: t('jewelry.typeRing') },
-  { value: 'Collar',   label: t('jewelry.typeNecklace') },
-  { value: 'Pulsera',  label: t('jewelry.typeBracelet') },
-  { value: 'Arete',    label: t('jewelry.typeEarring') },
-  { value: 'Colgante', label: t('jewelry.typePendant') },
-])
-const purityOptions = ['18K', '24K', '750', '925 (Plata)']
+const availableMaterials = ref([])
+const selectedMaterialId = ref('')
+const submitted          = ref(false)
+const success            = ref(false)
+const errorMsg           = ref('')
+const loadingMaterials   = ref(false)
 
-const form = ref({ name: '', type: '', purity: '', weight: null, batchRef: '', price: null })
+onMounted(async () => {
+  loadingMaterials.value = true
+  try {
+    const res = await materialOperationsApi.getAllMaterials()
+    availableMaterials.value = Array.isArray(res.data) ? res.data : []
+  } catch {
+    availableMaterials.value = []
+  } finally {
+    loadingMaterials.value = false
+  }
+})
 
 async function handleSubmit() {
   submitted.value = true
-  if (!form.value.name || !form.value.type || !form.value.purity || !form.value.weight) return
-  const item = await jewelryStore.registerItem(form.value)
-  if (item) {
-    success.value = true
-    form.value = { name: '', type: '', purity: '', weight: null, batchRef: '', price: null }
-    submitted.value = false
+  errorMsg.value  = ''
+  if (!selectedMaterialId.value) return
+
+  const jewelerId = String(iamStore.currentUser?.userId || '')
+  if (!jewelerId) { errorMsg.value = t('jewelry.noUserError'); return }
+
+  const result = await store.registerItem(selectedMaterialId.value, jewelerId)
+  if (result) {
+    success.value          = true
+    selectedMaterialId.value = ''
+    submitted.value        = false
     setTimeout(() => { success.value = false }, 3000)
+  } else {
+    errorMsg.value = t('jewelry.registerError')
   }
 }
 </script>
@@ -41,57 +57,49 @@ async function handleSubmit() {
       </div>
     </div>
 
-    <div class="gc-card" style="max-width:600px">
+    <div class="gc-card" style="max-width:480px">
       <form @submit.prevent="handleSubmit">
 
-        <div class="form-row">
-          <div class="form-field">
-            <label for="jewelry-name">{{ $t('jewelry.fieldName') }}</label>
-            <pv-input-text id="jewelry-name" v-model="form.name" :placeholder="$t('jewelry.fieldNamePh')" :invalid="submitted && !form.name" fluid />
-            <span v-if="submitted && !form.name" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
+        <div class="form-field">
+          <label for="material-select">{{ $t('jewelry.fieldMaterialId') }}</label>
+          <div v-if="loadingMaterials" style="font-size:0.83rem;color:var(--gc-text-muted);padding:0.5rem 0">
+            <i class="pi pi-spinner pi-spin" /> {{ $t('common.loading') }}
           </div>
-          <div class="form-field">
-            <label for="jewelry-type">{{ $t('jewelry.fieldType') }}</label>
-            <pv-select id="jewelry-type" v-model="form.type" :options="typeOptions" option-label="label" option-value="value" :placeholder="$t('jewelry.selectType')" :invalid="submitted && !form.type" fluid />
-            <span v-if="submitted && !form.type" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
-          </div>
+          <select
+            v-else
+            id="material-select"
+            v-model="selectedMaterialId"
+            class="gc-input-dark"
+            :class="{ 'gc-input-error': submitted && !selectedMaterialId }"
+          >
+            <option value="">{{ $t('jewelry.selectMaterial') }}</option>
+            <option
+              v-for="m in availableMaterials"
+              :key="m.batchId"
+              :value="m.batchId"
+            >
+              {{ m.batchId }} — {{ m.mineralType }} ({{ m.payloadTons }} t)
+            </option>
+          </select>
+          <span v-if="submitted && !selectedMaterialId" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
+          <p v-if="!loadingMaterials && availableMaterials.length === 0" style="font-size:0.8rem;color:var(--gc-text-muted);margin-top:0.4rem">
+            {{ $t('jewelry.noMaterialsAvailable') }}
+          </p>
         </div>
 
-        <div class="form-row">
-          <div class="form-field">
-            <label for="jewelry-purity">{{ $t('jewelry.fieldPurity') }}</label>
-            <pv-select id="jewelry-purity" v-model="form.purity" :options="purityOptions" :placeholder="$t('jewelry.selectPurity')" :invalid="submitted && !form.purity" fluid />
-            <span v-if="submitted && !form.purity" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
-          </div>
-          <div class="form-field">
-            <label for="jewelry-weight">{{ $t('jewelry.fieldWeight') }} (g)</label>
-            <pv-input-number id="jewelry-weight" v-model="form.weight" :min="0" :min-fraction-digits="2" :max-fraction-digits="2" placeholder="Ej: 12.50" :invalid="submitted && !form.weight" fluid />
-            <span v-if="submitted && !form.weight" class="gc-error-msg">{{ $t('jewelry.requiredField') }}</span>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-field">
-            <label for="jewelry-batch">{{ $t('jewelry.fieldBatchRef') }}</label>
-            <pv-input-text id="jewelry-batch" v-model="form.batchRef" placeholder="Ej: GM-4821" fluid />
-          </div>
-          <div class="form-field">
-            <label for="jewelry-price">{{ $t('jewelry.fieldPrice') }} (S/)</label>
-            <pv-input-number id="jewelry-price" v-model="form.price" :min="0" placeholder="Ej: 850" fluid />
-          </div>
-        </div>
-
-        <div v-if="jewelryStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:0.5rem">
-          {{ $t('jewelry.registerError') }}
-        </div>
+        <div v-if="errorMsg" class="gc-alert gc-alert-danger" style="margin-top:0.5rem">{{ errorMsg }}</div>
 
         <div v-if="success" class="gc-alert gc-alert-success" style="margin-top:0.5rem">
           <i class="pi pi-check-circle" /> {{ $t('jewelry.registerSuccess') }}
         </div>
 
-        <div class="flex gap-2 justify-content-end" style="margin-top:1.5rem">
-          <pv-button type="button" :label="$t('mineral.cancel')" severity="secondary" outlined @click="$router.push({ name: 'jewelry-dashboard' })" />
-          <pv-button type="submit" :label="$t('jewelry.registerBtn')" icon="pi pi-plus" :loading="jewelryStore.loading" />
+        <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem">
+          <button type="button" class="gc-btn gc-btn-outline" @click="$router.push({ name: 'jewelry-dashboard' })">
+            {{ $t('common.cancel') }}
+          </button>
+          <button type="submit" class="gc-btn gc-btn-gold" :disabled="store.loading || loadingMaterials">
+            <i class="pi pi-plus" /> {{ $t('jewelry.registerBtn') }}
+          </button>
         </div>
 
       </form>
@@ -100,17 +108,8 @@ async function handleSubmit() {
 </template>
 
 <style scoped>
-.form-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.25rem;
-}
-.form-field { margin-bottom: 1rem; }
-.form-field label { display: block; font-size: 0.82rem; color: var(--gc-text-secondary); margin-bottom: 0.4rem; }
-
-.gc-alert-success {
-  background: rgba(74,222,128,0.1); color: #4ade80;
-  border: 1px solid rgba(74,222,128,0.25); padding: 0.6rem 0.9rem;
-  border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;
-}
-
-@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+.form-field { margin-bottom:1.25rem; }
+.form-field label { display:block;font-size:0.82rem;color:var(--gc-text-secondary);margin-bottom:0.4rem; }
+.gc-input-error { border-color: var(--gc-danger, #ef4444) !important; }
+.gc-alert-success { background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);padding:0.6rem 0.9rem;border-radius:6px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem; }
 </style>

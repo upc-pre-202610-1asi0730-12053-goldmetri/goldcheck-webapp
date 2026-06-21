@@ -19,8 +19,8 @@ let scanner = null
 
 async function verify() {
   if (!code.value.trim()) return
-  result.value    = null
-  searched.value  = false
+  result.value     = null
+  searched.value   = false
   traceBatch.value = null
   const found = await store.verifyPiece(code.value.trim())
   result.value   = found
@@ -28,13 +28,12 @@ async function verify() {
 }
 
 async function loadMineralTrace() {
-  const batchRef = result.value?.batchRef || result.value?.materialOrigin
-  if (!batchRef) return
+  const qr = result.value?.qrCode || code.value.trim()
+  if (!qr) return
   traceLoading.value = true
   traceBatch.value   = null
   try {
-    const res  = await store.fetchBatch(batchRef)
-    traceBatch.value = res || null
+    traceBatch.value = await store.fetchJourney(qr)
   } finally {
     traceLoading.value = false
   }
@@ -232,26 +231,19 @@ onUnmounted(() => stopCamera())
         </div>
         <div class="qr-box">
           <div class="qr-visual"><i class="pi pi-qrcode" style="font-size:3rem;color:var(--gc-gold-mid)" /></div>
-          <p class="qr-label">{{ result.traceabilityCode || code }}</p>
+          <p class="qr-label">{{ result.qrCode || code }}</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:1rem;width:100%">
-          <div class="trace-row"><span>{{ $t('consumer.fieldName') }}</span><strong>{{ result.name }}</strong></div>
-          <div class="trace-row"><span>{{ $t('consumer.fieldType') }}</span><strong>{{ result.type }}</strong></div>
-          <div class="trace-row"><span>{{ $t('consumer.fieldPurity') }}</span><strong>{{ result.purity }}</strong></div>
-          <div class="trace-row"><span>{{ $t('consumer.fieldWeight') }}</span><strong>{{ result.weight }}g</strong></div>
-          <div class="trace-row" v-if="result.batchRef || result.materialOrigin">
-            <span>{{ $t('consumer.originBatch') }}</span>
-            <strong style="color:var(--gc-gold-mid)">{{ result.batchRef || result.materialOrigin }}</strong>
-          </div>
-          <div class="trace-row">
-            <span>{{ $t('consumer.fieldStatus') }}</span>
-            <span class="gc-status gc-status-done">{{ result.status || $t('consumer.certifiedDefault') }}</span>
+          <div class="trace-row"><span>QR Code</span><strong style="font-family:monospace;color:var(--gc-gold-mid)">{{ result.qrCode }}</strong></div>
+          <div class="trace-row"><span>{{ $t('consumer.fieldStatus') }}</span><span class="gc-status gc-status-done">{{ result.status }}</span></div>
+          <div class="trace-row"><span>{{ $t('consumer.scans') }}</span><strong>{{ result.scanCount }}</strong></div>
+          <div v-if="result.certificateId" class="trace-row">
+            <span>{{ $t('jewelry.certId') }}</span>
+            <strong style="color:var(--gc-gold-mid);font-family:monospace">{{ result.certificateId }}</strong>
           </div>
         </div>
 
-        <!-- Mineral origin button -->
         <button
-          v-if="result.batchRef || result.materialOrigin"
           class="origin-btn"
           :disabled="traceLoading"
           @click="loadMineralTrace"
@@ -263,31 +255,15 @@ onUnmounted(() => stopCamera())
         </button>
       </div>
 
-      <!-- Mineral traceability timeline -->
+      <!-- Journey -->
       <div v-if="traceBatch" class="trace-origin-box">
         <p class="trace-origin-title">
           <i class="pi pi-sitemap" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
           {{ $t('trace.traceTitle') }}
         </p>
-        <p style="font-size:0.78rem;color:var(--gc-text-muted);margin-bottom:1.5rem">
-          {{ $t('trace.traceSubtitle') }}
-        </p>
-        <div class="origin-timeline">
-          <div v-for="(ev, idx) in mineralEvents" :key="idx" class="origin-item">
-            <div class="origin-left">
-              <div class="origin-dot" :style="{ background: ev.color }">
-                <i :class="'pi ' + ev.icon" />
-              </div>
-              <div v-if="idx < mineralEvents.length - 1" class="origin-line" />
-            </div>
-            <div class="origin-content">
-              <p class="origin-ev-title">{{ ev.title }}</p>
-              <p class="origin-meta"><i class="pi pi-user" /> {{ $t('trace.actor') }}: <strong>{{ ev.actor }}</strong></p>
-              <p class="origin-meta"><i class="pi pi-calendar" /> {{ formatTraceDate(ev.date) }}</p>
-              <p class="origin-tx">TX: {{ ev.tx }}</p>
-            </div>
-          </div>
-        </div>
+        <div class="trace-row" style="margin-top:0.5rem"><span>{{ $t('consumer.journeySummary') }}</span><strong>{{ traceBatch.journeySummary }}</strong></div>
+        <div class="trace-row"><span>{{ $t('consumer.journeyStatus') }}</span><strong>{{ traceBatch.status }}</strong></div>
+        <div class="trace-row" style="border:none"><span>Consumer ID</span><strong>{{ traceBatch.consumerId }}</strong></div>
       </div>
 
     </div>

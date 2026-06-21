@@ -18,19 +18,19 @@ class IncidentManagementApi extends BaseApi {
   }
 
   detectFatigue(operatorId, assetId) {
-    return this.http.post('/incidents/fatigue', { operatorId, assetId })
+    return this.http.post('/incidents/fatigue', { OperatorId: operatorId, AssetId: assetId })
   }
 
   detectSmoke(assetId) {
-    return this.http.post('/incidents/smoke', { assetId })
+    return this.http.post('/incidents/smoke', { AssetId: assetId })
   }
 
   commitAccident(operatorId, description) {
-    return this.http.post('/incidents/accidents', { operatorId, description })
+    return this.http.post('/incidents/accidents', { OperatorId: operatorId, Description: description })
   }
 
   escalateRiskLevel(incidentId, newRiskLevel) {
-    return this.http.put(`/incidents/${incidentId}/escalate`, { newRiskLevel })
+    return this.http.put(`/incidents/${incidentId}/escalate`, { NewRiskLevel: newRiskLevel })
   }
 
   evaluateSafetyRisk(incidentId) {

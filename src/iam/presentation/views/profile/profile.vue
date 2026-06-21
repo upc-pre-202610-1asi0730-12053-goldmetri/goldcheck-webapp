@@ -10,9 +10,18 @@ const route    = useRoute()
 const iamStore = useIamStore()
 const activeTab = ref('profile')
 
-onMounted(() => {
+onMounted(async () => {
   const tab = route.query.tab
   if (tab === 'notifications' || tab === 'settings') activeTab.value = tab
+
+  await iamStore.fetchUserProfile()
+  const u = iamStore.currentUser
+  if (u) {
+    form.email       = u.email       || ''
+    form.username    = u.username    || ''
+    form.phoneNumber = u.phoneNumber || ''
+    form.location    = u.location    || ''
+  }
 })
 
 // ── Notifications tab ──────────────────────────────────────────────────────

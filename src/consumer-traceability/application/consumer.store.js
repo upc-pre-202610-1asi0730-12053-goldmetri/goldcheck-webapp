@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { consumerApi } from '../infrastructure/consumer-api.js'
-import { ConsumerPieceAssembler } from '../infrastructure/consumer-piece.assembler.js'
 import { useIamStore } from '../../iam/application/iam.store.js'
+
+const STORAGE_KEY = (userId) => `gc_consumer_pieces_${userId}`
 
 export const useConsumerStore = defineStore('consumer', () => {
   const pieces       = ref([])
@@ -10,41 +11,38 @@ export const useConsumerStore = defineStore('consumer', () => {
   const errors       = ref([])
   const loading      = ref(false)
 
-  async function fetchPieces() {
-    loading.value = true
-    errors.value  = []
-    try {
-      const iamStore = useIamStore()
-      const userId   = iamStore.currentUser?.userId || iamStore.currentUser?.id
-      if (!userId) { pieces.value = []; return }
-      const res    = await consumerApi.getPiecesByOwner(userId)
-      pieces.value = ConsumerPieceAssembler.toEntitiesFromResponse(res)
-    } catch {
-      errors.value = ['fetchError']
-    } finally {
-      loading.value = false
-    }
+  function currentUserId() {
+    const iamStore = useIamStore()
+    return String(iamStore.currentUser?.userId || iamStore.currentUser?.id || '')
+  }
+
+  function loadFromStorage() {
+    const userId = currentUserId()
+    if (!userId) return []
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY(userId)) || '[]') } catch { return [] }
+  }
+
+  function saveToStorage(list) {
+    const userId = currentUserId()
+    if (!userId) return
+    localStorage.setItem(STORAGE_KEY(userId), JSON.stringify(list))
+  }
+
+  function fetchPieces() {
+    pieces.value = loadFromStorage()
   }
 
   async function fetchCertificates() {
     certificates.value = []
   }
 
-  async function verifyPiece(code) {
+  // Verify a piece by QR code — does NOT save it, just looks it up
+  async function verifyPiece(qrCode) {
     loading.value = true
     errors.value  = []
     try {
-      const qrCode = code.startsWith('QR-') ? code : `QR-${code}`
-      const res    = await consumerApi.findByTraceabilityCode(qrCode)
-      const list   = Array.isArray(res.data) ? res.data : []
-      if (!list.length) {
-        const resItem = await consumerApi.getJewelryItemBySku(code)
-        const items   = Array.isArray(resItem.data) ? resItem.data : []
-        if (!items.length) return null
-        const item = items[0]
-        return { ...ConsumerPieceAssembler.toEntityFromResource({ ...item, traceabilityCode: qrCode }), verified: true }
-      }
-      return { ...ConsumerPieceAssembler.toEntityFromResource(list[0]), verified: true }
+      const res     = await consumerApi.getProductByQR(qrCode)
+      return res.data || null
     } catch {
       errors.value = ['verifyError']
       return null
@@ -53,27 +51,21 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
-  async function linkPiece(data) {
+  // Link a piece: POST /consumer/scan + save to localStorage
+  async function linkPiece(qrCode) {
     errors.value  = []
     loading.value = true
     try {
-      const iamStore = useIamStore()
-      const userId   = iamStore.currentUser?.userId || iamStore.currentUser?.id
-      const qrCode   = data.traceabilityCode || `QR-${data.sku || Date.now()}`
-      const payload  = {
-        ownerId:          userId,
-        sku:              data.sku || '',
-        name:             data.name || data.sku || 'Joya',
-        type:             data.type || 'Anillo',
-        purity:           data.purity || '18K',
-        traceabilityCode: qrCode,
-        status:           'Activo',
-        purchaseDate:     new Date().toISOString()
+      const userId = currentUserId()
+      const res    = await consumerApi.scanProductQR(qrCode, userId)
+      const product = res.data
+      const existing = loadFromStorage()
+      if (!existing.find(p => p.qrCode === product.qrCode)) {
+        const updated = [product, ...existing]
+        saveToStorage(updated)
+        pieces.value = updated
       }
-      const res   = await consumerApi.addPiece(payload)
-      const piece = ConsumerPieceAssembler.toEntityFromResource(res.data)
-      pieces.value.unshift(piece)
-      return res.data
+      return product
     } catch {
       errors.value = ['linkError']
       return null
@@ -82,50 +74,26 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
-  async function fetchBatch(qrCode) {
+  async function fetchJourney(qrCode) {
     try {
-      const res  = await consumerApi.findByTraceabilityCode(qrCode)
-      const list = Array.isArray(res.data) ? res.data : []
-      return list.length ? list[0] : null
-    } catch {
-      return null
-    }
-  }
-
-  async function lookupInventoryItem(traceabilityCode) {
-    try {
-      const qrCode = traceabilityCode.startsWith('QR-') ? traceabilityCode : `QR-${traceabilityCode}`
-      const res    = await consumerApi.findByTraceabilityCode(qrCode)
-      const list   = Array.isArray(res.data) ? res.data : []
-      return list.length ? list[0] : null
-    } catch {
-      return null
-    }
-  }
-
-  async function getCertificate(certId) {
-    try {
-      const res = await consumerApi.getCertificateById(certId)
+      const res = await consumerApi.getJourney(qrCode)
       return res.data || null
     } catch {
       return null
     }
   }
 
-  async function downloadCertificate(certId) {
-    errors.value = []
+  async function getCertificate(certificateId) {
     try {
-      const res = await consumerApi.getCertificateById(certId)
+      const res = await consumerApi.getCertificateById(certificateId)
       return res.data || null
     } catch {
-      errors.value = ['downloadError']
       return null
     }
   }
 
   return {
     pieces, certificates, errors, loading,
-    fetchPieces, fetchCertificates, verifyPiece, linkPiece,
-    fetchBatch, lookupInventoryItem, getCertificate, downloadCertificate
+    fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchJourney, getCertificate
   }
 })

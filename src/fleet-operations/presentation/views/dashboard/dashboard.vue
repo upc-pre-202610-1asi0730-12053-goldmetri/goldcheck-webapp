@@ -65,7 +65,6 @@ function formatDate(iso) {
 
 async function onBatchCreated(batch) {
   showNewBatchModal.value = false
-  await mineralStore.fetchBatches()
 }
 
 onMounted(async () => {

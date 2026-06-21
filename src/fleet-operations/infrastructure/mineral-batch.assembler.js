@@ -12,15 +12,21 @@ const STATUS_MAP = {
 
 export class MineralBatchAssembler {
   static toEntityFromResource(resource) {
+    const id            = resource.id            ?? resource.Id
+    const vehicleId     = resource.vehicleId     ?? resource.VehicleId     ?? ''
+    const loadingPoint  = resource.loadingPoint  ?? resource.LoadingPoint  ?? ''
+    const dumpingPoint  = resource.dumpingPoint  ?? resource.DumpingPoint  ?? ''
+    const payload       = resource.payload       ?? resource.Payload
+    const status        = resource.status        ?? resource.Status        ?? ''
     return new MineralBatch({
-      id:            resource.id,
-      batchCode:     `HC-${resource.id}`,
-      vehicleId:     resource.vehicleId,
-      vehicleName:   resource.vehicleId,
-      depositName:   resource.loadingPoint,
-      destination:   resource.dumpingPoint || '',
-      initialWeight: resource.payload      || 0,
-      status:        STATUS_MAP[resource.status] || resource.status,
+      id,
+      batchCode:     `HC-${id}`,
+      vehicleId,
+      vehicleName:   vehicleId,
+      depositName:   loadingPoint,
+      destination:   dumpingPoint,
+      initialWeight: payload ?? 0,
+      status:        STATUS_MAP[status] || status,
       mineralType:   'Oro'
     })
   }

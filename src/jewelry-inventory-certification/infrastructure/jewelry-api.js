@@ -1,47 +1,48 @@
-import { MockBaseApi } from '../../shared/infrastructure/mock-base-api.js'
+import { BaseApi } from '../../shared/infrastructure/base-api.js'
 
-class JewelryApi extends MockBaseApi {
+class JewelryApi extends BaseApi {
   constructor() { super() }
 
-  getAllItems() {
-    return this.http.get('/jewelryItems')
+  getAllMaterials() {
+    return this.http.get('/jewelry-materials')
   }
 
-  getItemById(id) {
-    return this.http.get(`/jewelryItems/${id}`)
+  registerMaterial(materialId, jewelerId) {
+    return this.http.post('/jewelry-materials', { MaterialId: materialId, JewelerId: jewelerId })
   }
 
-  registerItem(data) {
-    return this.http.post('/jewelryItems', {
-      ...data,
-      status: 'Pendiente',
-      createdAt: new Date().toISOString()
-    })
+  scanQR(materialId, qrCode) {
+    return this.http.put(`/jewelry-materials/${materialId}/scan`, { QRCode: qrCode })
   }
 
-  updateItemStatus(id, status) {
-    return this.http.patch(`/jewelryItems/${id}`, { status })
+  generateCertificate(materialId) {
+    return this.http.post('/certificates', { MaterialId: materialId })
   }
 
-  getAllCertificates() {
-    return this.http.get('/jewelryCertificates')
+  signCertificate(certificateId, jewelerId) {
+    return this.http.put(`/certificates/${certificateId}/sign`, { JewelerId: jewelerId })
   }
 
-  getCertificateById(certId) {
-    return this.http.get(`/jewelryCertificates/${certId}`)
+  getCertificateById(certificateId) {
+    return this.http.get(`/certificates/${certificateId}`)
   }
 
-  getCertificateByItemId(itemId) {
-    return this.http.get(`/jewelryCertificates?itemId=${itemId}`)
-  }
-
-  createCertificate(data) {
-    return this.http.post('/jewelryCertificates', {
-      ...data,
-      issuerName: 'GoldMetrics Cert Authority',
-      issueDate:  new Date().toISOString(),
-      status:     'Activo'
-    })
+  async getBatchByCode(batchCode) {
+    const res = await this.http.get(`/materials/${batchCode}`)
+    const m   = res.data
+    if (!m) return { data: [] }
+    return {
+      data: [{
+        batchCode:     m.batchId,
+        mineralType:   m.mineralType,
+        initialWeight: m.payloadTons,
+        finalWeight:   m.payloadTons,
+        status:        m.status === 'Identified' ? 'Completado' : 'En Tránsito',
+        depositName:   'Mina GoldMetrics',
+        vehicleName:   'Vehículo de Transporte',
+        createdAt:     m.createdAt || new Date().toISOString()
+      }]
+    }
   }
 }
 

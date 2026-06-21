@@ -2,16 +2,20 @@ import { MaterialReception } from '../domain/model/material-reception.entity.js'
 
 export class MaterialReceptionAssembler {
   static toEntityFromResource(resource) {
+    const batchId    = resource.batchId    ?? resource.BatchId    ?? ''
+    const payloadTons = resource.payloadTons ?? resource.PayloadTons ?? 0
+    const mineralType = resource.mineralType ?? resource.MineralType ?? ''
+    const status      = resource.status      ?? resource.Status      ?? ''
     return new MaterialReception({
-      id:               resource.id,
-      batchId:          resource.batchId,
-      batchCode:        resource.batchId,
-      receivedWeight:   resource.payloadTons  || 0,
-      initialWeight:    resource.payloadTons  || 0,
+      id:               resource.id ?? resource.Id,
+      batchId,
+      batchCode:        batchId,
+      receivedWeight:   payloadTons,
+      initialWeight:    payloadTons,
       shrinkagePercent: 0,
-      mineralType:      resource.mineralType,
+      mineralType,
       purityKarats:     null,
-      status:           resource.status,
+      status,
       operatorId:       null,
       receivedAt:       null
     })
