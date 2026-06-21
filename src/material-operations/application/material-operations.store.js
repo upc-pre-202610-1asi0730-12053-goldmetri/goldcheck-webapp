@@ -8,17 +8,18 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
   const loading    = ref(false)
   const errors     = ref([])
 
-  const pendingCount        = computed(() => receptions.value.filter(r => r.status === 'En Planta').length)
-  const underInvestigation  = computed(() => receptions.value.filter(r => r.status === 'Bajo Investigación').length)
-  const criticalBatches     = computed(() => receptions.value.filter(r =>
-    r.initialWeight > 0 && parseFloat(((r.initialWeight - r.receivedWeight) / r.initialWeight * 100).toFixed(2)) > 5
+  const pendingCount       = computed(() => receptions.value.filter(r => r.status === 'MaterialIdentified').length)
+  const underInvestigation = computed(() => receptions.value.filter(r => r.status === 'MaterialClassified').length)
+  const criticalBatches    = computed(() => receptions.value.filter(r =>
+    r.initialWeight > 0 && r.receivedWeight > 0 &&
+    parseFloat(((r.initialWeight - r.receivedWeight) / r.initialWeight * 100).toFixed(2)) > 5
   ))
 
   async function fetchReceptions() {
     loading.value = true
     errors.value  = []
     try {
-      const res = await materialOperationsApi.getBatches()
+      const res = await materialOperationsApi.getAllMaterials()
       receptions.value = MaterialReceptionAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
@@ -27,24 +28,14 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
-  // US21 – Final Weighing (Reception)
-  async function registerFinalWeight(batchId, finalWeight, initialWeight) {
+  // US21 – Final weighing: download to dumping point
+  async function registerFinalWeight(batchId, finalWeight) {
     errors.value = []
     try {
-      if (!finalWeight || finalWeight <= 0) {
-        errors.value = ['weightRequired']
-        return false
-      }
-      if (finalWeight > initialWeight) {
-        errors.value = ['weightExceedsInitial']
-        return false
-      }
-      await materialOperationsApi.registerFinalWeight(batchId, finalWeight)
-      const shrinkage = ((initialWeight - finalWeight) / initialWeight) * 100
-      if (shrinkage > 5) {
-        await materialOperationsApi.markUnderInvestigation(batchId)
-      }
-      await fetchReceptions()
+      if (!finalWeight || finalWeight <= 0) { errors.value = ['weightRequired']; return false }
+      const res = await materialOperationsApi.downloadMaterial(batchId, 'Planta Principal')
+      const idx = receptions.value.findIndex(r => r.batchId === batchId)
+      if (idx !== -1) receptions.value[idx] = MaterialReceptionAssembler.toEntityFromResource(res.data)
       return true
     } catch {
       errors.value = ['updateError']
@@ -56,11 +47,9 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
   async function classifyMineral(batchId, mineralType) {
     errors.value = []
     try {
-      await materialOperationsApi.classifyMineral(batchId, mineralType)
-      const idx = receptions.value.findIndex(r => r.id === batchId)
-      if (idx !== -1) {
-        receptions.value[idx] = receptions.value[idx].clone({ mineralType })
-      }
+      const res = await materialOperationsApi.classifyMaterial(batchId, mineralType)
+      const idx = receptions.value.findIndex(r => r.batchId === batchId)
+      if (idx !== -1) receptions.value[idx] = MaterialReceptionAssembler.toEntityFromResource(res.data)
       return true
     } catch {
       errors.value = ['updateError']
@@ -68,12 +57,13 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
-  // US20 – Arrival Confirmation
+  // US20 – Arrival Confirmation: track at plant
   async function confirmArrival(batchId) {
     errors.value = []
     try {
-      await materialOperationsApi.confirmArrival(batchId)
-      await fetchReceptions()
+      const res = await materialOperationsApi.trackMaterialMovement(batchId, 'Planta Principal')
+      const idx = receptions.value.findIndex(r => r.batchId === batchId)
+      if (idx !== -1) receptions.value[idx] = MaterialReceptionAssembler.toEntityFromResource(res.data)
       return true
     } catch {
       errors.value = ['updateError']
