@@ -10,31 +10,23 @@ export const useIamStore = defineStore('iam', () => {
 
   const isAuthenticated = computed(() => !!token.value && !!currentUser.value)
 
-  // Rehydrate user from localStorage on cold load
   const savedUser = localStorage.getItem('gc_user')
   if (savedUser) {
     try { currentUser.value = JSON.parse(savedUser) } catch {}
   }
 
-  // Remove legacy shared card key (was not scoped per user)
   localStorage.removeItem('gc_saved_card')
 
   // US08 – Sign In
-  async function login(email, password) {
+  async function login(username, password) {
     errors.value = []
     loading.value = true
     try {
-      const res = await iamApi.login(email, password)
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return false }
-      const users = res.data
-      if (!users || users.length === 0) {
-        errors.value = ['invalidCredentials']
-        return false
-      }
-      const user = users[0]
+      const res = await iamApi.signIn(username, password)
+      const { token: jwt, ...user } = res.data
+      token.value = jwt
       currentUser.value = user
-      token.value = `mock-jwt-${user.id}`
-      localStorage.setItem('gc_token', token.value)
+      localStorage.setItem('gc_token', jwt)
       localStorage.setItem('gc_user', JSON.stringify(user))
       return true
     } catch (e) {
@@ -50,28 +42,18 @@ export const useIamStore = defineStore('iam', () => {
     errors.value = []
     loading.value = true
     try {
-      const [emailRes, phoneRes] = await Promise.all([
-        iamApi.checkEmail(data.email),
-        data.phoneNumber ? iamApi.checkPhone(data.phoneNumber) : Promise.resolve({ data: [] })
-      ])
-      if ((emailRes.data || []).length > 0) {
-        errors.value = ['emailTaken']
-        return false
-      }
-      if ((phoneRes.data || []).length > 0) {
-        errors.value = ['phoneTaken']
-        return false
-      }
-      const res = await iamApi.register(data)
-      if (res.status < 200 || res.status >= 300) { console.error(`${res.status}, ${res.statusText}`); return false }
+      const res = await iamApi.signUp(data)
       const user = res.data
-      currentUser.value = user
-      token.value = `mock-jwt-${user.id}`
-      localStorage.setItem('gc_token', token.value)
-      localStorage.setItem('gc_user', JSON.stringify(user))
+      const signInRes = await iamApi.signIn(data.username, data.password)
+      const { token: jwt, ...profile } = signInRes.data
+      token.value = jwt
+      currentUser.value = { ...user, ...profile }
+      localStorage.setItem('gc_token', jwt)
+      localStorage.setItem('gc_user', JSON.stringify(currentUser.value))
       return true
     } catch (e) {
-      errors.value = ['registerError']
+      if (e?.response?.status === 409) errors.value = ['emailTaken']
+      else errors.value = ['registerError']
       return false
     } finally {
       loading.value = false
@@ -80,14 +62,13 @@ export const useIamStore = defineStore('iam', () => {
 
   // US10 – Corporate Profile Management
   async function updateProfile(data) {
-    if (!currentUser.value?.id) return false
+    if (!currentUser.value?.userId) return false
     errors.value = []
     loading.value = true
     try {
-      const res = await iamApi.updateProfile(currentUser.value.id, data)
-      if (res.status !== 200) { console.error(`${res.status}, ${res.statusText}`); return false }
-      currentUser.value = res.data
-      localStorage.setItem('gc_user', JSON.stringify(res.data))
+      const res = await iamApi.updateProfile(currentUser.value.userId, data)
+      currentUser.value = { ...currentUser.value, ...res.data }
+      localStorage.setItem('gc_user', JSON.stringify(currentUser.value))
       return true
     } catch (e) {
       errors.value = ['updateError']
