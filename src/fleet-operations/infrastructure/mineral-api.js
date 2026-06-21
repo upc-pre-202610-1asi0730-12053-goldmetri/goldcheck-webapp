@@ -28,6 +28,10 @@ class MineralApi extends BaseApi {
   getAllVehicles() {
     return this.http.get('/vehicles')
   }
+
+  registerVehicle(vehicleId, operatorId) {
+    return this.http.post('/vehicles', { vehicleId, operatorId })
+  }
 }
 
 export const mineralApi = new MineralApi()
