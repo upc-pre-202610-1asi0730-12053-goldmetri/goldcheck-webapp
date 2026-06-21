@@ -1,36 +1,32 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js'
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js'
 
 class IamApi extends BaseApi {
-  #users
-
   constructor() {
     super()
-    this.#users = new BaseEndpoint(this.http, '/users')
   }
 
-  // US08 – Login (mock: query by email only, password is not persisted in json-server)
-  async login(email, password) {
-    const res = await this.#users.getAll({ email })
-    return res
+  signIn(username, password) {
+    return this.http.post('/authentication/sign-in', { username, password })
   }
 
-  // US06 / US07 – Register (POST /users)
-  register(data) {
-    return this.#users.create(data)
+  signUp(data) {
+    return this.http.post('/authentication/sign-up', {
+      username: data.username,
+      password: data.password,
+      email:    data.email,
+      role:     data.segment
+    })
   }
 
-  checkEmail(email)       { return this.#users.getAll({ email }) }
-  checkPhone(phoneNumber) { return this.#users.getAll({ phoneNumber }) }
-
-  // TS03 – Get profile
-  getProfile(id) {
-    return this.#users.getById(id)
+  getUserById(userId) {
+    return this.http.get(`/users/${userId}`)
   }
 
-  // US10 – Update profile
-  updateProfile(id, data) {
-    return this.#users.patch(id, data)
+  updateProfile(userId, data) {
+    return this.http.put(`/users/${userId}/profile`, {
+      username: data.username,
+      email:    data.email
+    })
   }
 }
 

@@ -3,16 +3,16 @@ import { reactive, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useIamStore } from '../../../application/iam.store.js'
 import { useVuelidate } from '@vuelidate/core'
-import { required, email } from '@vuelidate/validators'
+import { required } from '@vuelidate/validators'
 import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue'
 
 const router   = useRouter()
 const iamStore = useIamStore()
 
-const form = reactive({ email: '', password: '', remember: false })
+const form = reactive({ username: '', password: '', remember: false })
 
 const rules = {
-  email:    { required, email },
+  username: { required },
   password: { required }
 }
 
@@ -22,13 +22,13 @@ async function handleLogin() {
   await v$.value.$validate()
   if (v$.value.$error) return
 
-  const ok = await iamStore.login(form.email, form.password)
+  const ok = await iamStore.login(form.username, form.password)
   if (!ok) return
 
-  const seg = iamStore.currentUser?.segment
-  if (seg === 'mining')   router.push({ name: 'fleet-dashboard' })
-  else if (seg === 'jewelry') router.push({ name: 'jewelry-dashboard' })
-  else router.push({ name: 'consumer-collection' })
+  const role = iamStore.currentUser?.role
+  if (role === 'mining')        router.push({ name: 'fleet-dashboard' })
+  else if (role === 'jewelry')  router.push({ name: 'jewelry-dashboard' })
+  else                          router.push({ name: 'consumer-collection' })
 }
 </script>
 
@@ -50,19 +50,19 @@ async function handleLogin() {
           <div class="gc-field">
             <pv-float-label>
               <pv-input-text
-                id="login-email"
-                v-model="form.email"
-                type="email"
-                autocomplete="email"
-                :invalid="v$.email.$error"
-                :aria-invalid="v$.email.$error"
-                aria-describedby="login-email-error"
+                id="login-username"
+                v-model="form.username"
+                type="text"
+                autocomplete="username"
+                :invalid="v$.username.$error"
+                :aria-invalid="v$.username.$error"
+                aria-describedby="login-username-error"
                 fluid
               />
-              <label for="login-email">{{ $t('auth.email') }}</label>
+              <label for="login-username">{{ $t('auth.username') }}</label>
             </pv-float-label>
-            <span v-if="v$.email.$error" id="login-email-error" class="gc-error-msg" role="alert">
-              {{ v$.email.required.$invalid ? $t('auth.emailRequired') : $t('auth.emailInvalid') }}
+            <span v-if="v$.username.$error" id="login-username-error" class="gc-error-msg" role="alert">
+              {{ $t('auth.fieldRequired') }}
             </span>
           </div>
 
