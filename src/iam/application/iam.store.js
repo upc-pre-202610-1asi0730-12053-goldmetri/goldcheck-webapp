@@ -17,13 +17,31 @@ export const useIamStore = defineStore('iam', () => {
 
   localStorage.removeItem('gc_saved_card')
 
+  function decodeJwt(jwt) {
+    try {
+      const payload = JSON.parse(atob(jwt.split('.')[1]))
+      const role = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+        || payload['role'] || ''
+      const segmentMap = { Supervisor: 'mining', Operator: 'mining', Jeweler: 'jewelry', Consumer: 'consumer' }
+      return {
+        userId:   String(payload.sub || ''),
+        username: payload.unique_name || payload.sub || '',
+        role,
+        segment:  segmentMap[role] || 'mining'
+      }
+    } catch {
+      return {}
+    }
+  }
+
   // US08 – Sign In
   async function login(username, password) {
     errors.value = []
     loading.value = true
     try {
       const res = await iamApi.signIn(username, password)
-      const { token: jwt, ...user } = res.data
+      const jwt = res.data.token
+      const user = decodeJwt(jwt)
       token.value = jwt
       currentUser.value = user
       localStorage.setItem('gc_token', jwt)
@@ -45,9 +63,10 @@ export const useIamStore = defineStore('iam', () => {
       const res = await iamApi.signUp(data)
       const user = res.data
       const signInRes = await iamApi.signIn(data.username, data.password)
-      const { token: jwt, ...profile } = signInRes.data
+      const jwt = signInRes.data.token
+      const profile = decodeJwt(jwt)
       token.value = jwt
-      currentUser.value = { ...user, ...profile }
+      currentUser.value = { ...profile }
       localStorage.setItem('gc_token', jwt)
       localStorage.setItem('gc_user', JSON.stringify(currentUser.value))
       return true
