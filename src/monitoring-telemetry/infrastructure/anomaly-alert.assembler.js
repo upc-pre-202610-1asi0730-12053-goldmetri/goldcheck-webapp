@@ -1,53 +1,39 @@
 import { AnomalyAlert } from '../domain/model/anomaly-alert.entity.js'
 
-/**
- * Maps anomaly alert resources into domain entities.
- *
- * @class AnomalyAlertAssembler
- */
+const RISK_TO_SEVERITY = {
+  Critical: 'CRITICAL',
+  High:     'HIGH',
+  Medium:   'MEDIUM',
+  Low:      'LOW'
+}
+
 export class AnomalyAlertAssembler {
-  /**
-   * @param {Object} resource - AnomalyAlert resource payload.
-   * @returns {AnomalyAlert} AnomalyAlert entity.
-   */
   static toEntityFromResource(resource) {
     return new AnomalyAlert({
-      id: resource.id, batchId: resource.batchId,
-      batchCode: resource.batchCode || (resource.batchId ? `Lote #${resource.batchId}` : ''),
-      vehicleId: resource.vehicleId, alertType: resource.alertType || resource.type,
-      severity: resource.severity || 'LOW', description: resource.description || resource.message || '',
-      coordinates: resource.coordinates, status: resource.status || 'Activa',
-      detectedAt: resource.detectedAt || resource.createdAt, resolvedAt: resource.resolvedAt
+      id:          resource.id,
+      batchCode:   resource.assetId ? `Asset ${resource.assetId}` : '',
+      vehicleId:   resource.assetId || resource.vehicleId,
+      alertType:   resource.incidentType || resource.alertType || 'TELEMETRY',
+      severity:    RISK_TO_SEVERITY[resource.riskLevel] || resource.severity || 'LOW',
+      description: resource.description || '',
+      status:      resource.status === 'Closed' ? 'Resuelta' : 'Activa',
+      detectedAt:  resource.detectedAt || null
     })
   }
 
-  /**
-   * Parses anomaly alert resources from a response and maps them into entities.
-   *
-   * @param {import('axios').AxiosResponse<Array<Object>|Object>} response - HTTP response with anomaly alert resources.
-   * @returns {AnomalyAlert[]} AnomalyAlert entities.
-   */
   static toEntitiesFromResponse(response) {
-    if (response.status !== 200) {
-      console.error(`${response.status}, ${response.statusText}`)
-      return []
-    }
-    const resources = response.data instanceof Array ? response.data : response.data['alerts']
-    return resources.map(resource => this.toEntityFromResource(resource))
+    if (response.status !== 200) return []
+    const resources = Array.isArray(response.data) ? response.data : []
+    return resources.map(r => this.toEntityFromResource(r))
   }
 
-  /**
-   * Converts an AnomalyAlert entity into an API resource payload.
-   *
-   * @param {AnomalyAlert} alert - AnomalyAlert entity.
-   * @returns {Object} Resource payload.
-   */
   static toResourceFromEntity(alert) {
     return {
-      batchId: alert.batchId, batchCode: alert.batchCode,
-      vehicleId: alert.vehicleId, alertType: alert.alertType,
-      severity: alert.severity, description: alert.description,
-      coordinates: alert.coordinates, status: alert.status
+      assetId:     alert.vehicleId,
+      alertType:   alert.alertType,
+      severity:    alert.severity,
+      description: alert.description,
+      status:      alert.status
     }
   }
 }
