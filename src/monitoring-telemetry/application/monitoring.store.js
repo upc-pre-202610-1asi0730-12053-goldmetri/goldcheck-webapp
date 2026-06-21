@@ -11,15 +11,15 @@ export const useMonitoringStore = defineStore('monitoring', () => {
 
   const activeAlerts   = computed(() => alerts.value.filter(a => a.status === 'Activa'))
   const criticalAlerts = computed(() => alerts.value.filter(a =>
-    (a.severity === 'CRITICAL' || a.severity === 'HIGH') && a.status === 'Activa'
+    ['CRITICAL', 'HIGH'].includes(a.severity) && a.status === 'Activa'
   ))
-  const alertCount     = computed(() => activeAlerts.value.length)
+  const alertCount = computed(() => activeAlerts.value.length)
 
   async function fetchAlerts() {
     loading.value = true
     errors.value  = []
     try {
-      const res = await monitoringApi.getAlerts()
+      const res = await monitoringApi.getAllIncidents()
       alerts.value = AnomalyAlertAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
@@ -30,23 +30,18 @@ export const useMonitoringStore = defineStore('monitoring', () => {
 
   async function fetchActiveBatches() {
     try {
-      const res = await monitoringApi.getActiveBatches()
+      const res = await monitoringApi.getActiveCycles()
       activeBatches.value = res.data || []
     } catch {
       errors.value = ['fetchError']
     }
   }
 
-  // US19 – Generate delay or route deviation alert
-  async function createAlert(batchId, batchCode, vehicleId, alertType, severity, description) {
+  // US19 – Process telemetry anomaly for an asset
+  async function createAlert(assetId, rawData = 'anomaly-detected') {
     errors.value = []
     try {
-      const payload = {
-        batchId, batchCode, vehicleId, alertType,
-        severity, description, status: 'Activa',
-        detectedAt: new Date().toISOString()
-      }
-      const res = await monitoringApi.createAlert(payload)
+      const res = await monitoringApi.processTelemetry(assetId, rawData)
       alerts.value.unshift(AnomalyAlertAssembler.toEntityFromResource(res.data))
       return true
     } catch {
@@ -55,14 +50,13 @@ export const useMonitoringStore = defineStore('monitoring', () => {
     }
   }
 
-  async function resolveAlert(alertId) {
+  // Validate (resolve) a telemetry record
+  async function resolveAlert(alertId, assetId = '') {
     errors.value = []
     try {
-      await monitoringApi.resolveAlert(alertId)
+      await monitoringApi.validateTelemetry(assetId, String(alertId))
       const idx = alerts.value.findIndex(a => a.id === alertId)
-      if (idx !== -1) {
-        alerts.value[idx] = alerts.value[idx].clone({ status: 'Resuelta' })
-      }
+      if (idx !== -1) alerts.value[idx] = alerts.value[idx].clone({ status: 'Resuelta' })
       return true
     } catch {
       errors.value = ['updateError']
