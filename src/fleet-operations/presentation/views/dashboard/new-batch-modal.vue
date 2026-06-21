@@ -31,7 +31,7 @@ async function goStep2() {
   step1Error.value = true
   if (!form.value.depositId || !form.value.vehicleId) return
 
-  const batch = await mineralStore.createBatch(form.value.depositId, form.value.vehicleId)
+  const batch = await mineralStore.createBatch(form.value.vehicleId, form.value.depositId)
   if (!batch) return
   createdBatch.value = batch
   step.value = 2
@@ -39,8 +39,8 @@ async function goStep2() {
 
 async function handleSeal() {
   if (!createdBatch.value) return
-  const ok = await mineralStore.registerInitialWeight(createdBatch.value.id, simulatedWeight.value)
-  if (ok) emit('created', createdBatch.value)
+  await mineralStore.registerInitialWeight(createdBatch.value.id, simulatedWeight.value)
+  emit('created', createdBatch.value)
 }
 </script>
 

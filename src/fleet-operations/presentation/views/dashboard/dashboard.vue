@@ -63,8 +63,9 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString()
 }
 
-function onBatchCreated(batch) {
+async function onBatchCreated(batch) {
   showNewBatchModal.value = false
+  await mineralStore.fetchBatches()
 }
 
 onMounted(async () => {
