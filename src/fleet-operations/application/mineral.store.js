@@ -9,6 +9,12 @@ export const useMineralStore = defineStore('mineral', () => {
   const alerts   = ref([])
   const errors   = ref([])
   const loading  = ref(false)
+  const deposits = ref([
+    { id: 'Zona A', name: 'Zona A', defaultDestination: 'Planta Principal' },
+    { id: 'Zona B', name: 'Zona B', defaultDestination: 'Planta Principal' },
+    { id: 'Zona C', name: 'Zona C', defaultDestination: 'Planta Principal' },
+    { id: 'Zona D', name: 'Zona D', defaultDestination: 'Planta Principal' },
+  ])
 
   const activeBatchCount = computed(() =>
     batches.value.filter(b => ['Cargando', 'En Tránsito'].includes(b.status)).length
@@ -33,7 +39,11 @@ export const useMineralStore = defineStore('mineral', () => {
   async function fetchSupporting() {
     try {
       const vRes = await mineralApi.getAllVehicles()
-      vehicles.value = vRes.data || []
+      vehicles.value = (vRes.data || []).map(v => ({
+        id:    v.vehicleId || v.id,
+        name:  v.vehicleId || `Vehicle-${v.id}`,
+        plate: v.vehicleId || `V-${v.id}`
+      }))
     } catch {
       errors.value = ['fetchError']
     }
@@ -86,7 +96,7 @@ export const useMineralStore = defineStore('mineral', () => {
   }
 
   return {
-    batches, vehicles, alerts, errors, loading,
+    batches, vehicles, deposits, alerts, errors, loading,
     activeBatchCount, totalTonsToday, alertCount,
     fetchBatches, fetchSupporting, createBatch, registerInitialWeight, completeHaulingCycle
   }
