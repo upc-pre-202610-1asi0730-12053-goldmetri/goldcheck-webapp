@@ -1,28 +1,39 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js'
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js'
 
 class JewelryApi extends BaseApi {
-  #items
-  #certificates
-  #batches
-
   constructor() {
     super()
-    this.#items        = new BaseEndpoint(this.http, '/jewelryItems')
-    this.#certificates = new BaseEndpoint(this.http, '/jewelryCertificates')
-    this.#batches      = new BaseEndpoint(this.http, '/mineralBatches')
   }
 
-  getItems(params)             { return this.#items.getAll(params) }
-  getItemById(id)              { return this.#items.getById(id) }
-  createItem(data)             { return this.#items.create(data) }
-  updateItemStatus(id, status) { return this.#items.patch(id, { status }) }
-  validateItem(id)             { return this.#items.patch(id, { status: 'Validado' }) }
+  // Jewelry Materials
+  getAllMaterials() {
+    return this.http.get('/jewelry-materials')
+  }
 
-  getCertificates(params)      { return this.#certificates.getAll(params) }
-  createCertificate(data)      { return this.#certificates.create(data) }
+  getMaterialById(materialId) {
+    return this.http.get(`/jewelry-materials/${materialId}`)
+  }
 
-  getBatchByCode(code)         { return this.#batches.getAll({ batchCode: code }) }
+  registerMaterial(materialId, jewelerId) {
+    return this.http.post('/jewelry-materials', { materialId, jewelerId })
+  }
+
+  scanQR(materialId, qrCode) {
+    return this.http.put(`/jewelry-materials/${materialId}/scan`, { qrCode })
+  }
+
+  // Certificates
+  generateCertificate(materialId) {
+    return this.http.post('/certificates', { materialId })
+  }
+
+  getCertificateById(certificateId) {
+    return this.http.get(`/certificates/${certificateId}`)
+  }
+
+  signCertificate(certificateId, jewelerSignature) {
+    return this.http.put(`/certificates/${certificateId}/sign`, { jewelerSignature })
+  }
 }
 
 export const jewelryApi = new JewelryApi()
