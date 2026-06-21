@@ -25,10 +25,10 @@ async function handleLogin() {
   const ok = await iamStore.login(form.username, form.password)
   if (!ok) return
 
-  const role = iamStore.currentUser?.role
-  if (role === 'mining')        router.push({ name: 'fleet-dashboard' })
-  else if (role === 'jewelry')  router.push({ name: 'jewelry-dashboard' })
-  else                          router.push({ name: 'consumer-collection' })
+  const segment = iamStore.currentUser?.segment
+  if (segment === 'jewelry')       router.push({ name: 'jewelry-dashboard' })
+  else if (segment === 'consumer') router.push({ name: 'consumer-collection' })
+  else                             router.push({ name: 'fleet-dashboard' })
 }
 </script>
 
