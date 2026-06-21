@@ -10,11 +10,12 @@ class IamApi extends BaseApi {
   }
 
   signUp(data) {
+    const segmentToRole = { mining: 'Operator', jewelry: 'Jeweler', consumer: 'Consumer' }
     return this.http.post('/authentication/sign-up', {
       username: data.username,
       password: data.password,
       email:    data.email,
-      role:     data.segment
+      role:     segmentToRole[data.segment] || 'Operator'
     })
   }
 
