@@ -1,19 +1,37 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js'
-import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js'
 
 class AssetMaintenanceApi extends BaseApi {
-  #vehicles
-
   constructor() {
     super()
-    // Vehicles collection tracks asset state; maintenance records would be a dedicated endpoint
-    this.#vehicles = new BaseEndpoint(this.http, '/vehicles')
   }
 
-  getVehicles(params)             { return this.#vehicles.getAll(params) }
-  getVehicleById(id)              { return this.#vehicles.getById(id) }
-  updateVehicleStatus(id, status) { return this.#vehicles.patch(id, { status }) }
-  updateVehicle(id, data)         { return this.#vehicles.patch(id, data) }
+  getAllMachinery() {
+    return this.http.get('/machinery')
+  }
+
+  getMachineryById(machineryId) {
+    return this.http.get(`/machinery/${machineryId}`)
+  }
+
+  registerMachinery(data) {
+    return this.http.post('/machinery', {
+      machineryId: data.machineryId,
+      model:       data.model,
+      oem:         data.oem
+    })
+  }
+
+  updateEngineHours(machineryId, currentEngineHours) {
+    return this.http.put(`/machinery/${machineryId}`, { currentEngineHours })
+  }
+
+  scheduleMaintenance(machineryId, engineHours) {
+    return this.http.put(`/machinery/${machineryId}/schedule-maintenance`, { engineHours })
+  }
+
+  dischargeMachinery(machineryId, reason) {
+    return this.http.put(`/machinery/${machineryId}/discharge`, { reason })
+  }
 }
 
 export const assetMaintenanceApi = new AssetMaintenanceApi()
