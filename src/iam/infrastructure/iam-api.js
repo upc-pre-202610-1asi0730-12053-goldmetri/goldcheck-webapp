@@ -6,16 +6,16 @@ class IamApi extends BaseApi {
   }
 
   signIn(username, password) {
-    return this.http.post('/authentication/sign-in', { username, password })
+    return this.http.post('/authentication/sign-in', { Username: username, Password: password })
   }
 
   signUp(data) {
     const segmentToRole = { mining: 'Operator', jewelry: 'Jeweler', consumer: 'Consumer' }
     return this.http.post('/authentication/sign-up', {
-      username: data.username,
-      password: data.password,
-      email:    data.email,
-      role:     segmentToRole[data.segment] || 'Operator'
+      Username: data.username,
+      Password: data.password,
+      Email:    data.email,
+      Role:     segmentToRole[data.segment] || 'Operator'
     })
   }
 
