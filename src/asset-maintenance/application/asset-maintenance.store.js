@@ -2,6 +2,19 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { assetMaintenanceApi } from '../infrastructure/asset-maintenance-api.js'
 
+function toVehicle(r) {
+  return {
+    id:               r.id,
+    machineryId:      r.machineryId,
+    name:             `${r.oem} ${r.model}`,
+    plate:            r.machineryId,
+    type:             'Camión Minero',
+    maintenanceStatus: r.maintenanceStatus,
+    status:           r.maintenanceStatus === 'UnderMaintenance' ? 'Mantenimiento' : 'Disponible',
+    engineHours:      r.engineHours || 0
+  }
+}
+
 export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
   const machinery = ref([])
   const loading   = ref(false)
@@ -11,15 +24,15 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
   const maintenanceMachinery = computed(() => machinery.value.filter(m => m.maintenanceStatus === 'UnderMaintenance'))
   const activeCount          = computed(() => activeMachinery.value.length)
 
-  // keep backward-compat alias used by views that still reference "vehicles"
-  const vehicles = machinery
+  const vehicles            = machinery
+  const maintenanceVehicles = maintenanceMachinery
 
   async function fetchVehicles() {
     loading.value = true
     errors.value  = []
     try {
       const res = await assetMaintenanceApi.getAllMachinery()
-      machinery.value = res.data || []
+      machinery.value = (res.data || []).map(toVehicle)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -31,8 +44,8 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
     errors.value = []
     try {
       const res = await assetMaintenanceApi.scheduleMaintenance(machineryId, engineHours)
-      const idx = machinery.value.findIndex(m => m.machineryId === machineryId)
-      if (idx !== -1) machinery.value[idx] = res.data
+      const idx = machinery.value.findIndex(m => m.id === machineryId || m.machineryId === machineryId)
+      if (idx !== -1) machinery.value[idx] = toVehicle(res.data)
       return true
     } catch {
       errors.value = ['updateError']
@@ -44,8 +57,8 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
     errors.value = []
     try {
       const res = await assetMaintenanceApi.dischargeMachinery(machineryId, reason)
-      const idx = machinery.value.findIndex(m => m.machineryId === machineryId)
-      if (idx !== -1) machinery.value[idx] = res.data
+      const idx = machinery.value.findIndex(m => m.id === machineryId || m.machineryId === machineryId)
+      if (idx !== -1) machinery.value[idx] = toVehicle(res.data)
       return true
     } catch {
       errors.value = ['updateError']
@@ -67,7 +80,7 @@ export const useAssetMaintenanceStore = defineStore('asset-maintenance', () => {
 
   return {
     machinery, vehicles, loading, errors,
-    activeMachinery, maintenanceMachinery, activeCount,
+    activeMachinery, maintenanceMachinery, maintenanceVehicles, activeCount,
     fetchVehicles, sendToMaintenance, dischargeMachinery, registerMachinery
   }
 })
