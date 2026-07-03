@@ -29,6 +29,10 @@ class MonitoringApi extends BaseApi {
   registerCheckpoint(payload)    { return this.http.post('/monitoring/checkpoints', payload) }
   syncCheckpoints(checkpoints)   { return this.http.post('/monitoring/checkpoints/sync', { Checkpoints: checkpoints }) }
   getCheckpoints(batchId)        { return this.http.get(`/monitoring/checkpoints/${batchId}`) }
+
+  // US19 – Route alerts (delay / deviation)
+  evaluateRoute(payload)         { return this.http.post('/monitoring/route-alerts/evaluate', payload) }
+  getRouteAlerts(batchId)        { return this.http.get(`/monitoring/route-alerts/${batchId}`) }
 }
 
 export const monitoringApi = new MonitoringApi()

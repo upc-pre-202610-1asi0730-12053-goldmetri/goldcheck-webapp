@@ -6,13 +6,15 @@ export class MaterialReceptionAssembler {
     const payloadTons = resource.payloadTons ?? resource.PayloadTons ?? 0
     const mineralType = resource.mineralType ?? resource.MineralType ?? ''
     const status      = resource.status      ?? resource.Status      ?? ''
+    const finalWeight = resource.finalWeightTons ?? resource.FinalWeightTons ?? null
+    const shrinkage   = resource.shrinkagePercent ?? resource.ShrinkagePercent ?? null
     return new MaterialReception({
       id:               resource.id ?? resource.Id,
       batchId,
       batchCode:        batchId,
-      receivedWeight:   payloadTons,
+      receivedWeight:   finalWeight ?? payloadTons,
       initialWeight:    payloadTons,
-      shrinkagePercent: 0,
+      shrinkagePercent: shrinkage,
       mineralType,
       purityKarats:     null,
       status,

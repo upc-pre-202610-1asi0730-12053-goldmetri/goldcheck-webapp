@@ -25,6 +25,10 @@ class MaterialOperationsApi extends BaseApi {
     return this.http.put(`/materials/${batchId}/mineral-type`, { MineralType: mineralType })
   }
 
+  calculateShrinkage(batchId, finalWeightTons) {
+    return this.http.put(`/materials/${batchId}/shrinkage`, { FinalWeightTons: finalWeightTons })
+  }
+
   downloadMaterial(batchId, dumpingPoint) {
     return this.http.put(`/materials/${batchId}/download`, { DumpingPoint: dumpingPoint })
   }

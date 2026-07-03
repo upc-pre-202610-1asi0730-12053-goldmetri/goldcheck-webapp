@@ -90,6 +90,26 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
+  // US22 – Cálculo Automático de Merma
+  async function calculateShrinkage(batchId, finalWeightTons) {
+    errors.value = []
+    if (!finalWeightTons || finalWeightTons <= 0) { errors.value = ['finalWeightRequired']; return { ok: false } }
+    try {
+      const res = await materialOperationsApi.calculateShrinkage(batchId, finalWeightTons)
+      const entity = MaterialReceptionAssembler.toEntityFromResource(res.data)
+      const idx = receptions.value.findIndex(r => String(r.batchId) === String(batchId))
+      if (idx !== -1) receptions.value[idx] = entity
+      return {
+        ok: true,
+        shrinkagePercent: res.data?.shrinkagePercent ?? res.data?.ShrinkagePercent ?? 0,
+        underInvestigation: (res.data?.status ?? res.data?.Status) === 'UnderInvestigation',
+      }
+    } catch (e) {
+      errors.value = [e?.response?.status === 400 ? 'finalWeightInvalid' : 'updateError']
+      return { ok: false }
+    }
+  }
+
   // US20 – Track material movement → evento Material movement tracked
   async function confirmArrival(batchId) {
     errors.value = []
@@ -122,6 +142,6 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
   return {
     receptions, loading, errors,
     pendingCount, underInvestigation, criticalBatches,
-    fetchReceptions, identifyMineral, classifyMineral, changeMineralType, confirmArrival, registerFinalWeight
+    fetchReceptions, identifyMineral, classifyMineral, changeMineralType, calculateShrinkage, confirmArrival, registerFinalWeight
   }
 })
