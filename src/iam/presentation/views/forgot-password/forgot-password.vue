@@ -24,7 +24,14 @@ async function handleSubmit() {
     return
   }
 
-  sent.value = true
+  const ok = await iamStore.requestPasswordReset(email.value.trim())
+  // For security the backend always responds generically, so we show the same
+  // confirmation screen regardless. Only surface an error on network/server failure.
+  if (ok) {
+    sent.value = true
+  } else {
+    emailErr.value = t('auth.resetError')
+  }
 }
 </script>
 

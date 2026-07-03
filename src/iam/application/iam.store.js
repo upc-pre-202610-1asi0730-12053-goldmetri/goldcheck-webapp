@@ -116,6 +116,23 @@ export const useIamStore = defineStore('iam', () => {
     }
   }
 
+  // US09 – Password Recovery (request reset link)
+  async function requestPasswordReset(email) {
+    errors.value = []
+    loading.value = true
+    try {
+      await iamApi.requestPasswordReset(email)
+      // Scenario 2: backend always responds generically for security,
+      // so the outcome is the same whether or not the email is registered.
+      return true
+    } catch (e) {
+      errors.value = ['resetError']
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   // US02 – Support for plan upgrade from subscriptions bounded context
   function applyPlanUpgrade(planKey) {
     if (!currentUser.value) return
@@ -130,5 +147,5 @@ export const useIamStore = defineStore('iam', () => {
     localStorage.removeItem('gc_user')
   }
 
-  return { currentUser, token, errors, loading, isAuthenticated, login, register, fetchUserProfile, updateProfile, applyPlanUpgrade, logout }
+  return { currentUser, token, errors, loading, isAuthenticated, login, register, fetchUserProfile, updateProfile, requestPasswordReset, applyPlanUpgrade, logout }
 })

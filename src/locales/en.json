@@ -71,6 +71,7 @@
     "resetEmailSentTitle": "Check your email",
     "resetEmailSentDesc": "If the email is registered, you'll receive a reset link within the next few minutes.",
     "backToLogin": "Back to login",
+    "resetError": "The request could not be processed. Please try again.",
     "or": "or",
     "fieldRequired": "This field is required."
   },

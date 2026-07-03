@@ -71,6 +71,7 @@
     "resetEmailSentTitle": "Revisa tu correo",
     "resetEmailSentDesc": "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña en los próximos minutos.",
     "backToLogin": "Volver al inicio de sesión",
+    "resetError": "No se pudo procesar la solicitud. Intenta nuevamente.",
     "or": "o",
     "fieldRequired": "Este campo es obligatorio."
   },

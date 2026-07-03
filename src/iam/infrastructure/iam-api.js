@@ -19,6 +19,10 @@ class IamApi extends BaseApi {
     })
   }
 
+  requestPasswordReset(email) {
+    return this.http.post('/authentication/forgot-password', { Email: email })
+  }
+
   getUserById(userId) {
     return this.http.get(`/users/${userId}`)
   }
