@@ -63,8 +63,14 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString()
 }
 
+const capacityAlert = ref(false)
+
 async function onBatchCreated(batch) {
   showNewBatchModal.value = false
+  if (batch?.exceedsCapacity) {
+    capacityAlert.value = true
+    setTimeout(() => { capacityAlert.value = false }, 6000)
+  }
 }
 
 onMounted(async () => {
@@ -92,6 +98,11 @@ onMounted(async () => {
         />
         <pv-button :label="$t('mineral.newRecord')" icon="pi pi-plus" @click="showNewBatchModal = true" />
       </div>
+    </div>
+
+    <div v-if="capacityAlert" class="capacity-alert-banner">
+      <i class="pi pi-exclamation-triangle" />
+      <span>{{ $t('mineral.weighingCapacityAlert') }}</span>
     </div>
 
     <!-- KPI Cards -->
@@ -283,6 +294,18 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.capacity-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(234,179,8,.12);
+  color: #eab308;
+  border: 1px solid rgba(234,179,8,.3);
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
 .gc-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

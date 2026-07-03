@@ -1,28 +1,35 @@
 ﻿<script setup>
 import { ref, computed } from 'vue'
 import { useMineralStore } from '../../../application/mineral.store.js'
-import { useAssetMaintenanceStore } from '../../../../asset-maintenance/application/asset-maintenance.store.js'
+import { useMaterialOperationsStore } from '../../../../material-operations/application/material-operations.store.js'
 
 const emit = defineEmits(['close', 'created'])
-const mineralStore = useMineralStore()
-const assetStore   = useAssetMaintenanceStore()
+const mineralStore  = useMineralStore()
+const materialStore = useMaterialOperationsStore()
 
 const step = ref(1)
 const step1Error = ref(false)
+const step2Error = ref('')
 const createdBatch = ref(null)
 
 const form = ref({ depositId: '', vehicleId: '' })
 
-const simulatedWeight = ref(38.50)
+const grossWeight = ref(38.50)
 
+// US14 – the lote (batch) shares the hauling cycle id.
+const loteId = computed(() => createdBatch.value ? String(createdBatch.value.id) : '')
+
+// US14 – vehicles come from the Fleet registry (they carry technical capacity).
 const vehicleOptions = computed(() =>
-  assetStore.machinery.map(m => ({ id: m.machineryId, label: `${m.name} (${m.machineryId})` }))
+  mineralStore.vehicles.map(v => ({ id: v.id, label: `${v.name} (${v.capacity} t)` }))
 )
 
-const selectedVehicleName = computed(() => {
-  const m = assetStore.machinery.find(m => m.machineryId === form.value.vehicleId)
-  return m?.name || form.value.vehicleId || '—'
-})
+const selectedVehicle = computed(() =>
+  mineralStore.vehicles.find(v => v.id === form.value.vehicleId) || null
+)
+
+const selectedVehicleName = computed(() => selectedVehicle.value?.name || form.value.vehicleId || '—')
+const selectedCapacity    = computed(() => selectedVehicle.value?.capacity ?? null)
 
 const selectedDestination = computed(() => {
   const d = mineralStore.deposits.find(d => d.id === form.value.depositId)
@@ -41,8 +48,30 @@ async function goStep2() {
 
 async function handleSeal() {
   if (!createdBatch.value) return
-  await mineralStore.registerInitialWeight(createdBatch.value.id, simulatedWeight.value)
-  emit('created', createdBatch.value)
+  step2Error.value = ''
+  const cycleId = createdBatch.value.id
+
+  // US14 – ensure the lote exists in MaterialOperations before weighing (ACL-validated
+  // on the backend). The lote is created on the fly using the hauling cycle id.
+  // MineralType must match the backend's allowed set (Gold, Silver, Copper).
+  const created = await materialStore.identifyMineral(String(cycleId), 'Gold', grossWeight.value)
+  if (!created && materialStore.errors[0] !== 'materialExists') {
+    step2Error.value = 'mineral.weighingError'
+    return
+  }
+
+  const res = await mineralStore.registerInitialWeight(cycleId, grossWeight.value, String(cycleId))
+  if (res.ok) {
+    emit('created', { ...createdBatch.value, exceedsCapacity: res.exceedsCapacity })
+    return
+  }
+  const code = mineralStore.errors[0]
+  const map = {
+    weightRequired: 'mineral.weighingWeightRequired',
+    batchNotFound:  'mineral.weighingBatchNotFound',
+    weightError:    'mineral.weighingError',
+  }
+  step2Error.value = map[code] || 'mineral.weighingError'
 }
 </script>
 
@@ -106,14 +135,27 @@ async function handleSeal() {
         <div><span class="meta-label">{{ $t('mineral.destinationLabel') }}</span> {{ selectedDestination }}</div>
       </div>
 
-      <div class="balance-display" style="margin:1rem 0">
-        <span class="balance-online-badge">
-          <i class="pi pi-wifi" style="font-size:0.7rem" /> {{ $t('mineral.balanceOnline') }}
-        </span>
-        <div class="balance-value">
-          {{ simulatedWeight.toFixed(2) }}
-          <span class="balance-unit">{{ $t('mineral.tons') }}</span>
-        </div>
+      <div v-if="selectedCapacity !== null && selectedCapacity > 0" class="capacity-note">
+        <i class="pi pi-info-circle" />
+        {{ $t('mineral.weighingCapacityInfo', { capacity: selectedCapacity }) }}
+      </div>
+
+      <div class="form-field" style="margin-top:1rem">
+        <label>{{ $t('mineral.weighingBatchId') }}</label>
+        <div class="lote-readonly">HC-{{ loteId }}</div>
+      </div>
+
+      <div class="form-field">
+        <label for="gross-weight-input">{{ $t('mineral.weighingGrossWeight') }}</label>
+        <pv-input-number
+          id="gross-weight-input"
+          v-model="grossWeight"
+          :min-fraction-digits="2"
+          :max-fraction-digits="2"
+          :min="0"
+          suffix=" t"
+          fluid
+        />
       </div>
 
       <div class="balance-note">
@@ -121,8 +163,8 @@ async function handleSeal() {
         {{ $t('mineral.balanceNote') }}
       </div>
 
-      <div v-if="mineralStore.errors.length" class="gc-alert gc-alert-danger" style="margin-top:1rem">
-        {{ $t('mineral.weightInvalid') }}
+      <div v-if="step2Error" class="gc-alert gc-alert-danger" style="margin-top:1rem">
+        {{ $t(step2Error) }}
       </div>
     </div>
 
@@ -169,5 +211,24 @@ async function handleSeal() {
   color: var(--gc-text-muted);
   font-size: 0.8rem;
   display: block;
+}
+
+.capacity-note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--gc-gold-mid);
+  margin-top: 0.75rem;
+}
+
+.lote-readonly {
+  padding: 0.6rem 0.8rem;
+  background: var(--gc-dark-2);
+  border: 1px solid var(--gc-border);
+  border-radius: 8px;
+  color: var(--gc-text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 </style>
