@@ -71,7 +71,7 @@ export const useMineralStore = defineStore('mineral', () => {
       operatorId: String(v.operatorId || ''),
       status:     VEHICLE_STATUS_MAP[v.status] || 'Disponible',
       type:       'Camión Minero',
-      capacity:   50
+      capacity:   Number(v.capacity ?? v.Capacity ?? 0)
     }
   }
 
@@ -87,12 +87,12 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
-  async function registerVehicle(vehicleId) {
+  async function registerVehicle(vehicleId, capacity = 0) {
     const iamStore   = useIamStore()
     const operatorId = String(iamStore.currentUser?.userId || '')
     errors.value = []
     try {
-      const res = await mineralApi.registerVehicle(vehicleId, operatorId)
+      const res = await mineralApi.registerVehicle(vehicleId, operatorId, capacity)
       vehicles.value.push(mapVehicle(res.data))
       return res.data
     } catch (e) {
@@ -119,18 +119,23 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
-  // US14 – Load Material
-  async function registerInitialWeight(cycleId, payloadTons) {
+  // US14 – Registro de Pesaje Inicial
+  async function registerInitialWeight(cycleId, payloadTons, batchId) {
     errors.value = []
+    if (!payloadTons || payloadTons <= 0) { errors.value = ['weightRequired']; return { ok: false } }
+    if (!batchId || !String(batchId).trim()) { errors.value = ['batchRequired']; return { ok: false } }
     try {
-      if (!payloadTons || payloadTons <= 0) { errors.value = ['weightRequired']; return false }
-      const res = await mineralApi.loadMaterial(cycleId, payloadTons)
+      const res = await mineralApi.loadMaterial(cycleId, payloadTons, String(batchId).trim())
+      const data = res.data || {}
       const idx = batches.value.findIndex(b => b.id === cycleId)
-      if (idx !== -1) batches.value[idx] = MineralBatchAssembler.toEntityFromResource(res.data)
-      return true
-    } catch {
-      errors.value = ['weightError']
-      return false
+      if (idx !== -1) batches.value[idx] = MineralBatchAssembler.toEntityFromResource(data)
+      // US14 – Scenario 2: backend flags a preventive alert when the gross weight
+      // exceeds the vehicle's technical capacity (the weighing is still saved).
+      const exceedsCapacity = data.payloadExceedsCapacity ?? data.PayloadExceedsCapacity ?? false
+      return { ok: true, exceedsCapacity }
+    } catch (e) {
+      errors.value = [e?.response?.status === 404 ? 'batchNotFound' : 'weightError']
+      return { ok: false }
     }
   }
 

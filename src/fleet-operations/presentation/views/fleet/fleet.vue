@@ -10,12 +10,14 @@ onMounted(() => store.fetchSupporting())
 // ── Register Vehicle Modal ──────────────────────────────────────────────────
 const showRegisterModal = ref(false)
 const newVehicleId      = ref('')
+const newVehicleCapacity = ref(null)
 const vehicleIdError    = ref('')
 const registerSuccess   = ref(false)
 
 function openRegisterModal() {
-  newVehicleId.value   = ''
-  vehicleIdError.value = ''
+  newVehicleId.value    = ''
+  newVehicleCapacity.value = null
+  vehicleIdError.value  = ''
   registerSuccess.value = false
   showRegisterModal.value = true
 }
@@ -29,7 +31,12 @@ async function submitRegister() {
     vehicleIdError.value = 'Solo letras mayúsculas, números y guiones (3-20 chars)'
     return
   }
-  const res = await store.registerVehicle(id)
+  const capacity = Number(newVehicleCapacity.value)
+  if (!capacity || capacity <= 0) {
+    vehicleIdError.value = 'La capacidad técnica (toneladas) debe ser mayor a 0'
+    return
+  }
+  const res = await store.registerVehicle(id, capacity)
   if (res) {
     registerSuccess.value = true
     newVehicleId.value = ''
@@ -164,6 +171,21 @@ function translateVehicleType(type) {
             type="text"
             class="gc-input-dark"
             placeholder="Ej: MAC-002"
+            :class="{ 'input-error': vehicleIdError }"
+            style="width:100%;box-sizing:border-box"
+            @keyup.enter="submitRegister"
+          />
+
+          <label style="font-size:0.75rem;font-weight:600;color:var(--gc-text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin:1rem 0 0.4rem">
+            Capacidad Técnica (toneladas)
+          </label>
+          <input
+            v-model.number="newVehicleCapacity"
+            type="number"
+            min="0"
+            step="0.1"
+            class="gc-input-dark"
+            placeholder="Ej: 40"
             :class="{ 'input-error': vehicleIdError }"
             style="width:100%;box-sizing:border-box"
             @keyup.enter="submitRegister"

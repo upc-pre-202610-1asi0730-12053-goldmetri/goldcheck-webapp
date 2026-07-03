@@ -29,6 +29,7 @@ const navItems = computed(() => {
       { name: 'fleet-dashboard',       label: t('nav.dashboard'),       icon: 'pi pi-th-large',             to: '/app/fleet/dashboard' },
       { name: 'fleet-operations',      label: t('nav.operations'),      icon: 'pi pi-chart-line',           to: '/app/fleet/operations' },
       { name: 'fleet-vehicles',        label: t('nav.fleet'),           icon: 'pi pi-truck',                to: '/app/fleet/vehicles' },
+      { name: 'fleet-weighing',        label: t('nav.weighing'),        icon: 'pi pi-inbox',                to: '/app/fleet/weighing' },
       { name: 'material-dashboard',    label: t('nav.materialOps'),     icon: 'pi pi-server',               to: '/app/material/dashboard' },
       { name: 'monitoring-dashboard',  label: t('nav.monitoring'),      icon: 'pi pi-wifi',                 to: '/app/monitoring/dashboard' },
       { name: 'analytics-dashboard',   label: t('nav.analytics'),       icon: 'pi pi-chart-bar',            to: '/app/analytics/dashboard' },
