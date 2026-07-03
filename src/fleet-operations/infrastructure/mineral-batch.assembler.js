@@ -18,6 +18,7 @@ export class MineralBatchAssembler {
     const dumpingPoint  = resource.dumpingPoint  ?? resource.DumpingPoint  ?? ''
     const payload       = resource.payload       ?? resource.Payload
     const status        = resource.status        ?? resource.Status        ?? ''
+    const driverId      = resource.driverId      ?? resource.DriverId      ?? null
     return new MineralBatch({
       id,
       batchCode:     `HC-${id}`,
@@ -27,7 +28,8 @@ export class MineralBatchAssembler {
       destination:   dumpingPoint,
       initialWeight: payload ?? 0,
       status:        STATUS_MAP[status] || status,
-      mineralType:   'Oro'
+      mineralType:   'Oro',
+      driverId
     })
   }
 

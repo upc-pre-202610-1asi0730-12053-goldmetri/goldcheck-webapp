@@ -139,6 +139,21 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
+  // US15 – Asignación de Responsables (asignar conductor a un lote)
+  async function assignDriver(cycleId, driverId) {
+    errors.value = []
+    if (!driverId || !String(driverId).trim()) { errors.value = ['driverRequired']; return { ok: false } }
+    try {
+      const res = await mineralApi.assignDriver(cycleId, String(driverId).trim())
+      const idx = batches.value.findIndex(b => b.id === cycleId)
+      if (idx !== -1) batches.value[idx] = MineralBatchAssembler.toEntityFromResource(res.data)
+      return { ok: true }
+    } catch (e) {
+      errors.value = [e?.response?.status === 409 ? 'driverBusy' : 'driverError']
+      return { ok: false }
+    }
+  }
+
   // Complete hauling cycle
   async function completeHaulingCycle(cycleId, dumpingPoint) {
     errors.value = []
@@ -156,6 +171,6 @@ export const useMineralStore = defineStore('mineral', () => {
   return {
     batches, vehicles, deposits, alerts, errors, loading,
     activeBatchCount, totalTonsToday, alertCount,
-    fetchBatches, fetchSupporting, registerVehicle, createBatch, registerInitialWeight, completeHaulingCycle
+    fetchBatches, fetchSupporting, registerVehicle, createBatch, registerInitialWeight, assignDriver, completeHaulingCycle
   }
 })

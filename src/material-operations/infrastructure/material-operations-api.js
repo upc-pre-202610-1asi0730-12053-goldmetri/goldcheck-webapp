@@ -21,6 +21,10 @@ class MaterialOperationsApi extends BaseApi {
     return this.http.put(`/materials/${batchId}/classify`, { Classification: classification })
   }
 
+  changeMineralType(batchId, mineralType) {
+    return this.http.put(`/materials/${batchId}/mineral-type`, { MineralType: mineralType })
+  }
+
   downloadMaterial(batchId, dumpingPoint) {
     return this.http.put(`/materials/${batchId}/download`, { DumpingPoint: dumpingPoint })
   }

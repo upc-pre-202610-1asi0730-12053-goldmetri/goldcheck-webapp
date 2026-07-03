@@ -3,5 +3,6 @@ export default [
   { path: 'fleet/operations', name: 'fleet-operations', component: () => import('./views/operations/operations.vue') },
   { path: 'fleet/vehicles',   name: 'fleet-vehicles',   component: () => import('./views/fleet/fleet.vue') },
   { path: 'fleet/weighing',   name: 'fleet-weighing',   component: () => import('./views/weighing/weighing.vue') },
+  { path: 'fleet/custody',    name: 'fleet-custody',    component: () => import('./views/custody/custody.vue') },
   { path: 'fleet/reports',    name: 'fleet-reports',    component: () => import('./views/reports/reports.vue') }
 ]

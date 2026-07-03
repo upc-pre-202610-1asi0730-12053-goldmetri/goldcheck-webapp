@@ -74,6 +74,22 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
+  // US16 – Tipificación de Mineral (cambiar el tipo de mineral del lote)
+  async function changeMineralType(batchId, mineralType) {
+    errors.value = []
+    if (!mineralType) { errors.value = ['mineralTypeRequired']; return { ok: false } }
+    try {
+      const res = await materialOperationsApi.changeMineralType(batchId, mineralType)
+      const idx = receptions.value.findIndex(r => String(r.batchId) === String(batchId))
+      if (idx !== -1) receptions.value[idx] = MaterialReceptionAssembler.toEntityFromResource(res.data)
+      return { ok: true }
+    } catch (e) {
+      const s = e?.response?.status
+      errors.value = [s === 409 ? 'mineralTypeBlocked' : s === 400 ? 'mineralTypeInvalid' : 'updateError']
+      return { ok: false }
+    }
+  }
+
   // US20 – Track material movement → evento Material movement tracked
   async function confirmArrival(batchId) {
     errors.value = []
@@ -106,6 +122,6 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
   return {
     receptions, loading, errors,
     pendingCount, underInvestigation, criticalBatches,
-    fetchReceptions, identifyMineral, classifyMineral, confirmArrival, registerFinalWeight
+    fetchReceptions, identifyMineral, classifyMineral, changeMineralType, confirmArrival, registerFinalWeight
   }
 })
