@@ -24,7 +24,8 @@ const router = createRouter({
         { path: 'login',    name: 'login',    component: () => import('./iam/presentation/views/login/login.vue') },
         { path: 'register', name: 'register', component: () => import('./iam/presentation/views/register/register.vue') },
         { path: 'plans',    name: 'plan-selection',   component: () => import('./iam/presentation/views/plan-selection/plan-selection.vue') },
-        { path: 'forgot',   name: 'forgot-password',  component: () => import('./iam/presentation/views/forgot-password/forgot-password.vue') }
+        { path: 'forgot',   name: 'forgot-password',  component: () => import('./iam/presentation/views/forgot-password/forgot-password.vue') },
+        { path: 'reset',    name: 'reset-password',   component: () => import('./iam/presentation/views/reset-password/reset-password.vue') }
       ]
     },
 
