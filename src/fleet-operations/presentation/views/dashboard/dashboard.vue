@@ -31,6 +31,7 @@ const iotEvents = computed(() => [
 function statusSeverity(status) {
   const map = {
     'Cargando':    'warn',
+    'Pesado':      'secondary',
     'En Tránsito': 'info',
     'En Balanza':  'secondary',
     'Completado':  'success',
@@ -42,6 +43,7 @@ function statusSeverity(status) {
 function translateStatus(status) {
   const map = {
     'Cargando':           t('mineral.statusLoading'),
+    'Pesado':             t('mineral.statusWeighed'),
     'En Tránsito':        t('mineral.statusInTransit'),
     'En Balanza':         t('mineral.statusOnScale'),
     'En Planta':          t('mineral.statusAtPlant'),

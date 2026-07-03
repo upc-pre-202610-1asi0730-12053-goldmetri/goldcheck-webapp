@@ -4,5 +4,6 @@ export default [
   { path: 'fleet/vehicles',   name: 'fleet-vehicles',   component: () => import('./views/fleet/fleet.vue') },
   { path: 'fleet/weighing',   name: 'fleet-weighing',   component: () => import('./views/weighing/weighing.vue') },
   { path: 'fleet/custody',    name: 'fleet-custody',    component: () => import('./views/custody/custody.vue') },
+  { path: 'fleet/start-route', name: 'fleet-start-route', component: () => import('./views/start-route/start-route.vue') },
   { path: 'fleet/reports',    name: 'fleet-reports',    component: () => import('./views/reports/reports.vue') }
 ]

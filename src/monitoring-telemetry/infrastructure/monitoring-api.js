@@ -24,6 +24,11 @@ class MonitoringApi extends BaseApi {
 
   monitorGNSS(assetId)          { return this.http.post('/monitoring/gnss/monitor', { assetId }) }
   getGNSS(assetId)              { return this.http.get(`/monitoring/gnss/${assetId}`) }
+
+  // US18 – Checkpoints
+  registerCheckpoint(payload)    { return this.http.post('/monitoring/checkpoints', payload) }
+  syncCheckpoints(checkpoints)   { return this.http.post('/monitoring/checkpoints/sync', { Checkpoints: checkpoints }) }
+  getCheckpoints(batchId)        { return this.http.get(`/monitoring/checkpoints/${batchId}`) }
 }
 
 export const monitoringApi = new MonitoringApi()

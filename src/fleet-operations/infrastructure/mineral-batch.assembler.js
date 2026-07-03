@@ -3,8 +3,9 @@ import { MineralBatch } from '../domain/model/mineral-batch.entity.js'
 const STATUS_MAP = {
   HaulingCycleStarted:   'Cargando',
   Started:               'Cargando',
-  MaterialLoaded:        'En Tránsito',
-  Loaded:                'En Tránsito',
+  MaterialLoaded:        'Pesado',
+  Loaded:                'Pesado',
+  InTransit:             'En Tránsito',
   HaulingCycleCompleted: 'Completado',
   Completed:             'Completado',
   RouteProgressUpdated:  'En Tránsito'

@@ -25,6 +25,10 @@ class MineralApi extends BaseApi {
     return this.http.put(`/hauling-cycles/${cycleId}/assign-driver`, { DriverId: driverId })
   }
 
+  startRoute(cycleId) {
+    return this.http.put(`/hauling-cycles/${cycleId}/start-route`)
+  }
+
   completeHaulingCycle(cycleId, dumpingPoint) {
     return this.http.put(`/hauling-cycles/${cycleId}/complete`, { DumpingPoint: dumpingPoint })
   }

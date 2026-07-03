@@ -35,7 +35,7 @@ export const useMineralStore = defineStore('mineral', () => {
   ])
 
   const activeBatchCount = computed(() =>
-    batches.value.filter(b => ['Cargando', 'En Tránsito'].includes(b.status)).length
+    batches.value.filter(b => ['Cargando', 'Pesado', 'En Tránsito'].includes(b.status)).length
   )
   const totalTonsToday = computed(() =>
     batches.value.reduce((sum, b) => sum + (b.initialWeight || 0), 0)
@@ -154,6 +154,20 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
+  // US17 – Inicio de Ruta (marcar salida → En Tránsito)
+  async function startRoute(cycleId) {
+    errors.value = []
+    try {
+      const res = await mineralApi.startRoute(cycleId)
+      const idx = batches.value.findIndex(b => b.id === cycleId)
+      if (idx !== -1) batches.value[idx] = MineralBatchAssembler.toEntityFromResource(res.data)
+      return { ok: true }
+    } catch (e) {
+      errors.value = [e?.response?.status === 409 ? 'routeRequiresWeighing' : 'routeError']
+      return { ok: false }
+    }
+  }
+
   // Complete hauling cycle
   async function completeHaulingCycle(cycleId, dumpingPoint) {
     errors.value = []
@@ -171,6 +185,6 @@ export const useMineralStore = defineStore('mineral', () => {
   return {
     batches, vehicles, deposits, alerts, errors, loading,
     activeBatchCount, totalTonsToday, alertCount,
-    fetchBatches, fetchSupporting, registerVehicle, createBatch, registerInitialWeight, assignDriver, completeHaulingCycle
+    fetchBatches, fetchSupporting, registerVehicle, createBatch, registerInitialWeight, assignDriver, startRoute, completeHaulingCycle
   }
 })
