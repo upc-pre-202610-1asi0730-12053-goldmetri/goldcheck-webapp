@@ -83,6 +83,34 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
+  // US36 – stable per-device identifier for the anti-spam rate limit (survives sessions).
+  function deviceId() {
+    let id = localStorage.getItem('gc_device_id')
+    if (!id) {
+      id = (crypto?.randomUUID?.() || `dev-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`)
+      localStorage.setItem('gc_device_id', id)
+    }
+    return id
+  }
+
+  // US36 – report a suspicious QR. Returns { ok } or { ok:false, rateLimited } when the
+  // backend blocks the 4th report within 5 minutes (HTTP 429).
+  async function reportIrregularity(qrCode, reason) {
+    errors.value = []
+    loading.value = true
+    try {
+      await consumerApi.reportIrregularity(qrCode, deviceId(), reason, currentUserId())
+      return { ok: true }
+    } catch (e) {
+      const status = e?.response?.status
+      if (status === 429) { errors.value = ['rateLimited']; return { ok: false, rateLimited: true } }
+      errors.value = ['reportError']
+      return { ok: false, rateLimited: false }
+    } finally {
+      loading.value = false
+    }
+  }
+
   // US34/US35 – real traceability life sheet composed server-side from the other BCs.
   async function fetchTraceabilitySheet(qrCode) {
     try {
@@ -104,6 +132,6 @@ export const useConsumerStore = defineStore('consumer', () => {
 
   return {
     pieces, certificates, errors, loading,
-    fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchJourney, fetchTraceabilitySheet, getCertificate
+    fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchJourney, fetchTraceabilitySheet, reportIrregularity, getCertificate
   }
 })

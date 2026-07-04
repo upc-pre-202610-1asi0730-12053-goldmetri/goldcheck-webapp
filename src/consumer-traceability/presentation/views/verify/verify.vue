@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import { useI18n } from 'vue-i18n'
@@ -47,6 +47,45 @@ function switchMode(m) {
   result.value   = null
   searched.value = false
   sheet.value    = null
+}
+
+// US37 – shareable traceability link + WhatsApp deep link.
+const copied = ref(false)
+const shareUrl = computed(() => {
+  const qr = result.value?.qrCode || code.value.trim()
+  return `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(qr)}`
+})
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(shareUrl.value)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  } catch {
+    copied.value = false
+  }
+}
+function shareWhatsApp() {
+  const text = `${t('consumer.shareText')} ${shareUrl.value}`
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
+}
+
+// US36 – report a suspicious QR code.
+const showReport   = ref(false)
+const reportReason = ref('')
+const reportState  = ref('idle') // idle | sent | error | limited
+const reporting    = ref(false)
+function toggleReport() {
+  showReport.value = !showReport.value
+  reportState.value = 'idle'
+}
+async function submitReport() {
+  if (reportReason.value.trim().length < 5) { reportState.value = 'error'; return }
+  reporting.value = true
+  const qr  = result.value?.qrCode || code.value.trim()
+  const res = await store.reportIrregularity(qr, reportReason.value.trim())
+  reporting.value = false
+  if (res.ok) { reportState.value = 'sent'; reportReason.value = '' }
+  else reportState.value = res.rateLimited ? 'limited' : 'error'
 }
 
 async function startCamera() {
@@ -234,6 +273,48 @@ onUnmounted(() => stopCamera())
           <i v-else class="pi pi-sitemap" />
           {{ $t('trace.viewMineralOrigin') }}
         </button>
+
+        <!-- US37 – share the traceability link -->
+        <div class="share-bar">
+          <span class="share-label">{{ $t('consumer.shareTitle') }}</span>
+          <div class="share-actions">
+            <button class="share-btn" @click="copyLink">
+              <i :class="copied ? 'pi pi-check' : 'pi pi-copy'" />
+              {{ copied ? $t('consumer.shareCopied') : $t('consumer.shareCopy') }}
+            </button>
+            <button class="share-btn wa" @click="shareWhatsApp">
+              <i class="pi pi-whatsapp" /> WhatsApp
+            </button>
+          </div>
+        </div>
+
+        <!-- US36 – report a suspicious QR -->
+        <button class="report-link" @click="toggleReport">
+          <i class="pi pi-flag" /> {{ $t('consumer.reportSuspicious') }}
+        </button>
+
+        <div v-if="showReport" class="report-box">
+          <template v-if="reportState !== 'sent'">
+            <label class="report-label">{{ $t('consumer.reportReasonLabel') }}</label>
+            <textarea
+              v-model="reportReason"
+              class="report-input"
+              rows="3"
+              :placeholder="$t('consumer.reportReasonPh')"
+            />
+            <p v-if="reportState === 'error'" class="report-msg error">{{ $t('consumer.reportError') }}</p>
+            <p v-if="reportState === 'limited'" class="report-msg error">{{ $t('consumer.reportRateLimited') }}</p>
+            <button class="gc-btn gc-btn-gold" style="width:100%" :disabled="reporting" @click="submitReport">
+              <i v-if="reporting" class="pi pi-spin pi-spinner" />
+              <i v-else class="pi pi-send" />
+              {{ $t('consumer.reportSubmit') }}
+            </button>
+          </template>
+          <div v-else class="report-success">
+            <i class="pi pi-check-circle" />
+            <p>{{ $t('consumer.reportSent') }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- US34 – Scenario 2: loading skeletons prioritising text over the map -->
@@ -434,4 +515,34 @@ onUnmounted(() => stopCamera())
 .partner-badge { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.7rem; border-radius: 20px; }
 .partner-badge.ok { color: #4ade80; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); }
 .partner-badge.warn { color: #eab308; background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.3); }
+
+/* US37 – share bar */
+.share-bar { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); }
+.share-label { display: block; font-size: 0.75rem; color: var(--gc-text-muted); margin-bottom: 0.5rem; }
+.share-actions { display: flex; gap: 0.5rem; }
+.share-btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  background: transparent; border: 1px solid var(--gc-border); color: var(--gc-text-secondary);
+}
+.share-btn:hover { border-color: var(--gc-gold-mid); color: var(--gc-text-primary); }
+.share-btn.wa { color: #25d366; border-color: rgba(37,211,102,0.4); }
+.share-btn.wa:hover { border-color: #25d366; background: rgba(37,211,102,0.08); }
+
+/* US36 – report */
+.report-link {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1rem;
+  background: none; border: none; cursor: pointer; padding: 0;
+  font-size: 0.8rem; color: var(--gc-text-muted);
+}
+.report-link:hover { color: var(--gc-danger); }
+.report-box { margin-top: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--gc-border); border-radius: 10px; padding: 1rem; }
+.report-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--gc-text-muted); margin-bottom: 0.4rem; }
+.report-input { width: 100%; box-sizing: border-box; padding: 0.6rem; background: var(--gc-dark-2); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.85rem; font-family: inherit; resize: vertical; margin-bottom: 0.6rem; }
+.report-input:focus { outline: none; border-color: var(--gc-gold-mid); }
+.report-msg { font-size: 0.78rem; margin: 0 0 0.6rem; }
+.report-msg.error { color: var(--gc-danger); }
+.report-success { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.5rem; color: #4ade80; }
+.report-success i { font-size: 1.6rem; }
+.report-success p { font-size: 0.85rem; font-weight: 600; margin: 0; }
 </style>

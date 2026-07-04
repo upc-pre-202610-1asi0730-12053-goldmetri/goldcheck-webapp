@@ -20,6 +20,11 @@ class ConsumerApi extends BaseApi {
     return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}/traceability-sheet`)
   }
 
+  // US36 – report a suspicious QR code (rate-limited per device on the backend).
+  reportIrregularity(qrCode, deviceId, reason, consumerId) {
+    return this.http.post('/consumer/reports', { QRCode: qrCode, DeviceId: deviceId, Reason: reason, ConsumerId: consumerId })
+  }
+
   getCertificateById(certificateId) {
     return this.http.get(`/consumer/certificates/${certificateId}`)
   }
