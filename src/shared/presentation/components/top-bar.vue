@@ -35,7 +35,7 @@ const allSuggestions = computed(() => {
     { icon: 'pi pi-th-large',  label: t('common.sugDashboard'),      desc: t('common.sugDashboardDesc'),       to: '/app/jewelry/dashboard' },
     { icon: 'pi pi-box',       label: t('common.sugInventory'),      desc: t('common.sugInventoryDesc'),       to: '/app/jewelry/inventory' },
     { icon: 'pi pi-sitemap',   label: t('common.sugMineralOrigin'),  desc: t('common.sugMineralOriginDesc'),   to: '/app/jewelry/mineral-origin' },
-    { icon: 'pi pi-qrcode',    label: t('common.sugCertifications'), desc: t('common.sugCertificationsDesc'), to: '/app/jewelry/certifications' },
+    { icon: 'pi pi-qrcode',    label: t('common.sugCertifications'), desc: t('common.sugCertificationsDesc'), to: '/app/jewelry/qr' },
     { icon: 'pi pi-chart-bar', label: t('common.sugReports'),        desc: t('common.sugReportsDesc'),         to: '/app/jewelry/reports' },
   ]
   return [

@@ -23,7 +23,6 @@
     "inventory": "Inventario",
     "reports": "Reportes",
     "settings": "Configuración",
-    "qrCertifications": "Certificaciones QR",
     "myCollection": "Mi Colección",
     "verifyJewel": "Verificar joya",
     "certificates": "Certificados",
@@ -365,7 +364,6 @@
     "registerSuccess": "Pieza registrada correctamente.",
     "registerBtn": "Registrar Pieza",
     "certificationsTitle": "Certificaciones QR",
-    "certificationsSubtitle": "Gestiona los certificados digitales de tus piezas.",
     "noCertificates": "No hay certificados emitidos.",
     "certIssuer": "EMISOR",
     "certPurity": "PUREZA",
@@ -603,13 +601,7 @@
     "qrOriginMine": "Origen: Mina directa",
     "qrOriginChanged": "Origen actualizado.",
     "qrOriginLocked": "No se puede cambiar el origen raíz de una pieza reciclada.",
-    "qrOriginError": "No se pudo cambiar el origen.",
-    "certBatchPh": "Ej: 6",
-    "certLookupBtn": "Generar QR",
-    "batchNotFound": "Batch ID no encontrado. Verifica que el material exista.",
-    "certCardTitle": "Certificado de Trazabilidad",
-    "certMineralType": "TIPO MINERAL",
-    "certPayload": "PESO (TONS)"
+    "qrOriginError": "No se pudo cambiar el origen."
   },
   "consumer": {
     "collectionTitle": "Mi Colección Certificada",

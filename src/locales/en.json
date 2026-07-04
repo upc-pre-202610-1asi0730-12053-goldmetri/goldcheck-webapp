@@ -23,7 +23,6 @@
     "inventory": "Inventory",
     "reports": "Reports",
     "settings": "Settings",
-    "qrCertifications": "QR Certifications",
     "myCollection": "My Collection",
     "verifyJewel": "Verify Jewel",
     "certificates": "Certificates",
@@ -365,7 +364,6 @@
     "registerSuccess": "Piece registered successfully.",
     "registerBtn": "Register Piece",
     "certificationsTitle": "QR Certifications",
-    "certificationsSubtitle": "Manage digital certificates for your pieces.",
     "noCertificates": "No certificates issued.",
     "certIssuer": "ISSUER",
     "certPurity": "PURITY",
@@ -603,13 +601,7 @@
     "qrOriginMine": "Origin: Direct mine",
     "qrOriginChanged": "Origin updated.",
     "qrOriginLocked": "The root origin of a recycled piece cannot be changed.",
-    "qrOriginError": "The origin could not be changed.",
-    "certBatchPh": "E.g.: 6",
-    "certLookupBtn": "Generate QR",
-    "batchNotFound": "Batch ID not found. Make sure the material exists.",
-    "certCardTitle": "Traceability Certificate",
-    "certMineralType": "MINERAL TYPE",
-    "certPayload": "WEIGHT (TONS)"
+    "qrOriginError": "The origin could not be changed."
   },
   "consumer": {
     "collectionTitle": "My Certified Collection",
