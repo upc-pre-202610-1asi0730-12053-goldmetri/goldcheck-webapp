@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import { useI18n } from 'vue-i18n'
@@ -12,53 +12,33 @@ const searched    = ref(false)
 const mode        = ref('manual')
 const cameraState = ref('idle') // idle | requesting | scanning | denied | detected
 
-const traceBatch    = ref(null)
-const traceLoading  = ref(false)
+// US34 – real traceability "life sheet" composed server-side from the other BCs.
+const sheet        = ref(null)
+const sheetLoading = ref(false)
 
 let scanner = null
 
 async function verify() {
   if (!code.value.trim()) return
-  result.value     = null
-  searched.value   = false
-  traceBatch.value = null
+  result.value   = null
+  searched.value = false
+  sheet.value    = null
   const found = await store.verifyPiece(code.value.trim())
   result.value   = found
   searched.value = true
 }
 
-async function loadMineralTrace() {
+// US34 – Scenario 1: load origin mine, mineral type, purity and seller status.
+async function loadSheet() {
   const qr = result.value?.qrCode || code.value.trim()
   if (!qr) return
-  traceLoading.value = true
-  traceBatch.value   = null
+  sheetLoading.value = true
+  sheet.value        = null
   try {
-    traceBatch.value = await store.fetchJourney(qr)
+    sheet.value = await store.fetchTraceabilitySheet(qr)
   } finally {
-    traceLoading.value = false
+    sheetLoading.value = false
   }
-}
-
-const mineralEvents = computed(() => {
-  if (!traceBatch.value) return []
-  const b    = traceBatch.value
-  const base = new Date(b.createdAt)
-  const seed = b.batchCode.replace(/\D/g, '').slice(-4).padStart(4, '0')
-
-  const events = [
-    { icon: 'pi-map-marker', color: '#3b82f6', title: t('trace.eventExtraction'), actor: b.depositName,                        date: base,                                    tx: `0x${seed}A1B2` },
-    { icon: 'pi-truck',      color: '#f59e0b', title: t('trace.eventTransport'),  actor: b.vehicleName || 'Transport Vehicle', date: new Date(base.getTime() + 2 * 3600000),  tx: `0x${seed}C3D4` },
-    { icon: 'pi-map',        color: '#eab308', title: t('trace.eventLocation'),   actor: 'GPS Auto — Ruta Sur',                date: new Date(base.getTime() + 8 * 3600000),  tx: `0x${seed}E5F6` },
-  ]
-  if (b.status === 'Completado' || b.finalWeight) {
-    events.push({ icon: 'pi-building', color: '#4ade80', title: t('trace.eventReceived'), actor: 'Joyería Elite S.A.C.', date: new Date(base.getTime() + 24 * 3600000), tx: `0x${seed}G7H8` })
-  }
-  return events
-})
-
-function formatTraceDate(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function switchMode(m) {
@@ -66,6 +46,7 @@ function switchMode(m) {
   mode.value = m
   result.value   = null
   searched.value = false
+  sheet.value    = null
 }
 
 async function startCamera() {
@@ -245,25 +226,75 @@ onUnmounted(() => stopCamera())
 
         <button
           class="origin-btn"
-          :disabled="traceLoading"
-          @click="loadMineralTrace"
+          :disabled="sheetLoading"
+          @click="loadSheet"
           style="margin-top:1.25rem;width:100%"
         >
-          <i v-if="traceLoading" class="pi pi-spin pi-spinner" />
+          <i v-if="sheetLoading" class="pi pi-spin pi-spinner" />
           <i v-else class="pi pi-sitemap" />
           {{ $t('trace.viewMineralOrigin') }}
         </button>
       </div>
 
-      <!-- Journey -->
-      <div v-if="traceBatch" class="trace-origin-box">
+      <!-- US34 – Scenario 2: loading skeletons prioritising text over the map -->
+      <div v-if="sheetLoading" class="sheet-box">
         <p class="trace-origin-title">
           <i class="pi pi-sitemap" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
           {{ $t('trace.traceTitle') }}
         </p>
-        <div class="trace-row" style="margin-top:0.5rem"><span>{{ $t('consumer.journeySummary') }}</span><strong>{{ traceBatch.journeySummary }}</strong></div>
-        <div class="trace-row"><span>{{ $t('consumer.journeyStatus') }}</span><strong>{{ traceBatch.status }}</strong></div>
-        <div class="trace-row" style="border:none"><span>Consumer ID</span><strong>{{ traceBatch.consumerId }}</strong></div>
+        <div class="sk sk-row" v-for="n in 4" :key="'sk'+n" />
+        <div class="sk sk-map" />
+      </div>
+
+      <!-- US34 – Scenario 1: real life sheet (origin mine, mineral type, purity) -->
+      <div v-else-if="sheet" class="sheet-box">
+        <p class="trace-origin-title">
+          <i class="pi pi-sitemap" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
+          {{ $t('trace.traceTitle') }}
+        </p>
+
+        <!-- Recycled (client) gold has no mining origin -->
+        <div v-if="sheet.isRecycled" class="recycled-note">
+          <i class="pi pi-sync" /> {{ $t('trace.recycledOrigin') }}
+        </div>
+
+        <!-- Text data first (higher priority under poor connectivity) -->
+        <div class="trace-row"><span>{{ $t('trace.originMine') }}</span>
+          <strong>{{ sheet.originMine || '—' }}</strong>
+        </div>
+        <div class="trace-row"><span>{{ $t('trace.mineralType') }}</span>
+          <strong>{{ sheet.mineralType || '—' }}</strong>
+        </div>
+        <div class="trace-row"><span>{{ $t('trace.purity') }}</span>
+          <strong v-if="sheet.verifiedKarats">{{ sheet.verifiedKarats }}k</strong>
+          <span v-else class="muted">{{ $t('trace.purityPending') }}</span>
+        </div>
+        <div class="trace-row" style="border:none"><span>{{ $t('trace.originBatch') }}</span>
+          <strong style="font-family:monospace;color:var(--gc-gold-mid)">{{ sheet.originBatchId || '—' }}</strong>
+        </div>
+
+        <!-- Map (lower priority; only when there is a real origin mine) -->
+        <div v-if="sheet.originMine" class="mini-map">
+          <div class="map-grid" />
+          <div class="map-pin"><i class="pi pi-map-marker" /></div>
+          <div class="map-label"><i class="pi pi-map-marker" /> {{ sheet.originMine }}</div>
+        </div>
+
+        <!-- US35 – commercial section: seller name + authorized-partner badge -->
+        <div class="commercial">
+          <p class="commercial-title">{{ $t('trace.commercialTitle') }}</p>
+          <div class="trace-row"><span>{{ $t('trace.seller') }}</span>
+            <strong>{{ sheet.jewelerName || '—' }}</strong>
+          </div>
+          <!-- US35 Scenario 1: badge only when the membership is active -->
+          <div v-if="sheet.jewelerAuthorized" class="partner-badge ok">
+            <i class="pi pi-verified" /> {{ $t('trace.authorizedPartner') }}
+          </div>
+          <!-- US35 Scenario 2: expired/suspended membership → no badge -->
+          <div v-else class="partner-badge warn">
+            <i class="pi pi-exclamation-triangle" /> {{ $t('trace.unverifiedPartner') }}
+          </div>
+        </div>
       </div>
 
     </div>
@@ -364,4 +395,43 @@ onUnmounted(() => stopCamera())
 .origin-meta i { font-size: 0.68rem; color: var(--gc-text-muted); }
 
 .origin-tx { font-size: 0.68rem; font-family: monospace; color: var(--gc-gold-mid); margin-top: 0.2rem; }
+
+/* US34 – life sheet */
+.sheet-box {
+  width: 100%; max-width: 420px; margin-top: 1rem;
+  background: var(--gc-dark-card); border: 1px solid var(--gc-border);
+  border-radius: 12px; padding: 1.5rem;
+}
+.muted { color: var(--gc-text-muted); font-size: 0.8rem; }
+.recycled-note {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin: 0.25rem 0 0.75rem;
+  font-size: 0.75rem; font-weight: 700; color: #2dd4bf;
+  background: rgba(45,212,191,.12); padding: 0.25rem 0.6rem; border-radius: 20px;
+}
+
+/* US34 Scenario 2 – skeletons (text rows first, map last) */
+.sk { border-radius: 8px; background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.05) 63%); background-size: 400% 100%; animation: shimmer 1.3s ease-in-out infinite; }
+.sk-row { height: 18px; margin: 0.6rem 0; }
+.sk-row:nth-child(2) { width: 90%; } .sk-row:nth-child(3) { width: 75%; } .sk-row:nth-child(4) { width: 85%; }
+.sk-map { height: 120px; margin-top: 1rem; }
+@keyframes shimmer { 0% { background-position: 100% 0 } 100% { background-position: 0 0 } }
+
+/* US34 – location-based mini map (no coordinates available, marker by mine name) */
+.mini-map {
+  position: relative; height: 130px; margin-top: 1rem; border-radius: 10px; overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, rgba(178,148,78,0.18), rgba(26,26,46,0.9));
+  border: 1px solid var(--gc-border);
+}
+.map-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 26px 26px; }
+.map-pin { position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%); color: var(--gc-gold-mid); font-size: 1.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); animation: pin-drop 0.4s ease; }
+@keyframes pin-drop { 0% { transform: translate(-50%, -140%); opacity: 0 } 100% { transform: translate(-50%, -50%); opacity: 1 } }
+.map-label { position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 600; color: var(--gc-text-primary); background: rgba(0,0,0,0.45); padding: 0.3rem 0.5rem; border-radius: 6px; }
+.map-label i { color: var(--gc-gold-mid); }
+
+/* US35 – commercial section */
+.commercial { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--gc-border); }
+.commercial-title { font-size: 0.8rem; font-weight: 700; color: var(--gc-text-primary); margin-bottom: 0.5rem; }
+.partner-badge { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.7rem; border-radius: 20px; }
+.partner-badge.ok { color: #4ade80; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); }
+.partner-badge.warn { color: #eab308; background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.3); }
 </style>

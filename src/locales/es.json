@@ -1131,7 +1131,16 @@
     "mineralOriginSubtitle": "Descubre de dónde proviene el oro de tu joya.",
     "initialWeight": "Peso Inicial",
     "finalWeight": "Peso Final",
-    "mineralType": "Tipo de Mineral"
+    "mineralType": "Tipo de Mineral",
+    "originMine": "Mina de Origen",
+    "purity": "Pureza Verificada",
+    "purityPending": "Pendiente de ensayo",
+    "originBatch": "Lote Minero",
+    "recycledOrigin": "Oro reciclado (de cliente) — sin origen minero",
+    "commercialTitle": "Comercio",
+    "seller": "Joyería",
+    "authorizedPartner": "Socio Autorizado GoldMetrics",
+    "unverifiedPartner": "Autorización no vigente"
   },
   "common": {
     "search": "Buscar...",

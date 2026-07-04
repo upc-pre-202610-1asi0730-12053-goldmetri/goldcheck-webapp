@@ -83,6 +83,16 @@ export const useConsumerStore = defineStore('consumer', () => {
     }
   }
 
+  // US34/US35 – real traceability life sheet composed server-side from the other BCs.
+  async function fetchTraceabilitySheet(qrCode) {
+    try {
+      const res = await consumerApi.getTraceabilitySheet(qrCode)
+      return res.data || null
+    } catch {
+      return null
+    }
+  }
+
   async function getCertificate(certificateId) {
     try {
       const res = await consumerApi.getCertificateById(certificateId)
@@ -94,6 +104,6 @@ export const useConsumerStore = defineStore('consumer', () => {
 
   return {
     pieces, certificates, errors, loading,
-    fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchJourney, getCertificate
+    fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchJourney, fetchTraceabilitySheet, getCertificate
   }
 })

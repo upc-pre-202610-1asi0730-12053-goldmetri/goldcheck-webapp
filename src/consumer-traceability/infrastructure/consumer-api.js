@@ -15,6 +15,11 @@ class ConsumerApi extends BaseApi {
     return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}/journey`)
   }
 
+  // US34/US35 – composed life sheet: origin mine, mineral type, purity and seller authorization.
+  getTraceabilitySheet(qrCode) {
+    return this.http.get(`/consumer/products/${encodeURIComponent(qrCode)}/traceability-sheet`)
+  }
+
   getCertificateById(certificateId) {
     return this.http.get(`/consumer/certificates/${certificateId}`)
   }

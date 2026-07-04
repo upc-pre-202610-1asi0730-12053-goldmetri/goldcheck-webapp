@@ -1130,7 +1130,16 @@
     "mineralOriginSubtitle": "See where the gold in your jewelry comes from.",
     "initialWeight": "Initial Weight",
     "finalWeight": "Final Weight",
-    "mineralType": "Mineral Type"
+    "mineralType": "Mineral Type",
+    "originMine": "Origin Mine",
+    "purity": "Verified Purity",
+    "purityPending": "Assay pending",
+    "originBatch": "Mining Batch",
+    "recycledOrigin": "Recycled (client) gold — no mining origin",
+    "commercialTitle": "Merchant",
+    "seller": "Jeweler",
+    "authorizedPartner": "GoldMetrics Authorized Partner",
+    "unverifiedPartner": "Authorization not current"
   },
   "common": {
     "search": "Search...",
