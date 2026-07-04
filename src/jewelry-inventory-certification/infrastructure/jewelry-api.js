@@ -54,6 +54,16 @@ class JewelryApi extends BaseApi {
     return this.http.put(`/jewelry-materials/${materialId}/refinement`, { RefinedWeightGrams: refinedWeightGrams })
   }
 
+  // US31 – reporte de refinamiento
+  getRefinementReport(materialId) {
+    return this.http.get(`/jewelry-materials/${materialId}/refinement-report`)
+  }
+
+  // US32 – cambiar origen raíz (bloqueado para reciclado)
+  changeOrigin(materialId, origin) {
+    return this.http.put(`/jewelry-materials/${materialId}/origin`, { Origin: origin })
+  }
+
   generateCertificate(materialId) {
     return this.http.post('/certificates', { MaterialId: materialId })
   }

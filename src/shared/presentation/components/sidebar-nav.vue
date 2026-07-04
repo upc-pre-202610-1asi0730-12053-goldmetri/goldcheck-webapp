@@ -52,6 +52,7 @@ const navItems = computed(() => {
       { name: 'jewelry-inventory',       label: t('nav.inventory'),        icon: 'pi pi-box',       to: '/app/jewelry/inventory' },
       { name: 'jewelry-client-gold',     label: t('nav.clientGold'),       icon: 'pi pi-user-plus', to: '/app/jewelry/client-gold' },
       { name: 'jewelry-refinement',      label: t('nav.refinement'),       icon: 'pi pi-filter',    to: '/app/jewelry/refinement' },
+      { name: 'jewelry-refinement-report', label: t('nav.refinementReport'), icon: 'pi pi-file',   to: '/app/jewelry/refinement-report' },
       { name: 'jewelry-mineral-origin',  label: t('nav.mineralOrigin'),    icon: 'pi pi-sitemap',   to: '/app/jewelry/mineral-origin' },
       { name: 'jewelry-purity',          label: t('nav.purity'),           icon: 'pi pi-verified',  to: '/app/jewelry/purity' },
       { name: 'jewelry-subdivision',     label: t('nav.subdivision'),      icon: 'pi pi-clone',     to: '/app/jewelry/subdivision' },

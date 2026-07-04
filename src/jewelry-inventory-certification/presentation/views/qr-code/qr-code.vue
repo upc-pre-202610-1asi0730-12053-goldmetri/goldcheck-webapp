@@ -19,6 +19,17 @@ const materials = computed(() => store.materials)
 
 const selected = computed(() => store.materials.find(m => m.materialId === selectedMaterialId.value) || null)
 const purityConfirmed = computed(() => !!selected.value?.verifiedKarats)
+const isRecycled = computed(() => !!selected.value?.isRecycled)
+
+// US32 – attempt to change the root origin to "Mina" (blocked for recycled pieces).
+const originMsg = ref('')
+const originMsgType = ref('')
+async function changeOriginToMine() {
+  originMsg.value = ''
+  const res = await store.changeOrigin(selectedMaterialId.value, 'Supplier')
+  if (res.ok) { originMsg.value = t('jewelry.qrOriginChanged'); originMsgType.value = 'success' }
+  else { originMsg.value = store.errors[0] === 'recycledLocked' ? t('jewelry.qrOriginLocked') : t('jewelry.qrOriginError'); originMsgType.value = 'error' }
+}
 
 async function generate() {
   formError.value = ''
@@ -87,6 +98,17 @@ function download() {
           <span v-else>{{ $t('jewelry.qrPurityMissing') }}</span>
         </div>
 
+        <!-- US32 – recycled condition + protected root origin -->
+        <div v-if="selected && isRecycled" class="recycled-box">
+          <div class="recycled-badge"><i class="pi pi-sync" /> {{ $t('jewelry.qrRecycled') }}</div>
+          <p class="recycled-desc">{{ $t('jewelry.qrRecycledDesc') }}</p>
+          <button class="link-btn" @click="changeOriginToMine">{{ $t('jewelry.qrTryChangeOrigin') }}</button>
+          <p v-if="originMsg" class="origin-msg" :class="originMsgType">{{ originMsg }}</p>
+        </div>
+        <div v-else-if="selected" class="origin-note">
+          <i class="pi pi-map-marker" /> {{ $t('jewelry.qrOriginMine') }}
+        </div>
+
         <span v-if="formError" class="field-error">{{ formError }}</span>
 
         <div class="actions">
@@ -100,6 +122,7 @@ function download() {
 
       <div class="gc-card qr-preview" v-if="qrImage">
         <p class="gc-section-title">{{ $t('jewelry.qrPreviewTitle') }}</p>
+        <div v-if="isRecycled" class="preview-recycled"><i class="pi pi-sync" /> {{ $t('jewelry.qrRecycled') }}</div>
         <img :src="qrImage" :alt="qrValue" class="qr-img" />
         <p class="qr-value">{{ qrValue }}</p>
         <button class="gc-btn gc-btn-outline" @click="download">
@@ -169,6 +192,14 @@ function download() {
 .badge-ok { background: rgba(74,222,128,.15); color: #4ade80; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; }
 .badge-warn { background: rgba(234,179,8,.15); color: #eab308; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; }
 .code-chip { background: rgba(178,148,78,.15); color: var(--gc-gold-mid); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; }
-.link-btn { background: none; border: none; color: var(--gc-gold-mid); cursor: pointer; font-size: 0.8rem; }
+.link-btn { background: none; border: none; color: var(--gc-gold-mid); cursor: pointer; font-size: 0.8rem; padding: 0; }
 .link-btn:hover { text-decoration: underline; }
+.recycled-box { background: rgba(45,212,191,.08); border: 1px solid rgba(45,212,191,.3); border-radius: 10px; padding: 0.9rem; margin-bottom: 1rem; }
+.recycled-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; color: #2dd4bf; background: rgba(45,212,191,.15); padding: 0.2rem 0.6rem; border-radius: 20px; }
+.recycled-desc { font-size: 0.78rem; color: var(--gc-text-muted); margin: 0.6rem 0 0.5rem; }
+.origin-note { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--gc-text-muted); margin-bottom: 1rem; }
+.origin-msg { font-size: 0.78rem; margin: 0.5rem 0 0; }
+.origin-msg.error { color: var(--gc-danger); }
+.origin-msg.success { color: #4ade80; }
+.preview-recycled { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; color: #2dd4bf; background: rgba(45,212,191,.15); padding: 0.2rem 0.6rem; border-radius: 20px; margin-bottom: 0.75rem; }
 </style>

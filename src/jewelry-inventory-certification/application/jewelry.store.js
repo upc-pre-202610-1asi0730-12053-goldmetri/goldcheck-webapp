@@ -73,6 +73,32 @@ export const useJewelryStore = defineStore('jewelry', () => {
     }
   }
 
+  // US31 – reporte de refinamiento
+  async function getRefinementReport(materialId) {
+    errors.value = []
+    try {
+      const res = await jewelryApi.getRefinementReport(materialId)
+      return { ok: true, report: res.data }
+    } catch {
+      errors.value = ['reportError']
+      return { ok: false }
+    }
+  }
+
+  // US32 – cambiar origen raíz
+  async function changeOrigin(materialId, origin) {
+    errors.value = []
+    try {
+      const res = await jewelryApi.changeOrigin(materialId, origin)
+      const idx = materials.value.findIndex(m => m.materialId === materialId)
+      if (idx !== -1) materials.value[idx] = res.data
+      return { ok: true }
+    } catch (e) {
+      errors.value = [e?.response?.status === 409 ? 'recycledLocked' : 'originError']
+      return { ok: false }
+    }
+  }
+
   // US29 – ingreso de oro de cliente
   async function registerClientGold(massGrams, declaredKarats = null) {
     errors.value = []
@@ -214,6 +240,6 @@ export const useJewelryStore = defineStore('jewelry', () => {
     pendingCount, validatedCount, certifiedCount, totalValue,
     fetchItems, registerItem, scanQR, generateCertificate, signCertificate, fetchCertificates,
     registerPurityTest, splitBatch, generateQR, assignDetails, markAsSold,
-    registerClientGold, registerRefinement
+    registerClientGold, registerRefinement, getRefinementReport, changeOrigin
   }
 })
