@@ -27,6 +27,11 @@ class JewelryApi extends BaseApi {
     return this.http.post(`/jewelry-materials/${materialId}/split`, { ChildMasses: childMasses })
   }
 
+  // US26 – Generación de Código QR
+  generateQR(materialId) {
+    return this.http.post(`/jewelry-materials/${materialId}/generate-qr`)
+  }
+
   generateCertificate(materialId) {
     return this.http.post('/certificates', { MaterialId: materialId })
   }

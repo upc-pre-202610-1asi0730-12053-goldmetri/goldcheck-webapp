@@ -73,6 +73,20 @@ export const useJewelryStore = defineStore('jewelry', () => {
     }
   }
 
+  // US26 – Generación de Código QR
+  async function generateQR(materialId) {
+    errors.value = []
+    try {
+      const res = await jewelryApi.generateQR(materialId)
+      const idx = materials.value.findIndex(m => m.materialId === materialId)
+      if (idx !== -1) materials.value[idx] = res.data
+      return { ok: true, qrCode: res.data?.qrCode }
+    } catch (e) {
+      errors.value = [e?.response?.status === 409 ? 'qrRequiresPurity' : 'qrError']
+      return { ok: false }
+    }
+  }
+
   // US25 – Subdivisión de Lote
   async function splitBatch(materialId, childMasses) {
     errors.value = []
@@ -134,6 +148,6 @@ export const useJewelryStore = defineStore('jewelry', () => {
     items, materials, certificates, errors, loading,
     pendingCount, validatedCount, certifiedCount, totalValue,
     fetchItems, registerItem, scanQR, generateCertificate, signCertificate, fetchCertificates,
-    registerPurityTest, splitBatch
+    registerPurityTest, splitBatch, generateQR
   }
 })
