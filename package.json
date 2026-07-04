@@ -15,6 +15,7 @@
     "@vuelidate/validators": "^2.0.4",
     "axios": "^1.15.2",
     "html5-qrcode": "^2.3.8",
+    "jspdf": "^4.2.1",
     "pinia": "^3.0.4",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",

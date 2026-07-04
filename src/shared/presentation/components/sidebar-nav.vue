@@ -55,6 +55,8 @@ const navItems = computed(() => {
       { name: 'jewelry-subdivision',     label: t('nav.subdivision'),      icon: 'pi pi-clone',     to: '/app/jewelry/subdivision' },
       { name: 'jewelry-qr',              label: t('nav.qrGeneration'),     icon: 'pi pi-qrcode',   to: '/app/jewelry/qr' },
       { name: 'jewelry-certifications',  label: t('nav.qrCertifications'), icon: 'pi pi-verified', to: '/app/jewelry/certifications' },
+      { name: 'jewelry-certificate',     label: t('nav.certificatePdf'),   icon: 'pi pi-file-pdf', to: '/app/jewelry/certificate' },
+      { name: 'jewelry-sales',           label: t('nav.sales'),            icon: 'pi pi-tag',      to: '/app/jewelry/sales' },
       { name: 'jewelry-reports',         label: t('nav.reports'),          icon: 'pi pi-chart-bar', to: '/app/jewelry/reports' },
       { name: 'subscriptions-plans',     label: t('nav.subscriptions'),    icon: 'pi pi-star',      to: '/app/subscriptions/plans' },
       { name: 'profile',                 label: t('nav.myProfile'),        icon: 'pi pi-user',      to: '/app/profile' }

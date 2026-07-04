@@ -73,6 +73,34 @@ export const useJewelryStore = defineStore('jewelry', () => {
     }
   }
 
+  // US27 – asignar detalles (foto, descripción)
+  async function assignDetails(materialId, photo, description) {
+    errors.value = []
+    try {
+      const res = await jewelryApi.assignDetails(materialId, photo, description)
+      const idx = materials.value.findIndex(m => m.materialId === materialId)
+      if (idx !== -1) materials.value[idx] = res.data
+      return { ok: true, material: res.data }
+    } catch {
+      errors.value = ['detailsError']
+      return { ok: false }
+    }
+  }
+
+  // US28 – marcar como vendida
+  async function markAsSold(materialId) {
+    errors.value = []
+    try {
+      const res = await jewelryApi.markAsSold(materialId)
+      const idx = materials.value.findIndex(m => m.materialId === materialId)
+      if (idx !== -1) materials.value[idx] = res.data
+      return { ok: true }
+    } catch (e) {
+      errors.value = [e?.response?.status === 409 ? 'alreadySold' : 'soldError']
+      return { ok: false }
+    }
+  }
+
   // US26 – Generación de Código QR
   async function generateQR(materialId) {
     errors.value = []
@@ -148,6 +176,6 @@ export const useJewelryStore = defineStore('jewelry', () => {
     items, materials, certificates, errors, loading,
     pendingCount, validatedCount, certifiedCount, totalValue,
     fetchItems, registerItem, scanQR, generateCertificate, signCertificate, fetchCertificates,
-    registerPurityTest, splitBatch, generateQR
+    registerPurityTest, splitBatch, generateQR, assignDetails, markAsSold
   }
 })

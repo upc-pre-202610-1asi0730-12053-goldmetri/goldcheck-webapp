@@ -32,6 +32,16 @@ class JewelryApi extends BaseApi {
     return this.http.post(`/jewelry-materials/${materialId}/generate-qr`)
   }
 
+  // US27 – detalles de la joya (foto, descripción) para el PDF
+  assignDetails(materialId, photo, description) {
+    return this.http.put(`/jewelry-materials/${materialId}/details`, { Photo: photo, Description: description })
+  }
+
+  // US28 – marcar como vendida
+  markAsSold(materialId) {
+    return this.http.put(`/jewelry-materials/${materialId}/mark-sold`)
+  }
+
   generateCertificate(materialId) {
     return this.http.post('/certificates', { MaterialId: materialId })
   }

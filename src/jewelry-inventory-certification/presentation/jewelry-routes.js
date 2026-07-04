@@ -7,5 +7,7 @@ export default [
   { path: 'jewelry/mineral-origin', name: 'jewelry-mineral-origin', component: () => import('./views/mineral-origin/mineral-origin.vue') },
   { path: 'jewelry/purity',         name: 'jewelry-purity',         component: () => import('./views/purity-test/purity-test.vue') },
   { path: 'jewelry/subdivision',    name: 'jewelry-subdivision',    component: () => import('./views/subdivision/subdivision.vue') },
-  { path: 'jewelry/qr',             name: 'jewelry-qr',             component: () => import('./views/qr-code/qr-code.vue') }
+  { path: 'jewelry/qr',             name: 'jewelry-qr',             component: () => import('./views/qr-code/qr-code.vue') },
+  { path: 'jewelry/certificate',    name: 'jewelry-certificate',    component: () => import('./views/certificate-export/certificate-export.vue') },
+  { path: 'jewelry/sales',          name: 'jewelry-sales',          component: () => import('./views/sales/sales.vue') }
 ]
