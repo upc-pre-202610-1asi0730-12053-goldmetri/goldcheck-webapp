@@ -42,6 +42,18 @@ class JewelryApi extends BaseApi {
     return this.http.put(`/jewelry-materials/${materialId}/mark-sold`)
   }
 
+  // US29 – ingreso de oro de cliente (sin historial minero)
+  registerClientGold(jewelerId, massGrams, declaredKarats) {
+    return this.http.post('/jewelry-materials/client-gold', {
+      JewelerId: jewelerId, MassGrams: massGrams, DeclaredKarats: declaredKarats
+    })
+  }
+
+  // US30 – registro de merma por refinamiento
+  registerRefinement(materialId, refinedWeightGrams) {
+    return this.http.put(`/jewelry-materials/${materialId}/refinement`, { RefinedWeightGrams: refinedWeightGrams })
+  }
+
   generateCertificate(materialId) {
     return this.http.post('/certificates', { MaterialId: materialId })
   }

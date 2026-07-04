@@ -73,6 +73,43 @@ export const useJewelryStore = defineStore('jewelry', () => {
     }
   }
 
+  // US29 – ingreso de oro de cliente
+  async function registerClientGold(massGrams, declaredKarats = null) {
+    errors.value = []
+    loading.value = true
+    if (!massGrams || massGrams <= 0) { errors.value = ['massRequired']; loading.value = false; return { ok: false } }
+    try {
+      const res = await jewelryApi.registerClientGold(currentJewelerId(), massGrams, declaredKarats)
+      materials.value.unshift(res.data)
+      return { ok: true, material: res.data }
+    } catch (e) {
+      errors.value = [e?.response?.status === 400 ? 'massRequired' : 'clientGoldError']
+      return { ok: false }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // US30 – registro de merma por refinamiento
+  async function registerRefinement(materialId, refinedWeightGrams) {
+    errors.value = []
+    if (!refinedWeightGrams || refinedWeightGrams <= 0) { errors.value = ['refinedRequired']; return { ok: false } }
+    try {
+      const res = await jewelryApi.registerRefinement(materialId, refinedWeightGrams)
+      const idx = materials.value.findIndex(m => m.materialId === materialId)
+      if (idx !== -1) materials.value[idx] = res.data
+      return {
+        ok: true,
+        shrinkagePercent: res.data?.refinementShrinkagePercent,
+        refinedWeightGrams: res.data?.refinedWeightGrams,
+      }
+    } catch (e) {
+      const s = e?.response?.status
+      errors.value = [s === 409 ? 'refinedExceeds' : 'refineError']
+      return { ok: false }
+    }
+  }
+
   // US27 – asignar detalles (foto, descripción)
   async function assignDetails(materialId, photo, description) {
     errors.value = []
@@ -176,6 +213,7 @@ export const useJewelryStore = defineStore('jewelry', () => {
     items, materials, certificates, errors, loading,
     pendingCount, validatedCount, certifiedCount, totalValue,
     fetchItems, registerItem, scanQR, generateCertificate, signCertificate, fetchCertificates,
-    registerPurityTest, splitBatch, generateQR, assignDetails, markAsSold
+    registerPurityTest, splitBatch, generateQR, assignDetails, markAsSold,
+    registerClientGold, registerRefinement
   }
 })

@@ -9,5 +9,7 @@ export default [
   { path: 'jewelry/subdivision',    name: 'jewelry-subdivision',    component: () => import('./views/subdivision/subdivision.vue') },
   { path: 'jewelry/qr',             name: 'jewelry-qr',             component: () => import('./views/qr-code/qr-code.vue') },
   { path: 'jewelry/certificate',    name: 'jewelry-certificate',    component: () => import('./views/certificate-export/certificate-export.vue') },
-  { path: 'jewelry/sales',          name: 'jewelry-sales',          component: () => import('./views/sales/sales.vue') }
+  { path: 'jewelry/sales',          name: 'jewelry-sales',          component: () => import('./views/sales/sales.vue') },
+  { path: 'jewelry/client-gold',    name: 'jewelry-client-gold',    component: () => import('./views/client-gold/client-gold.vue') },
+  { path: 'jewelry/refinement',     name: 'jewelry-refinement',     component: () => import('./views/refinement/refinement.vue') }
 ]
