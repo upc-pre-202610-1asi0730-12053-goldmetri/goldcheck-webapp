@@ -4,11 +4,9 @@ import { materialOperationsApi } from '../infrastructure/material-operations-api
 import { MaterialReceptionAssembler } from '../infrastructure/material-reception.assembler.js'
 import { useIamStore } from '../../iam/application/iam.store.js'
 
-function getUserCycleIds() {
+function currentReporterId() {
   const iamStore = useIamStore()
-  const userId   = iamStore.currentUser?.userId
-  if (!userId) return []
-  try { return JSON.parse(localStorage.getItem(`gc_cycles_${userId}`) || '[]') } catch { return [] }
+  return String(iamStore.currentUser?.userId || '')
 }
 
 export const useMaterialOperationsStore = defineStore('material-operations', () => {
@@ -23,17 +21,15 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     parseFloat(((r.initialWeight - r.receivedWeight) / r.initialWeight * 100).toFixed(2)) > 5
   ))
 
-  // Fetch only materials linked to the current user's hauling cycles
+  // Materials are scoped to the current user server-side via reporterId.
   async function fetchReceptions() {
     loading.value = true
     errors.value  = []
     try {
-      const userCycleIds = getUserCycleIds()
-      const res          = await materialOperationsApi.getAllMaterials()
-      const all          = MaterialReceptionAssembler.toEntitiesFromResponse(res)
-      receptions.value = userCycleIds.length
-        ? all.filter(r => userCycleIds.includes(Number(r.batchId)) || userCycleIds.includes(String(r.batchId)))
-        : []
+      const reporterId = currentReporterId()
+      if (!reporterId) { receptions.value = []; return }
+      const res = await materialOperationsApi.getAllMaterials(reporterId)
+      receptions.value = MaterialReceptionAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -41,12 +37,12 @@ export const useMaterialOperationsStore = defineStore('material-operations', () 
     }
   }
 
-  // US16 – Identify mineral type → evento Mineral type identified
+  // US16 – Identify mineral type → evento Mineral type identified. Tagged with reporterId.
   async function identifyMineral(batchId, mineralType, payloadTons) {
     errors.value  = []
     loading.value = true
     try {
-      const res    = await materialOperationsApi.identifyMineralType(batchId, mineralType, payloadTons)
+      const res    = await materialOperationsApi.identifyMineralType(batchId, mineralType, payloadTons, currentReporterId())
       const entity = MaterialReceptionAssembler.toEntityFromResource(res.data)
       const idx    = receptions.value.findIndex(r => String(r.batchId) === String(batchId))
       if (idx !== -1) receptions.value[idx] = entity

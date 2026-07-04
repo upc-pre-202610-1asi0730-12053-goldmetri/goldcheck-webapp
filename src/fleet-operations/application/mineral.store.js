@@ -4,21 +4,9 @@ import { mineralApi } from '../infrastructure/mineral-api.js'
 import { MineralBatchAssembler } from '../infrastructure/mineral-batch.assembler.js'
 import { useIamStore } from '../../iam/application/iam.store.js'
 
-function getUserCycleKey() {
+function currentReporterId() {
   const iamStore = useIamStore()
-  return `gc_cycles_${iamStore.currentUser?.userId || 'guest'}`
-}
-
-function getUserCycleIds() {
-  try { return JSON.parse(localStorage.getItem(getUserCycleKey()) || '[]') } catch { return [] }
-}
-
-function addUserCycleId(id) {
-  const ids = getUserCycleIds()
-  if (!ids.includes(id)) {
-    ids.push(id)
-    localStorage.setItem(getUserCycleKey(), JSON.stringify(ids))
-  }
+  return String(iamStore.currentUser?.userId || '')
 }
 
 export const useMineralStore = defineStore('mineral', () => {
@@ -42,13 +30,14 @@ export const useMineralStore = defineStore('mineral', () => {
   )
   const alertCount = computed(() => alerts.value.length)
 
+  // Batches are scoped to the current user server-side via reporterId (no client-side filter).
   async function fetchBatches() {
     loading.value = true
     try {
-      const res = await mineralApi.getAllHaulingCycles()
-      const all = MineralBatchAssembler.toEntitiesFromResponse(res)
-      const userIds = getUserCycleIds()
-      batches.value = userIds.length ? all.filter(b => userIds.includes(b.id)) : []
+      const reporterId = currentReporterId()
+      if (!reporterId) { batches.value = []; return }
+      const res = await mineralApi.getAllHaulingCycles(reporterId)
+      batches.value = MineralBatchAssembler.toEntitiesFromResponse(res)
     } catch {
       errors.value = ['fetchError']
     } finally {
@@ -101,14 +90,13 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
-  // US13 – Start Hauling Cycle
+  // US13 – Start Hauling Cycle. The cycle is tagged with the current user (reporterId).
   async function createBatch(vehicleId, loadingPoint) {
     errors.value = []
     loading.value = true
     try {
-      const res = await mineralApi.startHaulingCycle(vehicleId, loadingPoint)
+      const res = await mineralApi.startHaulingCycle(vehicleId, loadingPoint, currentReporterId())
       const batch = MineralBatchAssembler.toEntityFromResource(res.data)
-      addUserCycleId(batch.id)
       batches.value.unshift(batch)
       return batch
     } catch {
@@ -168,6 +156,20 @@ export const useMineralStore = defineStore('mineral', () => {
     }
   }
 
+  // US20 – Confirmación de Llegada (marcar recepción en planta → En Planta)
+  async function confirmArrival(cycleId, latitude, longitude) {
+    errors.value = []
+    try {
+      const res = await mineralApi.confirmArrival(cycleId, latitude, longitude)
+      const idx = batches.value.findIndex(b => b.id === cycleId)
+      if (idx !== -1) batches.value[idx] = MineralBatchAssembler.toEntityFromResource(res.data)
+      return { ok: true }
+    } catch (e) {
+      errors.value = [e?.response?.status === 409 ? 'outsideGeofence' : 'arrivalError']
+      return { ok: false }
+    }
+  }
+
   // Complete hauling cycle
   async function completeHaulingCycle(cycleId, dumpingPoint) {
     errors.value = []
@@ -185,6 +187,6 @@ export const useMineralStore = defineStore('mineral', () => {
   return {
     batches, vehicles, deposits, alerts, errors, loading,
     activeBatchCount, totalTonsToday, alertCount,
-    fetchBatches, fetchSupporting, registerVehicle, createBatch, registerInitialWeight, assignDriver, startRoute, completeHaulingCycle
+    fetchBatches, fetchSupporting, registerVehicle, createBatch, registerInitialWeight, assignDriver, startRoute, confirmArrival, completeHaulingCycle
   }
 })

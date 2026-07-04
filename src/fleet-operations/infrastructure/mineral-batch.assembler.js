@@ -6,6 +6,7 @@ const STATUS_MAP = {
   MaterialLoaded:        'Pesado',
   Loaded:                'Pesado',
   InTransit:             'En Tránsito',
+  AtPlant:               'En Planta',
   HaulingCycleCompleted: 'Completado',
   Completed:             'Completado',
   RouteProgressUpdated:  'En Tránsito'

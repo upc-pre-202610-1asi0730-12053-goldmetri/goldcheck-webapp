@@ -2,19 +2,15 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMaterialOperationsStore } from '../../../application/material-operations.store.js'
-import { useIamStore } from '../../../../iam/application/iam.store.js'
+import { useMineralStore } from '../../../../fleet-operations/application/mineral.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
 
 const { t } = useI18n()
-const store    = useMaterialOperationsStore()
-const iamStore = useIamStore()
+const store        = useMaterialOperationsStore()
+const mineralStore = useMineralStore()
 
-// User's hauling cycle IDs for batch selector
-const userCycleIds = computed(() => {
-  const userId = iamStore.currentUser?.userId
-  if (!userId) return []
-  try { return JSON.parse(localStorage.getItem(`gc_cycles_${userId}`) || '[]') } catch { return [] }
-})
+// User's hauling cycle IDs come from the fleet backend (scoped by reporterId), not localStorage.
+const userCycleIds = computed(() => mineralStore.batches.map(b => b.id))
 
 // Batch IDs that already have a material entry
 const registeredBatchIds = computed(() => store.receptions.map(r => String(r.batchId)))
@@ -100,7 +96,7 @@ function statusClass(s) {
   return 'badge-warn'
 }
 
-onMounted(() => store.fetchReceptions())
+onMounted(() => Promise.all([store.fetchReceptions(), mineralStore.fetchBatches()]))
 </script>
 
 <template>

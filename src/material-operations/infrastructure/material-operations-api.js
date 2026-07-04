@@ -5,16 +5,16 @@ class MaterialOperationsApi extends BaseApi {
     super()
   }
 
-  getAllMaterials() {
-    return this.http.get('/materials')
+  getAllMaterials(reporterId) {
+    return this.http.get('/materials', { params: reporterId ? { reporterId } : {} })
   }
 
   getMaterialById(batchId) {
     return this.http.get(`/materials/${batchId}`)
   }
 
-  identifyMineralType(batchId, mineralType, payloadTons) {
-    return this.http.post('/materials', { BatchId: batchId, MineralType: mineralType, PayloadTons: payloadTons })
+  identifyMineralType(batchId, mineralType, payloadTons, reporterId) {
+    return this.http.post('/materials', { BatchId: batchId, MineralType: mineralType, PayloadTons: payloadTons, ReporterId: reporterId })
   }
 
   classifyMaterial(batchId, classification) {
