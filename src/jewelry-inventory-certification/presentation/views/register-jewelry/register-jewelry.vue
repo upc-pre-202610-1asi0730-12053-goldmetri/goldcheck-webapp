@@ -11,6 +11,8 @@ const iamStore = useIamStore()
 
 const availableMaterials = ref([])
 const selectedMaterialId = ref('')
+const declaredKarats     = ref(null)
+const massGrams          = ref(null)
 const submitted          = ref(false)
 const success            = ref(false)
 const errorMsg           = ref('')
@@ -36,10 +38,16 @@ async function handleSubmit() {
   const jewelerId = String(iamStore.currentUser?.userId || '')
   if (!jewelerId) { errorMsg.value = t('jewelry.noUserError'); return }
 
-  const result = await store.registerItem(selectedMaterialId.value, jewelerId)
+  const result = await store.registerItem(
+    selectedMaterialId.value, jewelerId,
+    declaredKarats.value ? Number(declaredKarats.value) : null,
+    massGrams.value ? Number(massGrams.value) : null
+  )
   if (result) {
     success.value          = true
     selectedMaterialId.value = ''
+    declaredKarats.value   = null
+    massGrams.value        = null
     submitted.value        = false
     setTimeout(() => { success.value = false }, 3000)
   } else {
@@ -85,6 +93,18 @@ async function handleSubmit() {
           <p v-if="!loadingMaterials && availableMaterials.length === 0" style="font-size:0.8rem;color:var(--gc-text-muted);margin-top:0.4rem">
             {{ $t('jewelry.noMaterialsAvailable') }}
           </p>
+        </div>
+
+        <div class="form-field">
+          <label for="declared-karats">{{ $t('jewelry.fieldDeclaredKarats') }}</label>
+          <input id="declared-karats" v-model.number="declaredKarats" type="number" min="1" max="24"
+                 class="gc-input-dark" :placeholder="$t('jewelry.declaredKaratsPh')" />
+        </div>
+
+        <div class="form-field">
+          <label for="mass-grams">{{ $t('jewelry.fieldMassGrams') }}</label>
+          <input id="mass-grams" v-model.number="massGrams" type="number" min="0" step="0.01"
+                 class="gc-input-dark" :placeholder="$t('jewelry.massGramsPh')" />
         </div>
 
         <div v-if="errorMsg" class="gc-alert gc-alert-danger" style="margin-top:0.5rem">{{ errorMsg }}</div>

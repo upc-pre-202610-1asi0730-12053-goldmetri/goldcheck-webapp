@@ -3,16 +3,28 @@ import { BaseApi } from '../../shared/infrastructure/base-api.js'
 class JewelryApi extends BaseApi {
   constructor() { super() }
 
-  getAllMaterials() {
-    return this.http.get('/jewelry-materials')
+  getAllMaterials(jewelerId) {
+    return this.http.get('/jewelry-materials', { params: jewelerId ? { jewelerId } : {} })
   }
 
-  registerMaterial(materialId, jewelerId) {
-    return this.http.post('/jewelry-materials', { MaterialId: materialId, JewelerId: jewelerId })
+  registerMaterial(materialId, jewelerId, declaredKarats, massGrams) {
+    return this.http.post('/jewelry-materials', {
+      MaterialId: materialId, JewelerId: jewelerId, DeclaredKarats: declaredKarats, MassGrams: massGrams
+    })
   }
 
   scanQR(materialId, qrCode) {
     return this.http.put(`/jewelry-materials/${materialId}/scan`, { QRCode: qrCode })
+  }
+
+  // US24 – Registro de Prueba de Pureza
+  registerPurityTest(materialId, verifiedKarats) {
+    return this.http.put(`/jewelry-materials/${materialId}/purity-test`, { VerifiedKarats: verifiedKarats })
+  }
+
+  // US25 – Subdivisión de Lote
+  splitBatch(materialId, childMasses) {
+    return this.http.post(`/jewelry-materials/${materialId}/split`, { ChildMasses: childMasses })
   }
 
   generateCertificate(materialId) {
