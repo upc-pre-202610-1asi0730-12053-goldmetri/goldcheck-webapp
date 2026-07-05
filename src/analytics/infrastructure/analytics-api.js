@@ -11,7 +11,7 @@ class AnalyticsApi extends BaseApi {
   }
 
   viewRouteProgress(routeId, userId) {
-    return this.http.post('/analytics/routes/view', { routeId, userId })
+    return this.http.post('/analytics/routes', { routeId, userId })
   }
 
   getRouteById(routeId) {
@@ -24,7 +24,7 @@ class AnalyticsApi extends BaseApi {
   }
 
   requestProductionData(supervisorId, start, end) {
-    return this.http.post('/analytics/production/request', { supervisorId, start, end })
+    return this.http.post('/analytics/production', { supervisorId, start, end })
   }
 
   getProductionByPeriod(start, end) {

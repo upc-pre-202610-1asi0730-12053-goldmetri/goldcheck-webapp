@@ -31,7 +31,7 @@ class SubscriptionsApi extends BaseApi {
   }
 
   checkFeatureAccess(userId, featureName) {
-    return this.http.post(`/subscriptions/${userId}/access-check`, { featureName })
+    return this.http.post(`/subscriptions/${userId}/feature-access`, { featureName })
   }
 
   requestInvoice(userId) {
