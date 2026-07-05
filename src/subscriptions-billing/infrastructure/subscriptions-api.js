@@ -9,6 +9,11 @@ class SubscriptionsApi extends BaseApi {
     return this.http.post('/subscriptions', { userId, planType, billingCycle })
   }
 
+  // Stripe – create a hosted checkout session for a plan upgrade.
+  startCheckout(userId, planType, billingCycle) {
+    return this.http.post('/subscriptions/checkout', { userId, planType, billingCycle })
+  }
+
   getUserSubscription(userId) {
     return this.http.get(`/subscriptions/${userId}`)
   }

@@ -1056,6 +1056,7 @@
     "cardHolderPh": "TU NOMBRE",
     "cardExpiry": "Vencimiento",
     "confirmPay": "Pagar",
+    "payWithStripe": "Pagar con Stripe",
     "upgradeSuccess": "¡Plan mejorado correctamente!",
     "upgradeSuccessDesc": "Ya tienes acceso a todas las funciones del plan {plan}.",
     "upgradeError": "Error en el pago. Verifica los datos de tu tarjeta.",

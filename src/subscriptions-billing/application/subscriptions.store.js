@@ -46,6 +46,27 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     }
   }
 
+  // Stripe – start a hosted checkout and redirect the browser to Stripe.
+  async function checkoutPlan(planKey, billingCycle = 'Monthly') {
+    const userId = currentUserId()
+    if (!userId) return { ok: false }
+    loading.value = true
+    errors.value  = []
+    try {
+      const mappedPlan = PLAN_KEY_MAP[planKey] || planKey
+      const res = await subscriptionsApi.startCheckout(userId, mappedPlan, billingCycle)
+      const url = res.data?.url
+      if (!url) { errors.value = ['checkoutError']; return { ok: false } }
+      window.location.href = url // hand off to Stripe Checkout
+      return { ok: true }
+    } catch {
+      errors.value = ['checkoutError']
+      return { ok: false }
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function fetchSubscription() {
     const iamStore = useIamStore()
     const userId   = currentUserId()
@@ -58,5 +79,5 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     return { plan: iamStore.currentUser?.plan || 'Free', status: 'Active' }
   }
 
-  return { loading, errors, upgradePlan, fetchSubscription }
+  return { loading, errors, upgradePlan, checkoutPlan, fetchSubscription }
 })

@@ -143,12 +143,17 @@ async function confirmUpgrade() {
   if (ok) {
     if (saveCard.value) {
       const last4 = form.number.replace(/\s/g, '').slice(-4)
-      const token = { last4, holder: form.holder, expiry: form.expiry, token: `mock-tok-${Date.now()}` }
+      const token = { last4, holder: form.holder, expiry: form.expiry, token: `saved-${Date.now()}` }
       localStorage.setItem(savedCardKey.value, JSON.stringify(token))
       savedCard.value = token
     }
     payModal.success = true
   }
+}
+
+// Stripe – redirect to the hosted checkout for the selected plan.
+async function payWithStripe() {
+  await store.checkoutPlan(payModal.plan.id, 'Monthly')
 }
 </script>
 
@@ -374,10 +379,10 @@ async function confirmUpgrade() {
 
           <div class="gc-modal-footer">
             <button class="gc-btn gc-btn-outline" @click="closeModal">{{ $t('common.cancel') }}</button>
-            <button class="gc-btn gc-btn-gold" :disabled="store.loading" @click="confirmUpgrade">
+            <button class="gc-btn gc-btn-stripe" :disabled="store.loading" @click="payWithStripe">
               <i v-if="store.loading" class="pi pi-spin pi-spinner" />
-              <i v-else class="pi pi-lock" />
-              {{ usingSaved ? $t('subscriptions.useSavedCard') : $t('subscriptions.confirmPay') + ' ' + payModal.plan?.basePrice }}
+              <i v-else class="pi pi-credit-card" />
+              {{ $t('subscriptions.payWithStripe') }}
             </button>
           </div>
         </div>
@@ -563,4 +568,11 @@ async function confirmUpgrade() {
 @media (max-width: 768px) {
   .plans-grid { grid-template-columns: 1fr; }
 }
+
+.gc-btn-stripe {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: #635bff; color: #fff; border: none;
+}
+.gc-btn-stripe:hover { background: #4f46e5; }
+.gc-btn-stripe:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>
