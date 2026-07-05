@@ -149,35 +149,35 @@ function translateVehicleType(type) {
         <div class="gc-modal-header">
           <p class="gc-modal-title">
             <i class="pi pi-truck" style="color:var(--gc-gold-mid);margin-right:0.4rem" />
-            Registrar Vehículo
+            {{ $t('mineral.regVehTitle') }}
           </p>
           <button class="gc-modal-close" @click="showRegisterModal = false">✕</button>
         </div>
 
         <div style="padding:1rem 0">
           <p style="font-size:0.82rem;color:var(--gc-text-muted);margin-bottom:1.25rem">
-            Ingresa el ID único del vehículo (ej: MAC-002, CAT-007). Quedará asignado a tu cuenta de operador.
+            {{ $t('mineral.regVehHint') }}
           </p>
 
           <div v-if="registerSuccess" class="gc-alert gc-alert-success" style="margin-bottom:1rem">
-            <i class="pi pi-check-circle" /> Vehículo registrado exitosamente
+            <i class="pi pi-check-circle" /> {{ $t('mineral.regVehSuccess') }}
           </div>
 
           <label style="font-size:0.75rem;font-weight:600;color:var(--gc-text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:0.4rem">
-            ID del Vehículo
+            {{ $t('mineral.regVehIdLabel') }}
           </label>
           <input
             v-model="newVehicleId"
             type="text"
             class="gc-input-dark"
-            placeholder="Ej: MAC-002"
+            :placeholder="$t('mineral.regVehIdPh')"
             :class="{ 'input-error': vehicleIdError }"
             style="width:100%;box-sizing:border-box"
             @keyup.enter="submitRegister"
           />
 
           <label style="font-size:0.75rem;font-weight:600;color:var(--gc-text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin:1rem 0 0.4rem">
-            Capacidad Técnica (toneladas)
+            {{ $t('mineral.regVehCapLabel') }}
           </label>
           <input
             v-model.number="newVehicleCapacity"
@@ -185,7 +185,7 @@ function translateVehicleType(type) {
             min="0"
             step="0.1"
             class="gc-input-dark"
-            placeholder="Ej: 40"
+            :placeholder="$t('mineral.regVehCapPh')"
             :class="{ 'input-error': vehicleIdError }"
             style="width:100%;box-sizing:border-box"
             @keyup.enter="submitRegister"
@@ -196,10 +196,10 @@ function translateVehicleType(type) {
         </div>
 
         <div class="gc-modal-footer">
-          <button class="gc-btn gc-btn-outline" @click="showRegisterModal = false">Cancelar</button>
+          <button class="gc-btn gc-btn-outline" @click="showRegisterModal = false">{{ $t('common.cancel') }}</button>
           <button class="gc-btn gc-btn-gold" :disabled="store.loading" @click="submitRegister">
             <i v-if="store.loading" class="pi pi-spin pi-spinner" />
-            Registrar
+            {{ $t('mineral.regVehSubmit') }}
           </button>
         </div>
       </div>

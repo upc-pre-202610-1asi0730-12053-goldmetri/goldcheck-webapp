@@ -168,9 +168,6 @@ onUnmounted(() => stopCamera())
             :placeholder="$t('consumer.codePlaceholder')"
             @keyup.enter="verify"
           />
-          <p style="font-size:0.78rem;color:var(--gc-text-muted);margin-bottom:1rem">
-            Ej: <span style="color:var(--gc-gold-mid);font-family:monospace">QR-GJ-10021</span>
-          </p>
           <button class="gc-btn gc-btn-gold" style="width:100%" :disabled="store.loading" @click="verify">
             <i v-if="store.loading" class="pi pi-spin pi-spinner" />
             <i v-else class="pi pi-search" />
@@ -221,7 +218,7 @@ onUnmounted(() => stopCamera())
             </div>
           </div>
           <button class="gc-btn gc-btn-outline" style="margin-top:1rem" @click="stopCamera">
-            <i class="pi pi-times" /> Cancelar
+            <i class="pi pi-times" /> {{ $t('common.cancel') }}
           </button>
         </div>
 

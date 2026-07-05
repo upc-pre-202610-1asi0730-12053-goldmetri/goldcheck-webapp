@@ -118,7 +118,7 @@ onMounted(() => {
           v-model="batchCode"
           class="gc-input-dark"
           style="flex:1"
-          placeholder="E.g.: 6"
+          :placeholder="$t('trace.batchLookupPh')"
           @keyup.enter="lookupBatch"
         />
         <button class="gc-btn gc-btn-gold" :disabled="loading || !batchCode.trim()" @click="lookupBatch">
