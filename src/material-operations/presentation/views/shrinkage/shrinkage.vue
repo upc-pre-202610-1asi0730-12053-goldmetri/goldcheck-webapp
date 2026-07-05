@@ -2,8 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMaterialOperationsStore } from '../../../application/material-operations.store.js'
+import { useStatusLabel } from '../../../../shared/application/status-label.js'
 
 const { t } = useI18n()
+const { statusLabel } = useStatusLabel()
 const store = useMaterialOperationsStore()
 
 const selectedBatchId = ref(null)
@@ -127,7 +129,7 @@ function fmtShrink(v) {
             </td>
             <td>
               <span v-if="m.status === 'UnderInvestigation'" class="badge-danger">{{ $t('materialOps.shrUnderInvestigation') }}</span>
-              <span v-else>{{ m.status }}</span>
+              <span v-else>{{ statusLabel(m.status) }}</span>
             </td>
           </tr>
         </tbody>

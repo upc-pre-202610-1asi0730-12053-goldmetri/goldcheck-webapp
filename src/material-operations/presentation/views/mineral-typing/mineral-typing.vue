@@ -2,8 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMaterialOperationsStore } from '../../../application/material-operations.store.js'
+import { useStatusLabel } from '../../../../shared/application/status-label.js'
 
 const { t } = useI18n()
+const { statusLabel } = useStatusLabel()
 const store = useMaterialOperationsStore()
 
 const MINERAL_TYPES = ['Gold', 'Silver', 'Copper']
@@ -105,7 +107,7 @@ async function submitChange() {
           <tr v-for="m in materials" :key="m.batchId">
             <td>HC-{{ m.batchId }}</td>
             <td><span class="type-chip">{{ typeLabel(m.mineralType) }}</span></td>
-            <td>{{ m.status }}</td>
+            <td>{{ statusLabel(m.status) }}</td>
           </tr>
         </tbody>
       </table>

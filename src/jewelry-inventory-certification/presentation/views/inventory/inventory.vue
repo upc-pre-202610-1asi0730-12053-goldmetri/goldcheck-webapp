@@ -2,8 +2,10 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
+import { useStatusLabel } from '../../../../shared/application/status-label.js'
 
 const { t } = useI18n()
+const { statusLabel } = useStatusLabel()
 const store = useJewelryStore()
 
 function translateJewelryType(type) {
@@ -17,15 +19,6 @@ function translateJewelryType(type) {
   return map[type] || type || '—'
 }
 
-function translateJewelryStatus(s) {
-  const map = {
-    'Pendiente':   t('jewelry.statusPending'),
-    'Validado':    t('jewelry.statusValidated'),
-    'Certificado': t('jewelry.statusCertified'),
-    'Vendido':     t('jewelry.statusSold'),
-  }
-  return map[s] || s || '—'
-}
 const statusFilter = ref('')
 const certModal = reactive({ show: false, cert: null })
 
@@ -37,7 +30,12 @@ const filteredItems = computed(() => {
 onMounted(() => store.fetchItems())
 
 function statusClass(s) {
-  return { 'Pendiente': 'gc-status-loading', 'Validado': 'gc-status-transit', 'Certificado': 'gc-status-done' }[s] || ''
+  return {
+    NonCertified: 'gc-status-loading',
+    Pending:      'gc-status-transit',
+    Certified:    'gc-status-done',
+    Sold:         'gc-status-done'
+  }[s] || ''
 }
 
 async function validate(item) { await store.validateItem(item.id) }
@@ -91,9 +89,10 @@ async function viewCert(item) {
           <p class="gc-section-title" style="margin:0">{{ $t('jewelry.inventoryTable') }}</p>
           <select v-model="statusFilter" class="gc-select-sm">
             <option value="">{{ $t('jewelry.allStatuses') }}</option>
-            <option value="Pendiente">{{ $t('jewelry.statusPending') }}</option>
-            <option value="Validado">{{ $t('jewelry.statusValidated') }}</option>
-            <option value="Certificado">{{ $t('jewelry.statusCertified') }}</option>
+            <option value="NonCertified">{{ $t('status.NonCertified') }}</option>
+            <option value="Pending">{{ $t('status.Pending') }}</option>
+            <option value="Certified">{{ $t('status.Certified') }}</option>
+            <option value="Sold">{{ $t('status.Sold') }}</option>
           </select>
         </div>
 
@@ -118,7 +117,7 @@ async function viewCert(item) {
               <td>{{ item.purity }}</td>
               <td>{{ item.weight }}g</td>
               <td>S/ {{ item.price?.toLocaleString() || '—' }}</td>
-              <td><span class="gc-status" :class="statusClass(item.status)">{{ translateJewelryStatus(item.status) }}</span></td>
+              <td><span class="gc-status" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span></td>
               <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
                 <button v-if="item.status === 'Pendiente'" class="gc-btn gc-btn-xs gc-btn-gold" @click="validate(item)">
                   {{ $t('jewelry.validate') }}

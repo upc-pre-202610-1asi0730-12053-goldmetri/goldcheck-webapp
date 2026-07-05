@@ -3,8 +3,10 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import VincularJoyaModal from './vincular-joya-modal.vue'
+import { useStatusLabel } from '../../../../shared/application/status-label.js'
 
 const { t }    = useI18n()
+const { statusLabel } = useStatusLabel()
 const store    = useConsumerStore()
 const showLink = ref(false)
 const journey  = ref(null)
@@ -55,7 +57,7 @@ onMounted(() => store.fetchPieces())
           <div class="jewelry-sku">{{ piece.qrCode }}</div>
           <div class="jewelry-meta">
             {{ $t('consumer.scans') }}: {{ piece.scanCount || 0 }} ·
-            <span class="gc-status gc-status-done">{{ piece.status }}</span>
+            <span class="gc-status gc-status-done">{{ statusLabel(piece.status) }}</span>
           </div>
           <div class="jewelry-card-footer">
             <button class="gc-btn-icon" :title="$t('consumer.viewTraceability')" @click="openJourney(piece)">
@@ -83,7 +85,7 @@ onMounted(() => store.fetchPieces())
           <div class="trace-row"><span>{{ $t('consumer.fieldStatus') }}</span><span class="gc-status gc-status-done">{{ journeyModal.piece?.status }}</span></div>
           <div v-if="journey" style="margin-top:1rem">
             <div class="trace-row"><span>{{ $t('consumer.journeySummary') }}</span><strong>{{ journey.journeySummary }}</strong></div>
-            <div class="trace-row"><span>{{ $t('consumer.journeyStatus') }}</span><strong>{{ journey.status }}</strong></div>
+            <div class="trace-row"><span>{{ $t('consumer.journeyStatus') }}</span><strong>{{ statusLabel(journey.status) }}</strong></div>
           </div>
           <div v-else style="color:var(--gc-text-muted);font-size:0.83rem;margin-top:0.75rem;text-align:center">
             <i class="pi pi-spin pi-spinner" /> {{ $t('common.loading') }}

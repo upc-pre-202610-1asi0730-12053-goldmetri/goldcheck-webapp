@@ -3,8 +3,10 @@ import { ref, computed, onUnmounted } from 'vue'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useConsumerStore } from '../../../application/consumer.store.js'
 import { useI18n } from 'vue-i18n'
+import { useStatusLabel } from '../../../../shared/application/status-label.js'
 
 const { t }       = useI18n()
+const { statusLabel } = useStatusLabel()
 const store       = useConsumerStore()
 const code        = ref('')
 const result      = ref(null)
@@ -252,7 +254,7 @@ onUnmounted(() => stopCamera())
         </div>
         <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:1rem;width:100%">
           <div class="trace-row"><span>QR Code</span><strong style="font-family:monospace;color:var(--gc-gold-mid)">{{ result.qrCode }}</strong></div>
-          <div class="trace-row"><span>{{ $t('consumer.fieldStatus') }}</span><span class="gc-status gc-status-done">{{ result.status }}</span></div>
+          <div class="trace-row"><span>{{ $t('consumer.fieldStatus') }}</span><span class="gc-status gc-status-done">{{ statusLabel(result.status) }}</span></div>
           <div class="trace-row"><span>{{ $t('consumer.scans') }}</span><strong>{{ result.scanCount }}</strong></div>
           <div v-if="result.certificateId" class="trace-row">
             <span>{{ $t('jewelry.certId') }}</span>

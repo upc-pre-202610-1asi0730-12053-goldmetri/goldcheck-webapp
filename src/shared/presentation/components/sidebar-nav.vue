@@ -38,10 +38,8 @@ const navItems = computed(() => {
       { name: 'monitoring-dashboard',  label: t('nav.monitoring'),      icon: 'pi pi-wifi',                 to: '/app/monitoring/dashboard' },
       { name: 'monitoring-checkpoints', label: t('nav.checkpoints'),    icon: 'pi pi-map-marker',           to: '/app/monitoring/checkpoints' },
       { name: 'monitoring-route-alerts', label: t('nav.routeAlerts'),   icon: 'pi pi-bell',                 to: '/app/monitoring/route-alerts' },
-      { name: 'analytics-dashboard',   label: t('nav.analytics'),       icon: 'pi pi-chart-bar',            to: '/app/analytics/dashboard' },
       { name: 'analytics-shrinkage',   label: t('nav.shrinkageGlobal'), icon: 'pi pi-chart-line',           to: '/app/analytics/shrinkage' },
       { name: 'incidents-dashboard',   label: t('nav.incidents'),       icon: 'pi pi-exclamation-triangle', to: '/app/incidents/dashboard' },
-      { name: 'reporting-dashboard',   label: t('nav.reports'),         icon: 'pi pi-file',                 to: '/app/reporting/dashboard' },
       { name: 'maintenance-dashboard', label: t('nav.maintenance'),     icon: 'pi pi-wrench',               to: '/app/maintenance/dashboard' },
       { name: 'subscriptions-plans',   label: t('nav.subscriptions'),   icon: 'pi pi-star',                 to: '/app/subscriptions/plans' },
       { name: 'profile',               label: t('nav.myProfile'),       icon: 'pi pi-user',                 to: '/app/profile' }

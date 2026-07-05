@@ -4,8 +4,10 @@ import { useI18n } from 'vue-i18n'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 import { useIamStore }     from '../../../../iam/application/iam.store.js'
 import StatCard from '../../../../shared/presentation/components/stat-card.vue'
+import { useStatusLabel } from '../../../../shared/application/status-label.js'
 
 const { t }        = useI18n()
+const { statusLabel } = useStatusLabel()
 const store        = useJewelryStore()
 const iamStore     = useIamStore()
 
@@ -112,7 +114,7 @@ onMounted(() => store.fetchItems())
           <tr v-for="m in store.materials" :key="m.id">
             <td><span class="gc-badge gc-badge-code">{{ m.materialId }}</span></td>
             <td>{{ m.jewelerId }}</td>
-            <td><span :class="statusClass(m.status)">{{ m.status }}</span></td>
+            <td><span :class="statusClass(m.status)">{{ statusLabel(m.status) }}</span></td>
             <td>{{ m.qrCode || '—' }}</td>
             <td>{{ m.certificateId || '—' }}</td>
             <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
