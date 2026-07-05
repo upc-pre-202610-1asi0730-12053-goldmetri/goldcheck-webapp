@@ -69,7 +69,6 @@ const navItems = computed(() => {
   return [
     { name: 'consumer-collection',   label: t('nav.myCollection'), icon: 'pi pi-th-large', to: '/app/consumer/collection' },
     { name: 'consumer-verify',       label: t('nav.verifyJewel'),  icon: 'pi pi-search',   to: '/app/consumer/verify' },
-    { name: 'consumer-certificates', label: t('nav.certificates'), icon: 'pi pi-shield',   to: '/app/consumer/certificates' },
     { name: 'profile',               label: t('nav.myProfile'),    icon: 'pi pi-user',     to: '/app/profile' }
   ]
 })

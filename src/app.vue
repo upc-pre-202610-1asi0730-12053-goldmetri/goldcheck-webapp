@@ -4,4 +4,5 @@ import { RouterView } from 'vue-router'
 
 <template>
   <RouterView />
+  <pv-toast position="top-right" />
 </template>

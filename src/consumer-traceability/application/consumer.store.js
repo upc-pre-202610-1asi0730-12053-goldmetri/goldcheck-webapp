@@ -7,7 +7,6 @@ const STORAGE_KEY = (userId) => `gc_consumer_pieces_${userId}`
 
 export const useConsumerStore = defineStore('consumer', () => {
   const pieces       = ref([])
-  const certificates = ref([])
   const errors       = ref([])
   const loading      = ref(false)
 
@@ -30,10 +29,6 @@ export const useConsumerStore = defineStore('consumer', () => {
 
   function fetchPieces() {
     pieces.value = loadFromStorage()
-  }
-
-  async function fetchCertificates() {
-    certificates.value = []
   }
 
   // Verify a piece by QR code — does NOT save it, just looks it up
@@ -131,7 +126,7 @@ export const useConsumerStore = defineStore('consumer', () => {
   }
 
   return {
-    pieces, certificates, errors, loading,
-    fetchPieces, fetchCertificates, verifyPiece, linkPiece, fetchJourney, fetchTraceabilitySheet, reportIrregularity, getCertificate
+    pieces, errors, loading,
+    fetchPieces, verifyPiece, linkPiece, fetchJourney, fetchTraceabilitySheet, reportIrregularity, getCertificate
   }
 })

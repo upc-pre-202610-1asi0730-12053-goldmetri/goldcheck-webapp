@@ -2,12 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 import { useIamStore }     from '../../../../iam/application/iam.store.js'
 import { materialOperationsApi } from '../../../../material-operations/infrastructure/material-operations-api.js'
 
 const { t }    = useI18n()
 const router   = useRouter()
+const toast    = useToast()
 const store    = useJewelryStore()
 const iamStore = useIamStore()
 const planLimit = ref(false)
@@ -59,6 +61,7 @@ async function handleSubmit() {
   } else if (store.errors[0] === 'planLimit') {
     planLimit.value = true
     errorMsg.value  = ''
+    toast.add({ severity: 'warn', summary: t('jewelry.planLimitTitle'), detail: t('jewelry.planLimitMsg'), life: 5000 })
   } else {
     planLimit.value = false
     errorMsg.value  = t('jewelry.registerError')
@@ -123,9 +126,7 @@ async function handleSubmit() {
         <div v-if="planLimit" class="plan-limit-alert">
           <div class="pla-head"><i class="pi pi-lock" /> {{ $t('jewelry.planLimitTitle') }}</div>
           <p class="pla-desc">{{ $t('jewelry.planLimitMsg') }}</p>
-          <button type="button" class="gc-btn gc-btn-gold" @click="goToPlans">
-            <i class="pi pi-star" /> {{ $t('jewelry.planLimitUpgrade') }}
-          </button>
+          <pv-button :label="$t('jewelry.planLimitUpgrade')" icon="pi pi-star" size="small" @click="goToPlans" />
         </div>
 
         <div v-if="success" class="gc-alert gc-alert-success" style="margin-top:0.5rem">
