@@ -45,8 +45,9 @@ export const useJewelryStore = defineStore('jewelry', () => {
       const res = await jewelryApi.registerMaterial(materialId, jewelerId, declaredKarats, massGrams)
       materials.value.unshift(res.data)
       return res.data
-    } catch {
-      errors.value = ['createError']
+    } catch (e) {
+      // 402 = plan limit reached → surface a dedicated flag so the view can invite an upgrade.
+      errors.value = [e?.response?.status === 402 ? 'planLimit' : 'createError']
       return null
     } finally {
       loading.value = false
@@ -109,8 +110,10 @@ export const useJewelryStore = defineStore('jewelry', () => {
       materials.value.unshift(res.data)
       return { ok: true, material: res.data }
     } catch (e) {
-      errors.value = [e?.response?.status === 400 ? 'massRequired' : 'clientGoldError']
-      return { ok: false }
+      const status = e?.response?.status
+      // 402 = plan limit reached → dedicated flag for the upgrade invite.
+      errors.value = [status === 402 ? 'planLimit' : status === 400 ? 'massRequired' : 'clientGoldError']
+      return { ok: false, planLimit: status === 402 }
     } finally {
       loading.value = false
     }

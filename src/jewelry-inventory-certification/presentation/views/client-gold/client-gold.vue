@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 
 const { t } = useI18n()
+const router = useRouter()
 const store = useJewelryStore()
 
 const massGrams      = ref(null)
@@ -11,6 +13,9 @@ const declaredKarats = ref(null)
 const submitting     = ref(false)
 const formError      = ref('')
 const created        = ref(null)
+const planLimit      = ref(false)
+
+function goToPlans() { router.push('/app/subscriptions/plans') }
 
 onMounted(() => store.fetchItems())
 
@@ -28,9 +33,14 @@ async function submit() {
 
   if (res.ok) {
     created.value = res.material
+    planLimit.value = false
     massGrams.value = null
     declaredKarats.value = null
+  } else if (res.planLimit || store.errors[0] === 'planLimit') {
+    planLimit.value = true
+    formError.value = ''
   } else {
+    planLimit.value = false
     formError.value = store.errors[0] === 'massRequired' ? t('jewelry.cgMassRequired') : t('jewelry.cgError')
   }
 }
@@ -63,6 +73,15 @@ async function submit() {
       </div>
 
       <span v-if="formError" class="field-error">{{ formError }}</span>
+
+      <!-- Plan limit reached (HTTP 402) → clear alert + upgrade invitation -->
+      <div v-if="planLimit" class="plan-limit-alert">
+        <div class="pla-head"><i class="pi pi-lock" /> {{ $t('jewelry.planLimitTitle') }}</div>
+        <p class="pla-desc">{{ $t('jewelry.planLimitMsg') }}</p>
+        <button type="button" class="gc-btn gc-btn-gold" @click="goToPlans">
+          <i class="pi pi-star" /> {{ $t('jewelry.planLimitUpgrade') }}
+        </button>
+      </div>
 
       <div class="actions">
         <button class="gc-btn gc-btn-gold" :disabled="submitting" @click="submit">
@@ -107,6 +126,9 @@ async function submit() {
 .gc-input-dark { width: 100%; box-sizing: border-box; padding: 0.6rem 0.8rem; background: var(--gc-dark-2); border: 1px solid var(--gc-border); border-radius: 8px; color: var(--gc-text-primary); font-size: 0.9rem; }
 .gc-input-dark:focus { outline: none; border-color: var(--gc-gold-mid); }
 .field-error { font-size: 0.78rem; color: var(--gc-danger); display: block; margin-bottom: 0.75rem; }
+.plan-limit-alert { margin-top:0.5rem;padding:1rem;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.35); }
+.pla-head { display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;font-weight:700;color:#eab308; }
+.pla-desc { font-size:0.82rem;color:var(--gc-text-secondary);margin:0.5rem 0 0.9rem; }
 .actions { display: flex; justify-content: flex-end; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--gc-border); }
 .gc-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; }
 .gc-btn-gold { background: var(--gc-gold-mid); color: #000; }

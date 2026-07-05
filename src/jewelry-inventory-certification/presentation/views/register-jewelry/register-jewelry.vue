@@ -1,13 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useJewelryStore } from '../../../application/jewelry.store.js'
 import { useIamStore }     from '../../../../iam/application/iam.store.js'
 import { materialOperationsApi } from '../../../../material-operations/infrastructure/material-operations-api.js'
 
 const { t }    = useI18n()
+const router   = useRouter()
 const store    = useJewelryStore()
 const iamStore = useIamStore()
+const planLimit = ref(false)
+
+function goToPlans() { router.push('/app/subscriptions/plans') }
 
 const availableMaterials = ref([])
 const selectedMaterialId = ref('')
@@ -45,13 +50,18 @@ async function handleSubmit() {
   )
   if (result) {
     success.value          = true
+    planLimit.value        = false
     selectedMaterialId.value = ''
     declaredKarats.value   = null
     massGrams.value        = null
     submitted.value        = false
     setTimeout(() => { success.value = false }, 3000)
+  } else if (store.errors[0] === 'planLimit') {
+    planLimit.value = true
+    errorMsg.value  = ''
   } else {
-    errorMsg.value = t('jewelry.registerError')
+    planLimit.value = false
+    errorMsg.value  = t('jewelry.registerError')
   }
 }
 </script>
@@ -109,6 +119,15 @@ async function handleSubmit() {
 
         <div v-if="errorMsg" class="gc-alert gc-alert-danger" style="margin-top:0.5rem">{{ errorMsg }}</div>
 
+        <!-- Plan limit reached (HTTP 402) → clear alert + upgrade invitation -->
+        <div v-if="planLimit" class="plan-limit-alert">
+          <div class="pla-head"><i class="pi pi-lock" /> {{ $t('jewelry.planLimitTitle') }}</div>
+          <p class="pla-desc">{{ $t('jewelry.planLimitMsg') }}</p>
+          <button type="button" class="gc-btn gc-btn-gold" @click="goToPlans">
+            <i class="pi pi-star" /> {{ $t('jewelry.planLimitUpgrade') }}
+          </button>
+        </div>
+
         <div v-if="success" class="gc-alert gc-alert-success" style="margin-top:0.5rem">
           <i class="pi pi-check-circle" /> {{ $t('jewelry.registerSuccess') }}
         </div>
@@ -132,4 +151,7 @@ async function handleSubmit() {
 .form-field label { display:block;font-size:0.82rem;color:var(--gc-text-secondary);margin-bottom:0.4rem; }
 .gc-input-error { border-color: var(--gc-danger, #ef4444) !important; }
 .gc-alert-success { background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);padding:0.6rem 0.9rem;border-radius:6px;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem; }
+.plan-limit-alert { margin-top:0.75rem;padding:1rem;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.35); }
+.pla-head { display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;font-weight:700;color:#eab308; }
+.pla-desc { font-size:0.82rem;color:var(--gc-text-secondary);margin:0.5rem 0 0.9rem; }
 </style>
