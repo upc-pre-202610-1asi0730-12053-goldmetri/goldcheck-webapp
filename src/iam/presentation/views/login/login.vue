@@ -112,7 +112,7 @@ async function handleLogin() {
 
     <!-- Brand panel -->
     <div class="auth-brand-panel">
-      <div class="brand-logo-text">⬡</div>
+      <img src="/logo-goldcheck.png" alt="GoldMetrics" class="brand-logo-img" />
       <div class="brand-text-block">
         <p class="brand-name">GOLDMETRICS</p>
         <p class="brand-sub">— GoldCheck —</p>
@@ -148,6 +148,14 @@ async function handleLogin() {
 .brand-logo {
   max-width: 260px;
   margin-bottom: 1rem;
+}
+
+.brand-logo-img {
+  max-width: 220px;
+  width: 60%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
 }
 
 .brand-text-block { text-align: center; }

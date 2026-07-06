@@ -90,8 +90,7 @@ function logout() {
     :aria-label="$t('nav.sidebar')"
   >
     <div class="sidebar-logo" aria-hidden="true">
-      <span class="logo-hex">⬡</span>
-      <span class="logo-text">GoldMetrics</span>
+      <img src="/logo-goldcheck.png" alt="GoldMetrics" class="logo-img" />
       <button class="sidebar-close-btn" :aria-label="$t('nav.closeMenu')" @click="$emit('close')">
         <i class="pi pi-times" />
       </button>
@@ -145,6 +144,7 @@ function logout() {
 }
 
 .logo-hex { font-size: 1.3rem; color: var(--gc-gold-mid); }
+.logo-img { height: 34px; width: auto; object-fit: contain; }
 
 .sidebar-close-btn {
   display: none;

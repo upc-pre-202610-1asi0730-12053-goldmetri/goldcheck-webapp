@@ -27,7 +27,7 @@ function closeSidebar()  { sidebarOpen.value = false }
           <i class="pi pi-bars" />
         </button>
         <span class="mobile-logo">
-          <span class="logo-hex">⬡</span> GoldMetrics
+          <img src="/logo-goldcheck.png" alt="GoldMetrics" class="mobile-logo-img" />
         </span>
       </div>
 
@@ -109,6 +109,13 @@ function closeSidebar()  { sidebarOpen.value = false }
   .mobile-logo .logo-hex {
     color: var(--gc-gold-mid);
     margin-right: 0.25rem;
+  }
+
+  .mobile-logo-img {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    display: block;
   }
 }
 </style>
