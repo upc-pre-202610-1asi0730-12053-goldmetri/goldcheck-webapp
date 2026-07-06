@@ -264,11 +264,13 @@ function toDashboard() {
   else                        router.push({ name: 'consumer-collection' })
 }
 
-function selectPlan(plan) {
+async function selectPlan(plan) {
   if (plan.free) {
+    // Free tiers activate immediately and go straight into the app.
     toDashboard()
   } else {
-    openPayment(plan)
+    // Paid tiers go through Stripe Checkout (same flow as the Subscriptions view).
+    await subStore.checkoutPlan(plan.id, isAnnual.value ? 'Annual' : 'Monthly')
   }
 }
 </script>

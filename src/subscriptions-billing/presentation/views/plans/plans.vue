@@ -1,14 +1,34 @@
 ﻿<script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import { useIamStore } from '../../../../iam/application/iam.store.js'
 import { useSubscriptionsStore } from '../../../application/subscriptions.store.js'
 
 const { t }       = useI18n()
+const route       = useRoute()
+const router      = useRouter()
+const toast       = useToast()
 const iamStore    = useIamStore()
 const store       = useSubscriptionsStore()
 
 const currentPlan = computed(() => iamStore.currentUser?.plan || 'BRONZE')
+
+// After Stripe Checkout, the browser returns here with ?checkout=success|cancel.
+onMounted(async () => {
+  const outcome = route.query.checkout
+  if (outcome === 'success') {
+    toast.add({ severity: 'success', summary: t('subscriptions.checkoutSuccess'), detail: t('subscriptions.checkoutSuccessDetail'), life: 6000 })
+    // Refresh the plan from the backend (activated by the Stripe webhook).
+    const sub = await store.fetchSubscription()
+    if (sub?.plan) iamStore.applyPlanUpgrade(sub.plan)
+    router.replace({ query: {} })
+  } else if (outcome === 'cancel') {
+    toast.add({ severity: 'warn', summary: t('subscriptions.checkoutCancel'), life: 5000 })
+    router.replace({ query: {} })
+  }
+})
 
 const plans = computed(() => [
   {
