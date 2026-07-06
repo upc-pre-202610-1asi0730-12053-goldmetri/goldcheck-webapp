@@ -249,6 +249,16 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 .gc-table tbody tr:hover { background: rgba(255,255,255,0.03); }
 .gc-table tbody tr:last-child td { border-bottom: none; }
 
+/* Responsive: on narrow screens any table scrolls horizontally instead of breaking */
+@media (max-width: 768px) {
+  .gc-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Modal */
 .gc-modal-overlay {
   position: fixed;
