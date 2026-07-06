@@ -96,7 +96,8 @@ async function viewCert(item) {
           </select>
         </div>
 
-        <table class="gc-table" v-if="filteredItems.length">
+        <div class="gc-table-wrap" v-if="filteredItems.length">
+        <table class="gc-table">
           <thead>
             <tr>
               <th>SKU</th>
@@ -118,7 +119,8 @@ async function viewCert(item) {
               <td>{{ item.weight }}g</td>
               <td>S/ {{ item.price?.toLocaleString() || '—' }}</td>
               <td><span class="gc-status" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span></td>
-              <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
+              <td class="action-col">
+                <div class="action-cell">
                 <button v-if="item.status === 'Pendiente'" class="gc-btn gc-btn-xs gc-btn-gold" @click="validate(item)">
                   {{ $t('jewelry.validate') }}
                 </button>
@@ -129,10 +131,12 @@ async function viewCert(item) {
                   {{ $t('jewelry.viewCert') }}
                 </button>
                 <span v-else style="color:var(--gc-text-muted);font-size:0.75rem">—</span>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
+        </div>
         <p v-else style="color:var(--gc-text-muted);text-align:center;padding:2rem">
           {{ $t('jewelry.noItems') }}
         </p>
@@ -184,4 +188,8 @@ async function viewCert(item) {
 .gc-btn-xs { font-size:0.72rem; padding:0.2rem 0.6rem; }
 .cert-row { display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; padding:0.35rem 0; border-bottom:1px solid var(--gc-border); }
 .cert-row span:first-child { color:var(--gc-text-muted); }
+.gc-table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.gc-table-wrap .gc-table { min-width:720px; }
+.action-col { text-align:right; white-space:nowrap; }
+.action-cell { display:flex; gap:0.4rem; flex-wrap:wrap; justify-content:flex-end; }
 </style>

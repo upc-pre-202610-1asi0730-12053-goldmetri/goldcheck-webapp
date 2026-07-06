@@ -96,7 +96,8 @@ onMounted(() => store.fetchItems())
         <i class="pi pi-spinner pi-spin" /> {{ $t('common.loading') }}
       </div>
 
-      <table v-else class="gc-table">
+      <div v-else class="gc-table-wrap">
+      <table class="gc-table">
         <thead>
           <tr>
             <th>{{ $t('jewelry.colMaterialId') }}</th>
@@ -117,7 +118,8 @@ onMounted(() => store.fetchItems())
             <td><span :class="statusClass(m.status)">{{ statusLabel(m.status) }}</span></td>
             <td>{{ m.qrCode || '—' }}</td>
             <td>{{ m.certificateId || '—' }}</td>
-            <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <td class="action-col">
+              <div class="action-cell">
               <!-- Step 1: scan QR to move to Pending -->
               <button
                 v-if="m.status === 'NonCertified'"
@@ -140,10 +142,12 @@ onMounted(() => store.fetchItems())
               >{{ $t('jewelry.signCert') }}</button>
 
               <span v-else class="gc-text-muted" style="font-size:0.75rem">—</span>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Scan QR Modal -->
@@ -218,4 +222,11 @@ onMounted(() => store.fetchItems())
 .cert-row       { display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;padding:0.35rem 0;border-bottom:1px solid var(--gc-border); }
 .cert-row span:first-child { color:var(--gc-text-muted); }
 @media (max-width:900px) { .gc-kpi-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Responsive table: scroll horizontally on narrow screens instead of breaking */
+.gc-table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.gc-table-wrap .gc-table { min-width:640px; }
+/* Keep the action column as a real table cell (no display:flex on the td) */
+.action-col { text-align:right; white-space:nowrap; }
+.action-cell { display:flex; gap:0.4rem; flex-wrap:wrap; justify-content:flex-end; }
 </style>
