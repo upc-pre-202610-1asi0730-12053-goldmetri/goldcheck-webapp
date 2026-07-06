@@ -20,7 +20,8 @@ onMounted(async () => {
   const outcome = route.query.checkout
   if (outcome === 'success') {
     toast.add({ severity: 'success', summary: t('subscriptions.checkoutSuccess'), detail: t('subscriptions.checkoutSuccessDetail'), life: 6000 })
-    // Refresh the plan from the backend (activated by the Stripe webhook).
+    // Activate the plan in the backend (fallback in case the Stripe webhook hasn't fired).
+    await store.activatePendingPlan()
     const sub = await store.fetchSubscription()
     if (sub?.plan) iamStore.applyPlanUpgrade(sub.plan)
     router.replace({ query: {} })

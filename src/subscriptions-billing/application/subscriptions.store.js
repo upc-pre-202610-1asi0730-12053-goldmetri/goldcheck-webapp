@@ -57,6 +57,8 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
       const res = await subscriptionsApi.startCheckout(userId, mappedPlan, billingCycle)
       const url = res.data?.url
       if (!url) { errors.value = ['checkoutError']; return { ok: false } }
+      // Remember what was purchased so we can activate it on return (webhook fallback).
+      localStorage.setItem('gc_pending_plan', JSON.stringify({ plan: mappedPlan, cycle: billingCycle }))
       window.location.href = url // hand off to Stripe Checkout
       return { ok: true }
     } catch {
@@ -65,6 +67,24 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     } finally {
       loading.value = false
     }
+  }
+
+  // Called when returning from Stripe with ?checkout=success. Ensures the backend subscription
+  // is active for the paid plan even if the Stripe webhook hasn't reached the backend (e.g. in
+  // local dev without the Stripe CLI). Safe fallback so the plan/limit reflects the payment.
+  async function activatePendingPlan() {
+    const iamStore = useIamStore()
+    const userId   = currentUserId()
+    let pending = null
+    try { pending = JSON.parse(localStorage.getItem('gc_pending_plan') || 'null') } catch { pending = null }
+    localStorage.removeItem('gc_pending_plan')
+    if (!userId || !pending?.plan) return
+    try {
+      let exists = false
+      try { exists = !!(await subscriptionsApi.getUserSubscription(userId)).data } catch { exists = false }
+      if (!exists) await subscriptionsApi.selectPlan(userId, pending.plan, pending.cycle || 'Monthly')
+      iamStore.applyPlanUpgrade && iamStore.applyPlanUpgrade(pending.plan)
+    } catch { /* ignore — webhook may have already handled it */ }
   }
 
   async function fetchSubscription() {
@@ -79,5 +99,5 @@ export const useSubscriptionsStore = defineStore('subscriptions', () => {
     return { plan: iamStore.currentUser?.plan || 'Free', status: 'Active' }
   }
 
-  return { loading, errors, upgradePlan, checkoutPlan, fetchSubscription }
+  return { loading, errors, upgradePlan, checkoutPlan, activatePendingPlan, fetchSubscription }
 })
