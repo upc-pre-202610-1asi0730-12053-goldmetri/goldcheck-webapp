@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMineralStore } from '../../../application/mineral.store.js'
 import { useMaterialOperationsStore } from '../../../../material-operations/application/material-operations.store.js'
@@ -34,6 +34,11 @@ const selectedCapacity = computed(() => {
   if (!cyc) return null
   const v = store.vehicles.find(x => x.id === cyc.vehicleId)
   return v ? v.capacity : null
+})
+
+// The batch code is taken from the selected cycle (e.g. "HC-14") — no need to invent one.
+watch(selectedCycleId, () => {
+  batchId.value = selectedCycle.value?.batchCode || ''
 })
 
 function resetForm() {
@@ -125,7 +130,9 @@ async function submitWeighing() {
           type="text"
           class="gc-input-dark"
           :placeholder="$t('mineral.weighingBatchIdPh')"
+          readonly
         />
+        <p class="hint">{{ $t('mineral.weighingBatchIdHint') }}</p>
       </div>
 
       <div class="form-field">

@@ -17,7 +17,7 @@ const form = ref({ depositId: '', vehicleId: '' })
 const grossWeight = ref(38.50)
 
 // US14 – the lote (batch) shares the hauling cycle id.
-const loteId = computed(() => createdBatch.value ? String(createdBatch.value.id) : '')
+const loteId = computed(() => createdBatch.value ? (createdBatch.value.batchCode || String(createdBatch.value.id)) : '')
 
 // US14 – vehicles come from the Fleet registry (they carry technical capacity).
 const vehicleOptions = computed(() =>
@@ -49,18 +49,20 @@ async function goStep2() {
 async function handleSeal() {
   if (!createdBatch.value) return
   step2Error.value = ''
-  const cycleId = createdBatch.value.id
+  const cycleId   = createdBatch.value.id
+  // Use the cycle's non-numeric code (e.g. "HC-14") as the batch id, consistent with the
+  // Pesaje view. Keeps the material linked to the cycle without colliding with the cycle id.
+  const batchCode = createdBatch.value.batchCode || String(cycleId)
 
   // US14 – ensure the lote exists in MaterialOperations before weighing (ACL-validated
-  // on the backend). The lote is created on the fly using the hauling cycle id.
-  // MineralType must match the backend's allowed set (Gold, Silver, Copper).
-  const created = await materialStore.identifyMineral(String(cycleId), 'Gold', grossWeight.value)
+  // on the backend). MineralType must match the backend's allowed set (Gold, Silver, Copper).
+  const created = await materialStore.identifyMineral(batchCode, 'Gold', grossWeight.value)
   if (!created && materialStore.errors[0] !== 'materialExists') {
     step2Error.value = 'mineral.weighingError'
     return
   }
 
-  const res = await mineralStore.registerInitialWeight(cycleId, grossWeight.value, String(cycleId))
+  const res = await mineralStore.registerInitialWeight(cycleId, grossWeight.value, batchCode)
   if (res.ok) {
     emit('created', { ...createdBatch.value, exceedsCapacity: res.exceedsCapacity })
     return
