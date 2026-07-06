@@ -2,9 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMineralStore } from '../../../application/mineral.store.js'
+import { useMaterialOperationsStore } from '../../../../material-operations/application/material-operations.store.js'
 
 const { t } = useI18n()
 const store = useMineralStore()
+const materialStore = useMaterialOperationsStore()
 
 const selectedCycleId = ref(null)
 const batchId         = ref('')
@@ -45,9 +47,21 @@ async function submitWeighing() {
   formError.value = ''
   result.value = null
   if (!selectedCycleId.value) { formError.value = t('mineral.weighingSelectCycleError'); return }
+  if (!batchId.value.trim()) { formError.value = t('mineral.weighingBatchRequired'); return }
+  if (!grossWeight.value || Number(grossWeight.value) <= 0) { formError.value = t('mineral.weighingWeightRequired'); return }
 
   submitting.value = true
-  const res = await store.registerInitialWeight(selectedCycleId.value, Number(grossWeight.value), batchId.value)
+
+  // US14 – the batch (material) must exist before weighing. Create it on the fly as 'Gold'
+  // if it isn't registered yet; an "already exists" result is fine.
+  const created = await materialStore.identifyMineral(batchId.value.trim(), 'Gold', Number(grossWeight.value))
+  if (!created && materialStore.errors[0] !== 'materialExists') {
+    submitting.value = false
+    formError.value = t('mineral.weighingError')
+    return
+  }
+
+  const res = await store.registerInitialWeight(selectedCycleId.value, Number(grossWeight.value), batchId.value.trim())
   submitting.value = false
 
   if (res.ok) {
