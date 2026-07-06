@@ -221,6 +221,13 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 .gc-badge-gold    { background: rgba(180,148,78,0.2);  color: var(--gc-gold-light); }
 .gc-badge-neutral { background: rgba(156,163,175,0.15); color: #9CA3AF; }
 
+/* Page container: cap width and center content so it doesn't stretch edge-to-edge */
+.gc-page {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
 /* Table */
 .gc-table {
   width: 100%;

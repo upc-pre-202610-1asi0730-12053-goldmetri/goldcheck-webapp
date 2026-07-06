@@ -58,6 +58,7 @@ function closeSidebar()  { sidebarOpen.value = false }
 .app-content {
   flex: 1;
   overflow-y: auto;
+  padding: 1.75rem 2rem;
 }
 
 .mobile-overlay {
@@ -87,6 +88,10 @@ function closeSidebar()  { sidebarOpen.value = false }
     position: sticky;
     top: 0;
     z-index: 10;
+  }
+
+  .app-content {
+    padding: 1rem;
   }
 
   .hamburger-btn {
