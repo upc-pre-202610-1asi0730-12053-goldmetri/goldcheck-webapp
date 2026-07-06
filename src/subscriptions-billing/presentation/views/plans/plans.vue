@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
@@ -29,6 +29,18 @@ onMounted(async () => {
     router.replace({ query: {} })
   }
 })
+
+// Returning from Stripe via the browser Back button restores this page from the bfcache
+// with the payment modal still open (its dark overlay looks like a black screen). Reset it.
+function handlePageShow(event) {
+  if (event.persisted) {
+    payModal.show = false
+    payModal.success = false
+    store.$patch({ loading: false })
+  }
+}
+onMounted(() => window.addEventListener('pageshow', handlePageShow))
+onUnmounted(() => window.removeEventListener('pageshow', handlePageShow))
 
 const plans = computed(() => [
   {
