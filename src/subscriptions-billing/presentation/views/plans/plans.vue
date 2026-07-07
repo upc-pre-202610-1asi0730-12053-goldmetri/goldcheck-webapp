@@ -28,13 +28,15 @@ onMounted(async () => {
     toast.add({ severity: 'success', summary: t('subscriptions.checkoutSuccess'), detail: t('subscriptions.checkoutSuccessDetail'), life: 6000 })
     // Activate the plan in the backend (fallback in case the Stripe webhook hasn't fired).
     await store.activatePendingPlan()
-    const sub = await store.fetchSubscription()
-    if (sub?.plan) iamStore.applyPlanUpgrade(sub.plan)
     router.replace({ query: {} })
   } else if (outcome === 'cancel') {
     toast.add({ severity: 'warn', summary: t('subscriptions.checkoutCancel'), life: 5000 })
     router.replace({ query: {} })
   }
+
+  // Always sync the current plan from the backend so it survives logout/login.
+  const sub = await store.fetchSubscription()
+  if (sub?.plan) iamStore.applyPlanUpgrade(sub.plan)
 })
 
 // Returning from Stripe via the browser Back button restores this page from the bfcache
