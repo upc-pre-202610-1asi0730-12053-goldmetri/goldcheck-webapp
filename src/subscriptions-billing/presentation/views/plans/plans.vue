@@ -13,7 +13,13 @@ const toast       = useToast()
 const iamStore    = useIamStore()
 const store       = useSubscriptionsStore()
 
-const currentPlan = computed(() => iamStore.currentUser?.plan || 'BRONZE')
+// Map any stored plan value (card id or backend name) to the card id used by the UI.
+const PLAN_DISPLAY_MAP = {
+  FREE: 'BRONZE', Free: 'BRONZE', BRONZE: 'BRONZE', Basic: 'BRONZE',
+  GOLD: 'GOLD', Professional: 'GOLD', PRO: 'GOLD',
+  PLATINUM: 'PLATINUM', Enterprise: 'PLATINUM'
+}
+const currentPlan = computed(() => PLAN_DISPLAY_MAP[iamStore.currentUser?.plan] || 'BRONZE')
 
 // After Stripe Checkout, the browser returns here with ?checkout=success|cancel.
 onMounted(async () => {
